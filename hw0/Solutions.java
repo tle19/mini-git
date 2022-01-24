@@ -1,12 +1,14 @@
 /** Solutions to the HW0 Java101 exercises.
- *  @author Allyson Park and [INSERT YOUR NAME HERE]
+ *  @author Allyson Park and [Tyler Le]
  */
 public class Solutions {
 
     /** Returns whether or not the input x is even.
      */
     public static boolean isEven(int x) {
-        // TODO: Your code here. Replace the following return statement.
+        if (x % 2 == 0) {
+            return true;
+        }
         return false;
     }
 

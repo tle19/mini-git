@@ -1,5 +1,5 @@
 /** Tests for hw0.
- *  @author YOUR NAME HERE
+ *  @author Tyler Le
  */
 public class Tester {
 
@@ -50,41 +50,41 @@ public class Tester {
         // REPLACE THIS WITH MORE TESTS.
     }
 
-//    // UNCOMMENT EVERYTHING BELOW TO RUN MORE TESTS.
+    // UNCOMMENT EVERYTHING BELOW TO RUN MORE TESTS.
 
-//    public static void maxTest() {
-//        // Change call to max to make this call yours.
-//        assertIntEquals(5, Solutions.max(new int[] { 1, 2, 3, 4, 5 }), "maxTest");
-//        assertIntEquals(14, Solutions.max(new int[] { 0, -5, 2, 14, 10 }), "maxTest");
-//        assertIntEquals(1, Solutions.max(new int[] {1}), "maxTest");
-//        // REPLACE THIS WITH MORE TESTS.
-//    }
-//
-//    public static void wordBankTest() {
-//        // Change call to threeSum to make this call yours.
-//        String[] adjectives = new String[]{"big", "cool", "fast"};
-//        assertTrue(Solutions.wordBank("big", adjectives), "wordBankTest");
-//        assertFalse(Solutions.wordBank("dog", adjectives), "wordBankTest");
-//        // REPLACE THIS WITH MORE TESTS.
-//    }
-//
-//    public static void threeSumTest() {
-//        // Change call to threeSum to make this call yours.
-//        assertTrue(Solutions.threeSum(new int[] { 1, 2, -3 }), "3SUM Test"); // 1 + 2 - 3 = 0
-//        assertTrue(Solutions.threeSum(new int[] { -6, 3, 10, 200 }), "3SUM Test"); // 3 + 3 - 6 = 0
-//        assertFalse(Solutions.threeSum(new int[] {1, -900, 7}), "3SUM Test");
-//        // REPLACE THIS WITH MORE TESTS.
-//    }
+    public static void maxTest() {
+        // Change call to max to make this call yours.
+        assertIntEquals(5, Solutions.max(new int[] { 1, 2, 3, 4, 5 }), "maxTest");
+        assertIntEquals(14, Solutions.max(new int[] { 0, -5, 2, 14, 10 }), "maxTest");
+        assertIntEquals(1, Solutions.max(new int[] {1}), "maxTest");
+        // REPLACE THIS WITH MORE TESTS.
+    }
+
+    public static void wordBankTest() {
+        // Change call to threeSum to make this call yours.
+        String[] adjectives = new String[]{"big", "cool", "fast"};
+        assertTrue(Solutions.wordBank("big", adjectives), "wordBankTest");
+        assertFalse(Solutions.wordBank("dog", adjectives), "wordBankTest");
+        // REPLACE THIS WITH MORE TESTS.
+    }
+
+    public static void threeSumTest() {
+        // Change call to threeSum to make this call yours.
+        assertTrue(Solutions.threeSum(new int[] { 1, 2, -3 }), "3SUM Test"); // 1 + 2 - 3 = 0
+        assertTrue(Solutions.threeSum(new int[] { -6, 3, 10, 200 }), "3SUM Test"); // 3 + 3 - 6 = 0
+        assertFalse(Solutions.threeSum(new int[] {1, -900, 7}), "3SUM Test");
+        // REPLACE THIS WITH MORE TESTS.
+    }
 
     public static void main(String[] unused) {
         System.out.println("Make sure you've uncommented all the test you wish to run.");
         System.out.println("ALL FAILURES SHOWN BELOW (if none, congrats! you're good.)");
         isEvenTest();
 
-//        // UNCOMMENT THE LINES BELOW
-//        maxTest();
-//        wordBankTest();
-//        threeSumTest();
+        // UNCOMMENT THE LINES BELOW
+        maxTest();
+        wordBankTest();
+        threeSumTest();
     }
 
 }

@@ -31,8 +31,26 @@ public class Solutions {
         return false;
     }
     
-    public static int threeSum(int[] a) {
-        return 1;
+    public static boolean threeSum(int[] a) {
+        int total = 0;
+        for (int k = 0; k < a.length; k++) {
+            total += a[k];
+            for (int i = 0; i < a.length; i++) {
+                total += a[i];
+                for (int j = 0; j < a.length; j++) {
+                    total += a[j];
+                    if (total == 0) {
+                        return true;
+                    }
+                    else {
+                        total -= a[j];
+                    } 
+                }
+                total -= a[i];  
+            } 
+            total -= a[k];
+        }
+        return false;
     }
 
     // TODO: Fill in the method signatures for the other exercises

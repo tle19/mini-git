@@ -13,13 +13,21 @@ public class Solutions {
     }
 
     public static int max(int[] a) {
-        for (int curr = 0; curr < a; curr += 1) {
-            if ()
+        int max = a[0];
+        for (int k = 0; k < a.length; k++) {
+            if (a[k] > max) {
+                max = a[k];
+            }
         }
+        return max;
     }
 
-    public static boolean wordBank(String word, String[] bank){
+    public static boolean wordBank(String word, String[] bank) {
         return false;
+    }
+    
+    public static int threeSum(int[] a) {
+        return 1;
     }
 
     // TODO: Fill in the method signatures for the other exercises

@@ -23,6 +23,11 @@ public class Solutions {
     }
 
     public static boolean wordBank(String word, String[] bank) {
+        for (int k = 0; k < bank.length; k++) {
+            if (word.equals(bank[k])) {
+                return true;
+            }
+        }
         return false;
     }
     

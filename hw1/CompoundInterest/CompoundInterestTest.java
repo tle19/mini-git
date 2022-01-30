@@ -8,17 +8,18 @@ public class CompoundInterestTest {
         /** Sample assert statement for comparing integers.
 
         assertEquals(0, 0); */
+        assertEquals(0, CompoundInterest.numYears(2022));
+        assertEquals(1, CompoundInterest.numYears(2023));
+        assertEquals(100, CompoundInterest.numYears(2122));
     }
 
     @Test
     public void testFutureValue() {
-        // When working with decimals, we often want to specify a certain
-        // range of "wiggle room", or tolerance. For example, if the answer
-        // is 5.04, but anything between 5.02 and 5.06 would be okay too,
-        // then we can do assertEquals(5.04, answer, .02).
-
-        // The variable below can be used when you write your tests.
         double tolerance = 0.01;
+        assertEquals(12.544, CompoundInterest.futureValue(10, 12, 2024), tolerance);
+        assertEquals(83.923, CompoundInterest.futureValue(22, 25, 2028), tolerance);
+        assertEquals(8.800, CompoundInterest.futureValue(10, -12, 2023), tolerance);
+        assertEquals(3.915, CompoundInterest.futureValue(22, -25, 2028), tolerance);
     }
 
     @Test

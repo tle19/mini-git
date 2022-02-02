@@ -82,13 +82,21 @@ class Model {
         if (piece == null) {
             return false;
         }
-        // FIXME
-        return true;
+        int ref_row = width() - col;
+        int ref_col = height() - row;
+        if (piece.width() <= ref_row && piece.height() <= ref_col) {
+            return true;
+            }
+        return false;
     }
 
     /** Return true iff PIECE may be added to the board at some position. */
     boolean placeable(Piece piece) {
-        // FIXME
+        if (placeable(piece, 0, 0)) {
+            return true;
+        //if (piece.width() <= width() && piece.height() <= height()) {
+        //    return true;
+        }
         return false;
     }
 
@@ -107,7 +115,13 @@ class Model {
      *  there. Also updates score(). */
     void place(Piece piece, int row, int col) {
         assert placeable(piece, row, col);
-        // FIXME
+        for (int i = 0; i < height(); i++) {
+            for (int k = 0; k < width(); k++) {
+                if (! get(i, k)) {
+                    _cells[i + row][k + col] = true;
+                }
+            }
+        }
     }
 
     /** Place piece(K) on the board at (ROW, COL), assuming it is placeable
@@ -207,7 +221,10 @@ class Model {
      *  or is currently filled.   That is, it returns true iff one may not
      *  add a Piece that would fill location (ROW, COL). */
     boolean get(int row, int col) {
-        return true; // FIXME
+        if (isCell(row, col)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

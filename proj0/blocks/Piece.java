@@ -47,9 +47,8 @@ class Piece {
     boolean get(int row, int col) {
         if (_positions[row][col]) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /** Return true iff _positions meets all the requirements for a correctly

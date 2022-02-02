@@ -63,7 +63,7 @@ class Model {
     /** Returns the number of pieces dealt to the hand since this Model
      *  was created or the hand was last cleared. */
     int handSize() {
-        return 0; // FIXME
+        return _hand.size();
     }
 
     /** Return piece #K (numbering from 0) in the current hand. Returns
@@ -167,12 +167,14 @@ class Model {
 
     /** Empty all Pieces from the current hand. */
     void clearHand() {
-        // FIXME
+        while (_hand.size() > 0) {
+            _hand.remove(0);
+        }
     }
 
     /** Add PIECE to the current hand.  Assumes PIECE is not null. */
     void deal(Piece piece) {
-        // FIXME
+        _hand.add(piece);
     }
 
     /** Return current score. */

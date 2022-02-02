@@ -29,7 +29,10 @@ class Model {
         _height = height;
         _width = width;
         _cells = new boolean[_height][_width];
-        // FIXME
+        _hand = new ArrayList<>();
+        _score = 0;
+        _streakLength = 0;
+        _history = new ArrayList<>();
         _current = _lastHistory = -1;
     }
 

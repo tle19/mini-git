@@ -47,8 +47,13 @@ public class IntDList {
      * @return The number of elements in this list.
      */
     public int size() {
-        // TODO: Implement this method and return correct value
-        return 0;
+        DNode copy = _front;
+        int total = 0;
+        while (copy != null) {
+            copy = copy._next;
+            total++;
+        }
+        return total;
     }
 
     /**
@@ -60,8 +65,11 @@ public class IntDList {
      * @return The node at index index
      */
     private DNode getNode(int index) {
-        // TODO: Implement this method and return correct node
-        return null;
+        DNode copy = _front;
+        for (int i = 0; i < index; i++) {
+            copy = copy._next;
+        }
+        return copy;
     }
 
     /**
@@ -73,22 +81,35 @@ public class IntDList {
      * @return The integer value at index index
      */
     public int get(int index) {
-        // TODO: Implement this method (Hint: use `getNode`)
-        return 0;
+        return getNode(index)._val;
     }
 
     /**
      * @param d value to be inserted in the front
      */
     public void insertFront(int d) {
-        // TODO: Implement this method
+        if (_back == null) {
+            _front = new DNode(d);
+            _back = _front;
+        } else {
+            DNode front_temp = new DNode(null, d, _front);
+            _front._prev = front_temp;
+            _front = front_temp;
+        }
     }
 
     /**
      * @param d value to be inserted in the back
      */
     public void insertBack(int d) {
-        // TODO: Implement this method
+        if (_back == null) {
+            _back = new DNode(d);
+            _front = _back;
+        } else {
+            DNode back_temp = new DNode(_back, d, null);
+            _back._next = back_temp;
+            _back = back_temp;
+        }
     }
 
     /**

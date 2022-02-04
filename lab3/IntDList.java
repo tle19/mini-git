@@ -168,18 +168,15 @@ public class IntDList {
      */
     public int deleteAtIndex(int index) {
         DNode node = getNode(index);
-        if (node._prev != null && node._next != null) {
+        if (size() == 1) {
+            _front = _back = null;
+        } else if (node._next == null) {
+            deleteBack();
+        } else if (node._prev == null) {
+            deleteFront();
+        } else {
             node._prev._next = node._next;
             node._next._prev = node._prev;
-        } else if (node._next == null && node._prev != null) {
-            _back._prev._next = null;
-            _back = _back._prev;
-        } else if (node._prev == null && node._next != null) {
-            _front._next._prev = null;
-            _front = _front._next;
-        } else {
-            _front = null;
-            _back = null;
         }
         return node._val;
     }

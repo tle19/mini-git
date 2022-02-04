@@ -88,7 +88,7 @@ public class IntDList {
      * @param d value to be inserted in the front
      */
     public void insertFront(int d) {
-        if (_back == null) {
+        if (size() == 0) {
             _front = new DNode(d);
             _back = _front;
         } else {
@@ -102,7 +102,7 @@ public class IntDList {
      * @param d value to be inserted in the back
      */
     public void insertBack(int d) {
-        if (_back == null) {
+        if (size() == 0) {
             _back = new DNode(d);
             _front = _back;
         } else {
@@ -131,8 +131,14 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteFront() {
-        // TODO: Implement this method and return correct value
-        return 0;
+        int del_val = _front._val;
+        if (size() == 1) {
+            _front = _back = null;
+            return del_val;
+        }
+        _front = _front._next;
+        _front._prev = null;
+        return del_val;
     }
 
     /**
@@ -142,8 +148,14 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteBack() {
-        // TODO: Implement this method and return correct value
-        return 0;
+        int del_val = _back._val;
+        if (size() == 1) {
+            _front = _back = null;
+            return del_val;
+        }
+        _back = _back._prev;
+        _back._next = null;
+        return del_val;
     }
 
     /**
@@ -155,8 +167,21 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteAtIndex(int index) {
-        // TODO: Implement this method and return correct value
-        return 0;
+        DNode node = getNode(index);
+        if (node._prev != null && node._next != null) {
+            node._prev._next = node._next;
+            node._next._prev = node._prev;
+        } else if (node._next == null && node._prev != null) {
+            _back._prev._next = null;
+            _back = _back._prev;
+        } else if (node._prev == null && node._next != null) {
+            _front._next._prev = null;
+            _front = _front._next;
+        } else {
+            _front = null;
+            _back = null;
+        }
+        return node._val;
     }
 
     /**
@@ -168,8 +193,15 @@ public class IntDList {
      * System.out.println(a); //prints ab
      */
     public String toString() {
-        // TODO: Implement this method to return correct value
-        return null;
+        String result = "[";
+        if (size() == 0) {
+            return result + "]";
+        }
+        while (_front._next != null) {
+            result += _front._val + ", ";
+            deleteFront();
+        }
+        return result + _front._val + "]";
     }
 
     /**

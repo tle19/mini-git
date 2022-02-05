@@ -73,7 +73,7 @@ class Model {
         if (k < 0 || k >= _hand.size()) {
             return null;
         }
-        return null; // FIXME
+        return _hand.get(k);
     }
 
     /** Return true iff PIECE may be added to the board with its
@@ -115,9 +115,9 @@ class Model {
      *  there. Also updates score(). */
     void place(Piece piece, int row, int col) {
         assert placeable(piece, row, col);
-        for (int i = 0; i < height(); i++) {
-            for (int k = 0; k < width(); k++) {
-                if (! get(i, k)) {
+        for (int i = 0; i < piece.height(); i++) {
+            for (int k = 0; k < piece.width(); k++) {
+                if (_cells[i + row][k + col] == false) {
                     _cells[i + row][k + col] = true;
                 }
             }
@@ -129,7 +129,7 @@ class Model {
      *  the hand). Also updates score(). */
     void place(int k, int row, int col) {
         place(piece(k), row, col);
-        // FIXME
+        _hand.set(k, null);
     }
 
     /** Return an array COUNTS such that COUNTS[0][r] is the number of
@@ -137,7 +137,14 @@ class Model {
      *  filled grid cells in column c. */
     int[][] rowColumnCounts() {
         int[][] result = new int[][] { new int[_height], new int[_width] };
-        // FIXME
+        for (int r = 0; r < height(); r++) {
+            for (int c = 0; c < width(); c++) {
+                if (_cells[r][c] == true) {
+                    result[0][r] += 1;
+                    result[1][c] += 1;
+                }
+            }
+        }
         return result;
     }
 
@@ -161,7 +168,11 @@ class Model {
     /** Return true iff the current hand is empty (i.e., piece(k) is null
      *  for all k). */
     boolean handUsed() {
-        // FIXME
+        for (int i = 0; i < _hand.size(); i++) {
+            if (piece(i) != null) {
+                return false;
+            }
+        }
         return true;
     }
 

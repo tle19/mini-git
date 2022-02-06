@@ -85,17 +85,26 @@ class Model {
         int ref_row = width() - col;
         int ref_col = height() - row;
         if (piece.width() <= ref_row && piece.height() <= ref_col) {
-            return true;
+            for (int i = 0; i < piece.height(); i++) {
+                for (int k = 0; k < piece.width(); k++) {
+                    if (_cells[i + row][k + col] && piece.get(i, k)) {
+                        return false;
+                    }
+                }
             }
+            return true;
+        }
         return false;
     }
 
     /** Return true iff PIECE may be added to the board at some position. */
     boolean placeable(Piece piece) {
-        if (placeable(piece, 0, 0)) {
-            return true;
-        //if (piece.width() <= width() && piece.height() <= height()) {
-        //    return true;
+        for (int i = 0; i < height(); i++) {
+            for (int k = 0; k < width(); k++) {
+                if (placeable(piece, i, k)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -155,7 +164,26 @@ class Model {
         int nrows, ncols;
         int[][] counts = rowColumnCounts();
         nrows = ncols = 0;
-        // FIXME
+        for (int i = 0; i < 2; i++) {
+            for (int k = 0; k < counts[i].length; k++) {
+                if (i == 0) {
+                    if (counts[i][k] == width()) {
+                        for (int r = 0; r < _cells[k].length; r++) {
+                            _cells[k][r] = false;
+                        }
+                        nrows++;
+                    }
+                } else {
+                    if (counts[i][k] == height()) {
+                        for (int r = 0; r < _cells[k].length; r++) {
+                            _cells[r][k] = false;
+                        }
+                        ncols++;
+                    }
+                }
+            }
+
+        }
         _score += scoreClearedLines(nrows, ncols);
     }
 
@@ -163,7 +191,32 @@ class Model {
      *  NROWS is the number of rows cleared and NCOLS is the number
      *  of columns cleared. */
     private int scoreClearedLines(int nrows, int ncols) {
-        return 0; // FIXME
+        int cleared_score = 0;
+        int bonus;
+        if (nrows > 0 || ncols > 0) {
+            _streakLength++;
+            bonus = _streakLength;
+        } else {
+            _streakLength = 0;
+            bonus = 1;
+        }
+        if (nrows == ncols) {
+            while (nrows > 0) {
+                cleared_score += width() + height() - 1;
+                nrows--;
+                ncols--;
+            }
+            bonus *= width() + height();
+        }
+        for (int n = 0; n < nrows; n++) {
+            cleared_score += width();
+            bonus *= width();
+        }
+        for (int n = 0; n < ncols; n++) {
+            cleared_score += height();
+            bonus *= height();
+        }
+        return cleared_score + bonus;
     }
 
     /** Return true iff the current hand is empty (i.e., piece(k) is null

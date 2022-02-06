@@ -15,7 +15,7 @@ import static blocks.Utils.*;
  *  determining whether a puzzle piece may be added at a given position or
  *  anywhere, and undoing or redoing moves.
  *
- *  @author
+ *  @author Tyler Le
  */
 class Model {
 
@@ -166,25 +166,21 @@ class Model {
         int nrows, ncols;
         int[][] counts = rowColumnCounts();
         nrows = ncols = 0;
-        for (int i = 0; i < 2; i++) {
-            for (int k = 0; k < counts[i].length; k++) {
-                if (i == 0) {
-                    if (counts[i][k] == width()) {
-                        for (int r = 0; r < _cells[k].length; r++) {
-                            _cells[k][r] = false;
-                        }
-                        nrows++;
-                    }
-                } else {
-                    if (counts[i][k] == height()) {
-                        for (int r = 0; r < _cells[k].length; r++) {
-                            _cells[r][k] = false;
-                        }
-                        ncols++;
-                    }
+        for (int k = 0; k < counts[0].length; k++) {
+            if (counts[0][k] == width()) {
+                for (int r = 0; r < _cells[k].length; r++) {
+                    _cells[k][r] = false;
                 }
+                nrows++;
             }
-
+        }
+        for (int k = 0; k < counts[1].length; k++) {
+            if (counts[1][k] == height()) {
+                for (int r = 0; r < _cells[k].length; r++) {
+                    _cells[r][k] = false;
+                }
+                ncols++;
+            }
         }
         _score += scoreClearedLines(nrows, ncols);
     }

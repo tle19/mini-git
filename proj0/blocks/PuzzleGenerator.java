@@ -5,7 +5,7 @@ import java.util.Random;
 import static blocks.Utils.*;
 
 /** A creator of random Blocks puzzles.
- *  @author
+ *  @author Tyler Le
  */
 class PuzzleGenerator implements PuzzleSource {
 

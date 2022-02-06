@@ -42,7 +42,9 @@ class Model {
         _width = model.width(); _height = model.height();
         _cells = new boolean[_height][_width];
         deepCopy(model._cells, _cells);
-        // FIXME
+        _hand = model._hand;
+        _score = model._score;
+        _streakLength = model._streakLength;
         _current = model._current;
         _lastHistory = model._lastHistory;
         for (GameState g : model._history.subList(0, model._lastHistory + 1)) {

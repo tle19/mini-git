@@ -276,7 +276,15 @@ class Model {
     /** Returns true if this puzzle round is over because the hand is not empty
      *  but contains only Pieces that cannot be placed.  */
     boolean roundOver() {
-        return true; // FIXME
+        if (handUsed()) {
+            return false;
+        }
+        for (int i = 0; i < handSize(); i++) {
+            if (placeable(_hand.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Returns true iff (ROW, COL) is a valid cell location. */
@@ -288,7 +296,7 @@ class Model {
      *  or is currently filled.   That is, it returns true iff one may not
      *  add a Piece that would fill location (ROW, COL). */
     boolean get(int row, int col) {
-            return !isCell(row, col) || _cells[row][col];
+        return !isCell(row, col) || _cells[row][col];
     }
 
     @Override

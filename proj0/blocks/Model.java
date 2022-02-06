@@ -84,9 +84,9 @@ class Model {
         if (piece == null) {
             return false;
         }
-        int ref_row = width() - col;
-        int ref_col = height() - row;
-        if (piece.width() <= ref_row && piece.height() <= ref_col) {
+        int refRow = width() - col;
+        int refCol = height() - row;
+        if (piece.width() <= refRow && piece.height() <= refCol) {
             for (int i = 0; i < piece.height(); i++) {
                 for (int k = 0; k < piece.width(); k++) {
                     if (_cells[i + row][k + col] && piece.get(i, k)) {
@@ -151,7 +151,7 @@ class Model {
         int[][] result = new int[][] { new int[_height], new int[_width] };
         for (int r = 0; r < height(); r++) {
             for (int c = 0; c < width(); c++) {
-                if (_cells[r][c] == true) {
+                if (_cells[r][c]) {
                     result[0][r] += 1;
                     result[1][c] += 1;
                 }
@@ -193,29 +193,29 @@ class Model {
      *  NROWS is the number of rows cleared and NCOLS is the number
      *  of columns cleared. */
     private int scoreClearedLines(int nrows, int ncols) {
-        int cleared_score = 0;
+        int clearedScore = 0;
         int bonus = 0;
         if (nrows > 0 || ncols > 0) {
             _streakLength++;
         } else {
             _streakLength = 0;
-            return cleared_score;
+            return clearedScore;
         }
         while (nrows > 0 && ncols > 0) {
-            cleared_score += width() + height() - 1;
+            clearedScore += width() + height() - 1;
             nrows = ncols -= 1;
             bonus += width() + height();
         }
         for (int n = 0; n < nrows; n++) {
-            cleared_score += width();
+            clearedScore += width();
             bonus += width();
         }
         for (int n = 0; n < ncols; n++) {
-            cleared_score += height();
+            clearedScore += height();
             bonus += height();
         }
         bonus *= _streakLength;
-        return cleared_score + bonus;
+        return clearedScore + bonus;
     }
 
     /** Return true iff the current hand is empty (i.e., piece(k) is null

@@ -117,8 +117,9 @@ class Model {
         assert placeable(piece, row, col);
         for (int i = 0; i < piece.height(); i++) {
             for (int k = 0; k < piece.width(); k++) {
-                if (_cells[i + row][k + col] == false) {
+                if (piece.get(i, k)) {
                     _cells[i + row][k + col] = true;
+                    _score++;
                 }
             }
         }
@@ -234,10 +235,7 @@ class Model {
      *  or is currently filled.   That is, it returns true iff one may not
      *  add a Piece that would fill location (ROW, COL). */
     boolean get(int row, int col) {
-        if (isCell(row, col)) {
-            return false;
-        }
-        return true;
+            return !isCell(row, col) || _cells[row][col];
     }
 
     @Override

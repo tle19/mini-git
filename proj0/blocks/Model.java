@@ -194,30 +194,27 @@ class Model {
      *  of columns cleared. */
     private int scoreClearedLines(int nrows, int ncols) {
         int cleared_score = 0;
-        int bonus;
+        int bonus = 0;
         if (nrows > 0 || ncols > 0) {
             _streakLength++;
-            bonus = _streakLength;
         } else {
             _streakLength = 0;
-            bonus = 1;
+            return cleared_score;
         }
-        if (nrows == ncols) {
-            while (nrows > 0) {
-                cleared_score += width() + height() - 1;
-                nrows--;
-                ncols--;
-            }
-            bonus *= width() + height();
+        while (nrows > 0 && ncols > 0) {
+            cleared_score += width() + height() - 1;
+            nrows = ncols -= 1;
+            bonus += width() + height();
         }
         for (int n = 0; n < nrows; n++) {
             cleared_score += width();
-            bonus *= width();
+            bonus += width();
         }
         for (int n = 0; n < ncols; n++) {
             cleared_score += height();
-            bonus *= height();
+            bonus += height();
         }
+        bonus *= _streakLength;
         return cleared_score + bonus;
     }
 
@@ -263,7 +260,8 @@ class Model {
      *  Does nothing if at the initial board. */
     void undo() {
         if (_current > 0) {
-            return; // FIXME
+            _current--;
+            _history.get(_current).restoreState();
         }
     }
 
@@ -271,7 +269,8 @@ class Model {
      *  there are no available undone boards. */
     void redo() {
         if (_current < _lastHistory) {
-            return; // FIXME
+            _current++;
+            _history.get(_current).restoreState();
         }
     }
 

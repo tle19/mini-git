@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 /** FIXME
  *
- *  @author FIXME
+ *  @author Tyler Le
  */
 
 public class ListsTest {
@@ -16,7 +16,7 @@ public class ListsTest {
         IntList run1 = IntList.list(1, 2, 3);
         IntList run2 = IntList.list(1, 2);
         IntListList result = IntListList.list(run1, run2);
-        //FIXME: Add some assertion to make this a real test.
+        assertEquals(result, Lists.naturalRuns(input));
     }
 
     //FIXME: Add more tests!

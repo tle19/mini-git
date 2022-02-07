@@ -21,25 +21,25 @@ class Lists {
      *            ((1, 3, 7), (5), (4, 6, 9, 10), (10, 11)).
      *  Destructive: creates no new IntList items, and may modify the
      *  original list pointed to by L. */
-    static IntListList naturalRunsIterative(IntList L) {
+    static IntListList naturalRuns(IntList L) {
+    //static IntListList naturalRunsIterative(IntList L) {
 
         // Feel free to ignore this skeleton and start fresh
         // if that's more your vibe
 
         IntListList result = new IntListList(L, null);
         IntListList resultPointer = result;
-        IntList rest;
         while (L.tail != null) {
-            if (L.head > L.tail.head) {
+            if (L.head >= L.tail.head) {
                 resultPointer.tail = new IntListList(L.tail, null);
-                L = L.tail;
+                L.tail = null;
+                L = result.head;
+                //L = resultPointer.head;
             } else {
-                //rest.tail = new IntList(L.head, null);
                 L = L.tail;
             }
         }
         return resultPointer;
-        //make copy of L and go through it until reaching endOfRun, then go back and create new list to add to resultPointer
     }
 
     /** Same as above, but a recursive version.
@@ -48,13 +48,21 @@ class Lists {
      *  name from naturalRunsRecursive to naturalRuns, and delete the iterative
      *  skeleton. Otherwise, our autograder will grade the iterative version above.
      * */
-    static IntListList naturalRuns(IntList L) {
+    static IntListList naturalRunsRecursive(IntList L) {
+    //static IntListList naturalRuns(IntList L) {
         if (L == null) {
             return null; // Should you replace me?
             // return new IntListList(L, rest); <- You might want this return statement...
             //                                    but how should you define "rest"?
+        } else {
+            IntListList rest = naturalRuns(L.tail);
+            if (endOfRun(L) == L) { //there are two end of runs (1 2 3) and (2 3) because of endofrun property
+                L.tail = null;
+                return rest;
+            } else {
+                return new IntListList(L, rest);
+            }
         }
-        return null;
     }
 
     /** Recursive helper method, if you'd like.

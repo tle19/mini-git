@@ -6,7 +6,7 @@ package arrays;
 /** HW #2 */
 
 /** Array utilities.
- *  @author Tyler LE
+ *  @author Tyler Le
  */
 class Arrays {
 

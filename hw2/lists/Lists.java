@@ -21,17 +21,19 @@ class Lists {
      *            ((1, 3, 7), (5), (4, 6, 9, 10), (10, 11)).
      *  Destructive: creates no new IntList items, and may modify the
      *  original list pointed to by L. */
-    //static IntListList naturalRuns(IntList L) {
-    static IntListList naturalRunsIterative(IntList L) {
+    static IntListList naturalRuns(IntList L) {
+        if (L == null) {
+            return null;
+        }
         IntListList result = new IntListList();
         IntListList resultPointer = result;
         result.head = L;
         while (L.tail != null) {
             if (L.head >= L.tail.head) {
-                resultPointer.tail = new IntListList(L.tail, null);
-                result.head = resultPointer.tail.head;
-                L.tail = null;
-                L = result.head.tail;
+                IntList copy = L;
+                L = L.tail;
+                copy.tail = null;
+                result = result.tail = new IntListList(L, null);
             } else {
                 L = L.tail;
             }
@@ -45,21 +47,17 @@ class Lists {
      *  name from naturalRunsRecursive to naturalRuns, and delete the iterative
      *  skeleton. Otherwise, our autograder will grade the iterative version above.
      * */
-    //static IntListList naturalRunsRecursive(IntList L) {
-    static IntListList naturalRuns(IntList L) {
+    static IntListList naturalRunsRecursive(IntList L) {
         if (L == null) {
             return null;
         }
-        //IntListList rest = naturalRuns(endOfRun(L).tail);
-        //IntList answer =
-        //if (L == endOfRun(L)) { // recursive calls are considering the recursive ones too
-        //    L.tail = null;
-        //}
-        IntListList rest = naturalRuns(L.tail);
-        if (L == endOfRun(L)) {      // recursive calls are considering the recursive ones too
-           L.tail = null;
+        IntListList pointer = new IntListList(L, null);
+        IntList pointer2 = L;
+        while (L != endOfRun(L)) {
+            L = L.tail;
         }
-        return new IntListList(L, rest);
+        IntListList rest = naturalRuns(L.tail);
+        return new IntListList(pointer.head, rest);
     }
 
     /** Recursive helper method, if you'd like.

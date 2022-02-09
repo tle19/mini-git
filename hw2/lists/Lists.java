@@ -30,10 +30,14 @@ class Lists {
         result.head = L;
         while (L.tail != null) {
             if (L.head >= L.tail.head) {
-                IntList copy = L;
-                L = L.tail;
-                copy.tail = null;
-                result = result.tail = new IntListList(L, null);
+                //IntList copy = L;
+                //L = L.tail;
+                //copy.tail = null;
+                //result = result.tail = new IntListList(L, null);
+                result.tail = new IntListList(L.tail, null);
+                result = result.tail;
+                L.tail = null;
+                L = result.head;
             } else {
                 L = L.tail;
             }

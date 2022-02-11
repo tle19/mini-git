@@ -84,17 +84,14 @@ class Model {
         if (piece == null) {
             return false;
         }
-        if (piece.width() <= width() - col && piece.height() <= height() - row) {
-            for (int r = 0; r < piece.height(); r++) {
-                for (int c = 0; c < piece.width(); c++) {
-                    if (_cells[r + row][c + col] && piece.get(r, c)) {
-                        return false;
-                    }
+        for (int r = 0; r < piece.height(); r++) {
+            for (int c = 0; c < piece.width(); c++) {
+                if (get(r + row, c + col) && piece.get(r, c)) {
+                    return false;
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     /** Return true iff PIECE may be added to the board at some position. */
@@ -147,9 +144,10 @@ class Model {
      *  filled grid cells in column c. */
     int[][] rowColumnCounts() {
         int[][] result = new int[][] { new int[height()], new int[width()] };
+        int i = 0;
         for (int r = 0; r < height(); r++) {
             for (int c = 0; c < width(); c++) {
-                if (_cells[r][c]) {
+                if (get(r, c)) {
                     result[0][r] += 1;
                     result[1][c] += 1;
                 }
@@ -164,17 +162,17 @@ class Model {
         int nrows, ncols;
         int[][] counts = rowColumnCounts();
         nrows = ncols = 0;
-        for (int r = 0; r < counts[0].length; r++) {
+        for (int r = 0; r < height(); r++) {
             if (counts[0][r] == width()) {
-                for (int c = 0; c < _cells[r].length; c++) {
+                for (int c = 0; c < width(); c++) {
                     _cells[r][c] = false;
                 }
                 nrows++;
             }
         }
-        for (int c = 0; c < counts[1].length; c++) {
+        for (int c = 0; c < width(); c++) {
             if (counts[1][c] == height()) {
-                for (int r = 0; r < _cells[c].length; r++) {
+                for (int r = 0; r < height(); r++) {
                     _cells[r][c] = false;
                 }
                 ncols++;
@@ -224,9 +222,7 @@ class Model {
 
     /** Empty all Pieces from the current hand. */
     void clearHand() {
-        while (handSize() > 0) {
-            _hand.remove(0);
-        }
+        _hand.clear();
     }
 
     /** Add PIECE to the current hand.  Assumes PIECE is not null. */
@@ -270,9 +266,6 @@ class Model {
     /** Returns true if this puzzle round is over because the hand is not empty
      *  but contains only Pieces that cannot be placed.  */
     boolean roundOver() {
-        if (handUsed()) {
-            return false;
-        }
         for (int i = 0; i < handSize(); i++) {
             if (placeable(_hand.get(i))) {
                 return false;

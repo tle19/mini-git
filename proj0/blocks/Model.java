@@ -84,12 +84,10 @@ class Model {
         if (piece == null) {
             return false;
         }
-        int refRow = width() - col;
-        int refCol = height() - row;
-        if (piece.width() <= refRow && piece.height() <= refCol) {
-            for (int i = 0; i < piece.height(); i++) {
-                for (int k = 0; k < piece.width(); k++) {
-                    if (_cells[i + row][k + col] && piece.get(i, k)) {
+        if (piece.width() <= width() - col && piece.height() <= height() - row) {
+            for (int r = 0; r < piece.height(); r++) {
+                for (int c = 0; c < piece.width(); c++) {
+                    if (_cells[r + row][c + col] && piece.get(r, c)) {
                         return false;
                     }
                 }
@@ -101,9 +99,9 @@ class Model {
 
     /** Return true iff PIECE may be added to the board at some position. */
     boolean placeable(Piece piece) {
-        for (int i = 0; i < height(); i++) {
-            for (int k = 0; k < width(); k++) {
-                if (placeable(piece, i, k)) {
+        for (int r = 0; r < height(); r++) {
+            for (int c = 0; c < width(); c++) {
+                if (placeable(piece, r, c)) {
                     return true;
                 }
             }
@@ -126,10 +124,10 @@ class Model {
      *  there. Also updates score(). */
     void place(Piece piece, int row, int col) {
         assert placeable(piece, row, col);
-        for (int i = 0; i < piece.height(); i++) {
-            for (int k = 0; k < piece.width(); k++) {
-                if (piece.get(i, k)) {
-                    _cells[i + row][k + col] = true;
+        for (int r = 0; r < piece.height(); r++) {
+            for (int c = 0; c < piece.width(); c++) {
+                if (piece.get(r, c)) {
+                    _cells[r + row][c + col] = true;
                     _score++;
                 }
             }
@@ -148,7 +146,7 @@ class Model {
      *  filled grid squares in row r and COUNTS[1][c] is the number of
      *  filled grid cells in column c. */
     int[][] rowColumnCounts() {
-        int[][] result = new int[][] { new int[_height], new int[_width] };
+        int[][] result = new int[][] { new int[height()], new int[width()] };
         for (int r = 0; r < height(); r++) {
             for (int c = 0; c < width(); c++) {
                 if (_cells[r][c]) {
@@ -166,18 +164,18 @@ class Model {
         int nrows, ncols;
         int[][] counts = rowColumnCounts();
         nrows = ncols = 0;
-        for (int k = 0; k < counts[0].length; k++) {
-            if (counts[0][k] == width()) {
-                for (int r = 0; r < _cells[k].length; r++) {
-                    _cells[k][r] = false;
+        for (int r = 0; r < counts[0].length; r++) {
+            if (counts[0][r] == width()) {
+                for (int c = 0; c < _cells[r].length; c++) {
+                    _cells[r][c] = false;
                 }
                 nrows++;
             }
         }
-        for (int k = 0; k < counts[1].length; k++) {
-            if (counts[1][k] == height()) {
-                for (int r = 0; r < _cells[k].length; r++) {
-                    _cells[r][k] = false;
+        for (int c = 0; c < counts[1].length; c++) {
+            if (counts[1][c] == height()) {
+                for (int r = 0; r < _cells[c].length; r++) {
+                    _cells[r][c] = false;
                 }
                 ncols++;
             }
@@ -195,7 +193,6 @@ class Model {
             _streakLength++;
         } else {
             _streakLength = 0;
-            return clearedScore;
         }
         while (nrows > 0 && ncols > 0) {
             clearedScore += width() + height() - 1;
@@ -217,7 +214,7 @@ class Model {
     /** Return true iff the current hand is empty (i.e., piece(k) is null
      *  for all k). */
     boolean handUsed() {
-        for (int i = 0; i < _hand.size(); i++) {
+        for (int i = 0; i < handSize(); i++) {
             if (piece(i) != null) {
                 return false;
             }
@@ -227,7 +224,7 @@ class Model {
 
     /** Empty all Pieces from the current hand. */
     void clearHand() {
-        while (_hand.size() > 0) {
+        while (handSize() > 0) {
             _hand.remove(0);
         }
     }

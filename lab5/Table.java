@@ -225,6 +225,21 @@ public class Table implements Iterable<Table.TableRow> {
                 //        be joined to all the rows of t2, then the second row
                 //        of t1 should be joined to all of the rows of t2,
                 //        etc.
+                if (_tableIter1.hasNext()) {
+                    if (_tableIter2.hasNext()) {
+                        _nextRow = TableRow.joinRows(_currRow1, _tableIter2.next());
+                        return true;
+                    }
+                    _currRow1 = _tableIter1.next();
+                    _tableIter2 = _table2.iterator();
+                    return hasNext();
+                } else {
+                    if (_tableIter2.hasNext()) {
+                        _nextRow = TableRow.joinRows(_currRow1, _tableIter2.next());
+                        return true;
+                    }
+                }
+
             }
             return _nextRow != null;
         }

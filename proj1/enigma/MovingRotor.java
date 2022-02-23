@@ -31,7 +31,7 @@ class MovingRotor extends Rotor {
 
     @Override
     void advance() {
-        if _notch
+        // FIXME
     }
 
     @Override

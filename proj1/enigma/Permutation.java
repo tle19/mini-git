@@ -41,26 +41,67 @@ class Permutation {
     /** Return the result of applying this permutation to P modulo the
      *  alphabet size. */
     int permute(int p) {
-        return p % size();  // FIXME
+        char wrapped = _alphabet.toChar(wrap(p));
+        char result = wrapped;
+        int pos = 0;
+        for (int i = 0; i < _cycles.length(); i = pos) {
+            if (_cycles.charAt(i) == '(') {
+                for (int k = i; _cycles.charAt(k) != ')'; k++) {
+                    pos = k;
+                    if (wrapped == _cycles.charAt(k)) {
+                        if (_cycles.charAt(k + 1) == ')') {
+                            result = _cycles.charAt(i + 1);
+                        } else {
+                            result = _cycles.charAt(k + 1);
+                        }
+                    }
+                }
+            }
+            else {
+                pos++;
+            }
+        }
+        return _alphabet.toInt(result);
     }
 
     /** Return the result of applying the inverse of this permutation
      *  to  C modulo the alphabet size. */
-    int invert(int c) {
-        return c % size();  // FIXME
+    int invert(int c)  {
+        char wrapped = _alphabet.toChar(wrap(c));
+        char result = wrapped;
+        int pos = 0;
+        for (int i = _cycles.length() - 1; i > 0; i = pos) {
+            if (_cycles.charAt(i) == ')') {
+                for (int k = i; _cycles.charAt(k) != '('; k--) {
+                    pos = k;
+                    if (wrapped == _cycles.charAt(k)) {
+                        if (_cycles.charAt(k - 1) == '(') {
+                            result = _cycles.charAt(i - 1);
+                        } else {
+                            result = _cycles.charAt(k - 1);
+                        }
+                    }
+
+                }
+            }
+            else {
+                pos--;
+            }
+        }
+        return _alphabet.toInt(result);
     }
 
     /** Return the result of applying this permutation to the index of P
      *  in ALPHABET, and converting the result to a character of ALPHABET. */
     char permute(char p) {
-        int permuted_char = permute(_alphabet.toInt(p));
-        return _alphabet.toChar(permuted_char);
+        int permutedChar = permute(_alphabet.toInt(p));
+        return _alphabet.toChar(permutedChar);
     }
 
     /** Return the result of applying the inverse of this permutation to C. */
     char invert(char c) {
-        int permuted_char = invert(_alphabet.toInt(c));
-        return _alphabet.toChar(permuted_char);
+        int permutedChar = invert(_alphabet.toInt(c));
+        return _alphabet.toChar(permutedChar);
     }
 
     /** Return the alphabet used to initialize this Permutation. */

@@ -14,14 +14,24 @@ class MovingRotor extends Rotor {
      */
     MovingRotor(String name, Permutation perm, String notches) {
         super(name, perm);
-        // FIXME
+        _name = name;
+        _perm = perm;
+        _notches = notches;
     }
 
-    // FIXME?
+    @Override
+    boolean rotates() {
+        return true;
+    }
+
+    @Override
+    boolean atNotch() {
+        return false; // FIXME
+    }
 
     @Override
     void advance() {
-        // FIXME
+        if _notch
     }
 
     @Override
@@ -29,6 +39,8 @@ class MovingRotor extends Rotor {
         return "";  // FIXME
     }
 
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
+    private String _name;
+    private Permutation _perm;
+    private String _notches;
 
 }

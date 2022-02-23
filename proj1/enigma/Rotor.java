@@ -3,7 +3,7 @@ package enigma;
 import static enigma.EnigmaException.*;
 
 /** Superclass that represents a rotor in the enigma machine.
- *  @author
+ *  @author Tyler Le
  */
 class Rotor {
 
@@ -11,7 +11,7 @@ class Rotor {
     Rotor(String name, Permutation perm) {
         _name = name;
         _permutation = perm;
-        // FIXME
+        _setting = 0;
     }
 
     /** Return my name. */
@@ -46,12 +46,12 @@ class Rotor {
 
     /** Return my current setting. */
     int setting() {
-        return 0; // FIXME
+        return _setting;
     }
 
     /** Set setting() to POSN.  */
     void set(int posn) {
-        // FIXME
+        _setting = posn;    // FIXME
     }
 
     /** Set setting() to character CPOSN. */
@@ -62,21 +62,13 @@ class Rotor {
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        int result = 0; // FIXME
-        if (Main.verbose()) {
-            System.err.printf("%c -> ", alphabet().toChar(result));
-        }
-        return result;
+        return _permutation.permute(p);
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        int result = 0; // FIXME
-        if (Main.verbose()) {
-            System.err.printf("%c -> ", alphabet().toChar(result));
-        }
-        return result;
+        return _permutation.invert(e);
     }
 
     /** Returns the positions of the notches, as a string giving the letters
@@ -105,7 +97,6 @@ class Rotor {
 
     /** The permutation implemented by this rotor in its 0 position. */
     private Permutation _permutation;
-
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
+    private int _setting;
 
 }

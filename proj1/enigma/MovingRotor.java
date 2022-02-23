@@ -31,7 +31,7 @@ class MovingRotor extends Rotor {
 
     @Override
     void advance() {
-        // FIXME
+        super.set(setting() + 1);   // FIXME
     }
 
     @Override

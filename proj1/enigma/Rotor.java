@@ -62,13 +62,15 @@ class Rotor {
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        return _permutation.permute(p);
+        int first = _permutation.permute(_permutation.wrap(p + _setting));
+        return _permutation.wrap(first - _setting);
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        return _permutation.invert(e);
+        int first = _permutation.invert(_permutation.wrap(e + _setting));
+        return _permutation.wrap(first - _setting);
     }
 
     /** Returns the positions of the notches, as a string giving the letters

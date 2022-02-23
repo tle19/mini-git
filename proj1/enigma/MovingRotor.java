@@ -24,14 +24,19 @@ class MovingRotor extends Rotor {
         return true;
     }
 
-    @Override
-    boolean atNotch() {
-        return false; // FIXME
-    }
+    //@Override
+    //boolean atNotch() {
+    //    for (int i = 0; i < _notches.length(); i++) {
+    //        if (i == setting()) {
+    //            return true;
+    //        }
+    //    }
+    //    return false; // FIXME
+    //}
 
     @Override
     void advance() {
-        super.set(setting() + 1);   // FIXME
+        set(permutation().wrap(setting() + 1));   // FIXME
     }
 
     @Override

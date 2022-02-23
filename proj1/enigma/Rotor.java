@@ -56,7 +56,7 @@ class Rotor {
 
     /** Set setting() to character CPOSN. */
     void set(char cposn) {
-        // FIXME
+        _setting = _permutation.alphabet().toInt(cposn);    // FIXME
     }
 
     /** Return the conversion of P (an integer in the range 0..size()-1)

@@ -21,7 +21,7 @@ class Permutation {
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
      *  c0c1...cm. */
     private void addCycle(String cycle) {
-        // FIXME
+        _cycles += "(" + cycle + ")";  // FIXME
     }
 
     /** Return the value of P modulo the size of this permutation. */
@@ -41,24 +41,26 @@ class Permutation {
     /** Return the result of applying this permutation to P modulo the
      *  alphabet size. */
     int permute(int p) {
-        return 0;  // FIXME
+        return p % size();  // FIXME
     }
 
     /** Return the result of applying the inverse of this permutation
      *  to  C modulo the alphabet size. */
     int invert(int c) {
-        return 0;  // FIXME
+        return c % size();  // FIXME
     }
 
     /** Return the result of applying this permutation to the index of P
      *  in ALPHABET, and converting the result to a character of ALPHABET. */
     char permute(char p) {
-        return 0;  // FIXME
+        int permuted_char = permute(_alphabet.toInt(p));
+        return _alphabet.toChar(permuted_char);
     }
 
     /** Return the result of applying the inverse of this permutation to C. */
     char invert(char c) {
-        return 0;  // FIXME
+        int permuted_char = invert(_alphabet.toInt(c));
+        return _alphabet.toChar(permuted_char);
     }
 
     /** Return the alphabet used to initialize this Permutation. */
@@ -75,5 +77,5 @@ class Permutation {
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
     private String _cycles;
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
+
 }

@@ -18,6 +18,15 @@ public class AlphabetTest {
         assertEquals(3, test.toInt('D'));
         assertEquals('B', test.toChar(1));
         assertEquals('A', test.toChar(0));
+
+        Alphabet test2 = new Alphabet();
+        assertEquals(26, test2.size());
+        assertTrue(test2.contains('A'));
+        assertTrue(test2.contains('V'));
+        assertEquals(4, test2.toInt('E'));
+        assertEquals(25, test2.toInt('Z'));
+        assertEquals('Y', test2.toChar(24));
+        assertEquals('A', test2.toChar(0));
     }
 
     @Test

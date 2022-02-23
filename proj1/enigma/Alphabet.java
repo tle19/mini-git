@@ -28,8 +28,7 @@ class Alphabet {
     /** Returns true if CH is in this alphabet. */
     boolean contains(char ch) {
         for (int i = 0; i < _chars.length(); i++) {
-            char curr = _chars.charAt(i);
-            if (curr == ch) {
+            if (_chars.charAt(i) == ch) {
                 return true;
             }
         }

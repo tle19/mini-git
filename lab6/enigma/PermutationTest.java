@@ -82,5 +82,43 @@ public abstract class PermutationTest {
         checkPerm("identity", UPPER_STRING, UPPER_STRING, perm, alpha);
     }
 
-    // FIXME: Add tests here that pass on a correct Permutation and fail on buggy Permutations.
+    @Test
+    public void testInvertChar() {
+        Permutation p = getNewPermutation("(BACD) (FGH)", getNewAlphabet("ABCDEFGH"));
+        assertEquals('B', p.invert('A'));
+        assertEquals('D', p.invert('B'));
+        assertEquals('F', p.invert('G'));
+        assertEquals('H', p.invert('F'));
+        assertEquals('E', p.invert('E'));
+    }
+
+    @Test
+    public void testPermuteChar() {
+        Permutation p = getNewPermutation("(BACD) (FGH)", getNewAlphabet("ABCDEFGH"));
+        assertEquals('C', p.permute('A'));
+        assertEquals('A', p.permute('D'));
+        assertEquals('G', p.permute('F'));
+        assertEquals('F', p.permute('H'));
+        assertEquals('E', p.permute('E'));
+    }
+
+    @Test(expected = EnigmaException.class)
+    public void testNotInAlphabet() {
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
+        p.invert('F');
+    }
+
+    @Test
+    public void testSize() {
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
+        assertEquals(4, p.size());
+    }
+
+    @Test
+    public void testDerangement() {
+        Permutation p = getNewPermutation("(BAC) (FED) (GH)", getNewAlphabet("ABCDEFGH"));
+        assertTrue(p.derangement());
+        p = getNewPermutation("(BAC) (FED) (G)", getNewAlphabet("ABCDEFGH"));
+        assertFalse(p.derangement());
+    }
 }

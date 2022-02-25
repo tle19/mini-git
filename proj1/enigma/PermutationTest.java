@@ -51,4 +51,45 @@ public class PermutationTest {
         checkPerm("identity", UPPER_STRING, UPPER_STRING);
     }
 
+    @Test
+    public void testInvertChar() {
+        perm = new Permutation("(BACD) (FGH)", UPPER);
+        assertEquals('B', perm.invert('A'));
+        assertEquals('D', perm.invert('B'));
+        assertEquals('F', perm.invert('G'));
+        assertEquals('H', perm.invert('F'));
+        assertEquals('E', perm.invert('E'));
+    }
+
+    @Test
+    public void testPermuteChar() {
+        perm = new Permutation("(BACD) (FGH)", UPPER);
+        assertEquals('C', perm.permute('A'));
+        assertEquals('B', perm.permute('D'));
+        assertEquals('G', perm.permute('F'));
+        assertEquals('F', perm.permute('H'));
+        assertEquals('E', perm.permute('E'));
+    }
+
+    @Test(expected = EnigmaException.class)
+    public void testNotInAlphabet() {
+        perm = new Permutation("(BACD)", UPPER);
+        perm.invert('[');
+    }
+
+    @Test
+    public void testSize() {
+        perm = new Permutation("(BACD)", UPPER);
+        assertEquals(26, perm.size());
+    }
+
+    @Test
+    public void testDerangement() {
+        perm = new Permutation("(BAC) (FED) (GH) (IJKLMNOPQRSTUV)", UPPER);
+        assertTrue(perm.derangement());
+        perm = new Permutation("(BAC) (FED) (GHIJKZL)", UPPER);
+        assertFalse(perm.derangement());
+    }
+
+
 }

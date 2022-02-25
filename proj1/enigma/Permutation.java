@@ -112,7 +112,7 @@ class Permutation {
     /** Return true iff this permutation is a derangement (i.e., a
      *  permutation for which no value maps to itself). */
     boolean derangement() {
-        return true;  // FIXME
+        return true;
     }
 
     /** Alphabet of this permutation. */

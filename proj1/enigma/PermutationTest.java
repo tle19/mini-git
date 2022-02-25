@@ -75,6 +75,7 @@ public class PermutationTest {
     public void testNotInAlphabet() {
         perm = new Permutation("(BACD)", UPPER);
         perm.invert('[');
+        perm.permute('[');
     }
 
     @Test
@@ -85,9 +86,9 @@ public class PermutationTest {
 
     @Test
     public void testDerangement() {
-        perm = new Permutation("(BAC) (FED) (GH) (IJKLMNOPQRSTUV)", UPPER);
+        perm = new Permutation("(BAC) (FED) (GH) (IJLK) (MSPOQRN) (VUTWZXYX)", UPPER);
         assertTrue(perm.derangement());
-        perm = new Permutation("(BAC) (FED) (GHIJKZL)", UPPER);
+        perm = new Permutation("(BAC) (FED) (HLIJKZG)", UPPER);
         assertFalse(perm.derangement());
     }
 

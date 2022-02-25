@@ -32,6 +32,10 @@ class Alphabet {
         return false;
     }
 
+    String alphabet() {
+        return _chars;
+    }
+
     /** Returns character number INDEX in the alphabet, where
      *  0 <= INDEX < size(). */
     char toChar(int index) {

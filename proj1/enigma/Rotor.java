@@ -51,12 +51,12 @@ class Rotor {
 
     /** Set setting() to POSN.  */
     void set(int posn) {
-        _setting = posn;    // FIXME
+        _setting = posn;
     }
 
     /** Set setting() to character CPOSN. */
     void set(char cposn) {
-        _setting = _permutation.alphabet().toInt(cposn);    // FIXME
+        _setting = _permutation.alphabet().toInt(cposn);
     }
 
     /** Return the conversion of P (an integer in the range 0..size()-1)

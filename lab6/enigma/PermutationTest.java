@@ -96,7 +96,7 @@ public abstract class PermutationTest {
     public void testPermuteChar() {
         Permutation p = getNewPermutation("(BACD) (FGH)", getNewAlphabet("ABCDEFGH"));
         assertEquals('C', p.permute('A'));
-        assertEquals('B', p.permute('D'));
+        assertEquals('A', p.permute('D'));
         assertEquals('G', p.permute('F'));
         assertEquals('F', p.permute('H'));
         assertEquals('E', p.permute('E'));

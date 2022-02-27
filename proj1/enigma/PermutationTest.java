@@ -73,9 +73,9 @@ public class PermutationTest {
 
     @Test(expected = EnigmaException.class)
     public void testNotInAlphabet() {
-        perm = new Permutation("(BACD)", UPPER);
-        perm.invert('[');
-        perm.permute('[');
+        perm = new Permutation("(BACD)", new Alphabet("ABCD"));
+        perm.invert('F');
+        perm.permute('H');
     }
 
     @Test

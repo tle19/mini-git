@@ -13,5 +13,10 @@ class FixedRotor extends Rotor {
         super(name, perm);
     }
 
-    // FIXME ?
+    @Override
+    void set(int posn) {
+        if (posn != 0) {
+            throw error("fixedrotor has only one position");
+        }
+    }
 }

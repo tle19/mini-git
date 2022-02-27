@@ -82,7 +82,7 @@ class Rotor {
     /** Returns true iff I am positioned to allow the rotor to my left
      *  to advance. */
     boolean atNotch() {
-        return false; // FIXME
+        return false;
     }
 
     /** Advance me one position, if possible. By default, does nothing. */

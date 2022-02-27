@@ -16,6 +16,12 @@ class Permutation {
     Permutation(String cycles, Alphabet alphabet) {
         _alphabet = alphabet;
         _cycles = cycles;
+        //for (int i = 0; i < cycles.length(); i++) {
+        //    if (! _alphabet.contains(_cycles.charAt(i))) {
+        //        addCycle(_alphabet.toChar(i) + "");
+        //    }
+        //}
+
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
@@ -42,69 +48,69 @@ class Permutation {
      *  alphabet size. */
     int permute(int p) {
         char wrapped = _alphabet.toChar(wrap(p));
-        if (_alphabet.contains(wrapped)) {
-            char result = wrapped;
-            int pos = 0;
-            for (int i = 0; i < _cycles.length(); i = pos) {
-                if (_cycles.charAt(i) == '(') {
-                    for (int k = i; _cycles.charAt(k) != ')'; k++) {
-                        pos = k;
-                        if (wrapped == _cycles.charAt(k)) {
-                            if (_cycles.charAt(k + 1) == ')') {
-                                result = _cycles.charAt(i + 1);
-                            } else {
-                                result = _cycles.charAt(k + 1);
-                            }
+        char result = wrapped;
+        for (int i = 0, pos = 0; i < _cycles.length(); i = pos) {
+            if (_cycles.charAt(i) == '(') {
+                for (int k = i; _cycles.charAt(k) != ')'; k++) {
+                    pos = k;
+                    if (wrapped == _cycles.charAt(k)) {
+                        if (_cycles.charAt(k + 1) == ')') {
+                            result = _cycles.charAt(i + 1);
+                        } else {
+                            result = _cycles.charAt(k + 1);
                         }
                     }
                 }
-                else {
-                    pos++;
-                }
             }
-            return _alphabet.toInt(result);
+            else {
+                pos++;
+            }
         }
-        throw new EnigmaException("character not in alphabet");
+        return _alphabet.toInt(result);
+
     }
 
     /** Return the result of applying the inverse of this permutation
      *  to  C modulo the alphabet size. */
     int invert(int c)  {
         char wrapped = _alphabet.toChar(wrap(c));
-        if (_alphabet.contains(wrapped)) {
-            char result = wrapped;
-            int pos = 0;
-            for (int i = _cycles.length() - 1; i > 0; i = pos) {
-                if (_cycles.charAt(i) == ')') {
-                    for (int k = i; _cycles.charAt(k) != '('; k--) {
-                        pos = k;
-                        if (wrapped == _cycles.charAt(k)) {
-                            if (_cycles.charAt(k - 1) == '(') {
-                                result = _cycles.charAt(i - 1);
-                            } else {
-                                result = _cycles.charAt(k - 1);
-                            }
+        char result = wrapped;
+        for (int i = _cycles.length() - 1, pos = 0; i > 0; i = pos) {
+            if (_cycles.charAt(i) == ')') {
+                for (int k = i; _cycles.charAt(k) != '('; k--) {
+                    pos = k;
+                    if (wrapped == _cycles.charAt(k)) {
+                        if (_cycles.charAt(k - 1) == '(') {
+                            result = _cycles.charAt(i - 1);
+                        } else {
+                            result = _cycles.charAt(k - 1);
                         }
-
                     }
-                } else {
-                    pos--;
+
                 }
+            } else {
+                pos--;
             }
-            return _alphabet.toInt(result);
         }
-        throw new EnigmaException("character not in alphabet");
-    }
+        return _alphabet.toInt(result);
+
+}
 
     /** Return the result of applying this permutation to the index of P
      *  in ALPHABET, and converting the result to a character of ALPHABET. */
     char permute(char p) {
+        if (! _alphabet.contains(p)) {
+            throw new EnigmaException("character not in alphabet");
+        }
         int permutedChar = permute(_alphabet.toInt(p));
         return _alphabet.toChar(permutedChar);
     }
 
     /** Return the result of applying the inverse of this permutation to C. */
     char invert(char c) {
+        if (! _alphabet.contains(c)) {
+            throw new EnigmaException("character not in alphabet");
+        }
         int permutedChar = invert(_alphabet.toInt(c));
         return _alphabet.toChar(permutedChar);
     }
@@ -132,5 +138,6 @@ class Permutation {
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
     private String _cycles;
+    private String[] _alpha;
 
 }

@@ -56,21 +56,21 @@ class Rotor {
 
     /** Set setting() to character CPOSN. */
     void set(char cposn) {
-        _setting = _permutation.alphabet().toInt(cposn);
+        _setting = permutation().alphabet().toInt(cposn);
     }
 
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        int first = _permutation.permute(_permutation.wrap(p + _setting));
-        return _permutation.wrap(first - _setting);
+        int first = permutation().permute(permutation().wrap(p + setting()));
+        return permutation().wrap(first - setting());
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        int first = _permutation.invert(_permutation.wrap(e + _setting));
-        return _permutation.wrap(first - _setting);
+        int first = permutation().invert(permutation().wrap(e + setting()));
+        return permutation().wrap(first - setting());
     }
 
     /** Returns the positions of the notches, as a string giving the letters

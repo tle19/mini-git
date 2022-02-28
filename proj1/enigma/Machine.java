@@ -23,7 +23,7 @@ class Machine {
 
     /** Return the number of rotor slots I have. */
     int numRotors() {
-        return _allRotors.length;
+        return _numRotors;
     }
 
     /** Return the number pawls (and thus rotating rotors) I have. */
@@ -49,7 +49,7 @@ class Machine {
         Rotor[] result = new Rotor[numRotors()];
         for (int i = 0; i < rotors.length; i++) {
             for (int k = 0; k < numRotors(); k++) {
-                if (_allRotors[k].name().equals(rotors[i])) {
+                if (getRotor(k).name().equals(rotors[i])) {
                     result[i] = getRotor(k);
                 }
             }
@@ -103,15 +103,21 @@ class Machine {
 
     /** Advance all rotors to their next position. */
     private void advanceRotors() {
-        for (int i = numRotors() - 1; i > 0; i--) {
+        for (int i = 0; i < numRotors(); i++) {
             if (i == numRotors() - 1) {
-                _allRotors[i].advance();
+                getRotor(i)._advanced = true;
             } else if (_allRotors[i].atNotch()) {
-                _allRotors[i].advance();
-            } else {
-                //can only advance once
+                getRotor(i)._advanced = true;
+                getRotor(i + 1)._advanced = true;
+            } else if (!getRotor(i).rotates()) {
+                getRotor(i)._advanced = false;
             }
-
+        }
+        for (int i = 0; i < numRotors(); i++) {
+            if (getRotor(i)._advanced) {
+                getRotor(i).advance();
+                getRotor(i)._advanced = false;
+            }
         }
     }
 
@@ -119,10 +125,10 @@ class Machine {
      *  index in the range 0..alphabet size - 1). */
     private int applyRotors(int c) {
         for (int i = numRotors() - 1; i > 0; i--) {
-            c = _allRotors[i].convertForward(c);
+            c = getRotor(i).convertForward(c);
         }
         for (int i = 0; i < numRotors(); i++) {
-            c = _allRotors[i].convertBackward(c);
+            c = getRotor(i).convertBackward(c);
         }
         return c;
     }
@@ -130,7 +136,11 @@ class Machine {
     /** Returns the encoding/decoding of MSG, updating the state of
      *  the rotors accordingly. */
     String convert(String msg) {
-        return ""; // FIXME
+        String result = "";
+        for (int i = 0; i < msg.length(); i++) {
+            result += _alphabet.toChar(convert(_alphabet.toInt(msg.charAt(i))));
+        }
+        return result;
     }
 
     /** Common alphabet of my rotors. */

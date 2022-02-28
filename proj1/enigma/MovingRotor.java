@@ -36,7 +36,7 @@ class MovingRotor extends Rotor {
 
     @Override
     void advance() {
-        set(permutation().wrap(setting() + 1));   // FIXME
+        set(permutation().wrap(setting() + 1));
     }
 
     @Override

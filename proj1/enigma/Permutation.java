@@ -17,11 +17,10 @@ class Permutation {
         _alphabet = alphabet;
         _cycles = cycles;
         //for (int i = 0; i < cycles.length(); i++) {
-        //    if (! _alphabet.contains(_cycles.charAt(i))) {
-        //        addCycle(_alphabet.toChar(i) + "");
-        //    }
-        //}
-
+        /*    if (! _alphabet.contains(_cycles.charAt(i))) {
+        /*        addCycle(_alphabet.toChar(i) + "");
+        /*    }
+        }*/
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
@@ -138,6 +137,6 @@ class Permutation {
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
     private String _cycles;
-    private String[] _alpha;
+    private char[] _alpha;
 
 }

@@ -12,6 +12,7 @@ class Rotor {
         _name = name;
         _permutation = perm;
         _setting = 0;
+        _advanced = false;
     }
 
     /** Return my name. */
@@ -100,5 +101,6 @@ class Rotor {
     /** The permutation implemented by this rotor in its 0 position. */
     private Permutation _permutation;
     private int _setting;
+    protected boolean _advanced;
 
 }

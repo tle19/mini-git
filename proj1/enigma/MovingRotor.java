@@ -26,8 +26,8 @@ class MovingRotor extends Rotor {
 
     @Override
     boolean atNotch() {
-        for (int i = 0; i < _notches.length(); i++) {
-            if (i == setting()) {
+        for (char i : _notches.toCharArray()) {
+            if (alphabet().toChar(i) == setting()) {
                 return true;
             }
         }

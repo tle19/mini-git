@@ -16,11 +16,18 @@ class Permutation {
     Permutation(String cycles, Alphabet alphabet) {
         _alphabet = alphabet;
         _cycles = cycles;
-        //for (int i = 0; i < cycles.length(); i++) {
-        /*    if (! _alphabet.contains(_cycles.charAt(i))) {
-        /*        addCycle(_alphabet.toChar(i) + "");
-        /*    }
-        }*/
+        _cyclesOriginal = cycles;
+        for (int i = 0; i < size(); i++) {
+            boolean include = true;
+            for (int k = 0; k < _cycles.length(); k++) {
+                if (_alphabet.toChar(i) == _cycles.charAt(k)) {
+                    include = false;
+                }
+            }
+            if (include) {
+                addCycle(_alphabet.toChar(i) + "");
+            }
+        }
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
@@ -47,7 +54,7 @@ class Permutation {
      *  alphabet size. */
     int permute(int p) {
         char wrapped = _alphabet.toChar(wrap(p));
-        char result = wrapped;
+        char result = '.';
         for (int i = 0, pos = 0; i < _cycles.length(); i = pos) {
             if (_cycles.charAt(i) == '(') {
                 for (int k = i; _cycles.charAt(k) != ')'; k++) {
@@ -58,6 +65,7 @@ class Permutation {
                         } else {
                             result = _cycles.charAt(k + 1);
                         }
+                        break;
                     }
                 }
             }
@@ -124,7 +132,7 @@ class Permutation {
     boolean derangement() {
         int result = 0;
         for (char ch : _alphabet.alphabet().toCharArray()) {
-            for (char k : _cycles.toCharArray()) {
+            for (char k : _cyclesOriginal.toCharArray()) {
                 if (ch == k) {
                     result++;
                 }
@@ -137,6 +145,6 @@ class Permutation {
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
     private String _cycles;
-    private char[] _alpha;
+    private String _cyclesOriginal;
 
 }

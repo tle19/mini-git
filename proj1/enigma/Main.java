@@ -87,22 +87,16 @@ public final class Main {
     private void process() {
         Machine configured = readConfig();
         setUp(configured, _input.nextLine());
-        String result = "";
-        while (_input.hasNext()) {
-            if (_input.hasNext("\\*")) {
-                printMessageLine(result);
-                result = "";
-                _input.nextLine();
-                setUp(configured, _input.nextLine());
+        while (_input.hasNextLine()) {
+            String next = _input.nextLine();
+            if (next.contains("*")) {
+                setUp(configured, next);
             } else {
-                result += " " + configured.convert(_input.next());
-            }
-            if (_input.hasNext("\n")) {
-
+                printMessageLine(configured.convert(next.replaceAll(" ", "")));
             }
             //fix main to span across multiple lines
         }
-        printMessageLine(result);
+
     }
 
     /** Return an Enigma machine configured from the contents of configuration
@@ -183,7 +177,12 @@ public final class Main {
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
-        System.out.println(msg);
+        String result = "";
+        for (int i = 0, k = 5; i < msg.length(); i += 5, k += 5) {
+            k = Math.min(k, msg.length());
+            result += msg.substring(i, k) + " ";
+        }
+        _output.println(result);
     }
 
     /** Alphabet used in this machine. */
@@ -200,4 +199,5 @@ public final class Main {
 
     /** True if --verbose specified. */
     private static boolean _verbose;
+
 }

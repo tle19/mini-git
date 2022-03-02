@@ -97,6 +97,10 @@ public final class Main {
             } else {
                 result += " " + configured.convert(_input.next());
             }
+            if (_input.hasNext("\n")) {
+
+            }
+            //fix main to span across multiple lines
         }
         printMessageLine(result);
     }

@@ -86,10 +86,19 @@ public final class Main {
      *  results to _output. */
     private void process() {
         Machine configured = readConfig();
-        setUp(configured, "");
+        setUp(configured, _input.nextLine());
+        String result = "";
         while (_input.hasNext()) {
-            _output.append(configured.convert(_input.next()));
+            if (_input.hasNext("\\*")) {
+                printMessageLine(result);
+                result = "";
+                _input.nextLine();
+                setUp(configured, _input.nextLine());
+            } else {
+                result += " " + configured.convert(_input.next());
+            }
         }
+        printMessageLine(result);
     }
 
     /** Return an Enigma machine configured from the contents of configuration
@@ -141,15 +150,25 @@ public final class Main {
     /** Set M according to the specification given on SETTINGS,
      *  which must have the format specified in the assignment. */
     private void setUp(Machine M, String settings) {
-        List<String> rotorNames = new ArrayList<>();
-        while (_input.hasNext()) {
-            rotorNames.add(_input.next());
+        String[] settingsArr = settings.split(" ");
+        String[] rotors = new String[M.numRotors()];
+        String sett = "";
+        String cycles = "";
+        if (settingsArr[0].equals("*")) {
+            for (int i = 0; i < rotors.length; i++) {
+                rotors[i] = settingsArr[i + 1];
+            }
+            sett = settingsArr[rotors.length + 1];
+            for (int i = rotors.length + 2; i < settingsArr.length; i++) {
+                cycles += settingsArr[i];
+            }
+        } else {
+            throw new EnigmaException("incorrect formatting of file.in");
         }
-        String[] rotors = new String[rotorNames.size()];
-        for (int i = 0; i < rotors.length; i++) {
-            rotors[i] = rotorNames.get(i);
-        }
+        Permutation perm = new Permutation(cycles, _alphabet);
+        M.setPlugboard(perm);
         M.insertRotors(rotors);
+        M.setRotors(sett);
     }
 
     /** Return true iff verbose option specified. */
@@ -160,18 +179,7 @@ public final class Main {
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
-        String result = "";
-        int cap = 4;
-        for (int i = 0; i < msg.length(); i++) {
-            result += msg.charAt(i);
-            if (i == cap) {
-                System.out.println(result);
-                result = "";
-                cap += 5;
-            } else if (msg.length() - 1 == i) {
-                System.out.println(result);
-            }
-        }
+        System.out.println(msg);
     }
 
     /** Alphabet used in this machine. */

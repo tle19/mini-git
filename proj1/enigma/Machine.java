@@ -47,11 +47,12 @@ class Machine {
     void insertRotors(String[] rotors) {
         Rotor[] result = new Rotor[rotors.length];
         for (int i = 0; i < rotors.length; i++) {
-            for (int k = 0; k < numRotors(); k++) {
+            for (int k = 0; k < _allRotors.length; k++) {
                 if (getRotor(k).name().equals(rotors[i])) {
                     result[i] = getRotor(k);
                 }
             }
+
         }
         _allRotors = result;
     }

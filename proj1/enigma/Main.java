@@ -90,7 +90,6 @@ public final class Main {
         while (_input.hasNext()) {
             _output.append(configured.convert(_input.next()));
         }
-        printMessageLine(_output.toString());
     }
 
     /** Return an Enigma machine configured from the contents of configuration

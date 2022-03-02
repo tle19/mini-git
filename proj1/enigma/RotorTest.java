@@ -1,6 +1,8 @@
 package enigma;
 
 import org.junit.Test;
+
+import static enigma.TestUtils.*;
 import static org.junit.Assert.*;
 
 /** The suite of all JUnit tests for the Rotor class.
@@ -9,4 +11,8 @@ import static org.junit.Assert.*;
 
 public class RotorTest {
 
+    @Test
+    public void checkRotorAtA() {
+
+    }
 }

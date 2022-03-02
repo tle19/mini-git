@@ -3,7 +3,7 @@ package enigma;
 import static enigma.EnigmaException.*;
 
 /** Class that represents a rotor that has no ratchet and does not advance.
- *  @author
+ *  @author Tyler Le
  */
 class FixedRotor extends Rotor {
 

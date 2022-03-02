@@ -68,8 +68,7 @@ class Permutation {
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 pos++;
             }
         }
@@ -81,7 +80,7 @@ class Permutation {
      *  to  C modulo the alphabet size. */
     int invert(int c)  {
         char wrapped = _alphabet.toChar(wrap(c));
-        char result = wrapped;
+        char result = '.';
         for (int i = _cycles.length() - 1, pos = 0; i > 0; i = pos) {
             if (_cycles.charAt(i) == ')') {
                 for (int k = i; _cycles.charAt(k) != '('; k--) {
@@ -92,6 +91,7 @@ class Permutation {
                         } else {
                             result = _cycles.charAt(k - 1);
                         }
+                        break;
                     }
 
                 }
@@ -100,13 +100,12 @@ class Permutation {
             }
         }
         return _alphabet.toInt(result);
-
-}
+    }
 
     /** Return the result of applying this permutation to the index of P
      *  in ALPHABET, and converting the result to a character of ALPHABET. */
     char permute(char p) {
-        if (! _alphabet.contains(p)) {
+        if (!_alphabet.contains(p)) {
             throw new EnigmaException("character not in alphabet");
         }
         int permutedChar = permute(_alphabet.toInt(p));
@@ -115,7 +114,7 @@ class Permutation {
 
     /** Return the result of applying the inverse of this permutation to C. */
     char invert(char c) {
-        if (! _alphabet.contains(c)) {
+        if (!_alphabet.contains(c)) {
             throw new EnigmaException("character not in alphabet");
         }
         int permutedChar = invert(_alphabet.toInt(c));
@@ -144,7 +143,9 @@ class Permutation {
 
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
+    /** The mapping of each permutation. */
     private String _cycles;
+    /** The original mapping of cycles. */
     private String _cyclesOriginal;
 
 }

@@ -100,7 +100,9 @@ class Rotor {
 
     /** The permutation implemented by this rotor in its 0 position. */
     private Permutation _permutation;
+    /** The current position of the notch on the rotor. */
     private int _setting;
+    /** Whether or not the rotor has advanced this turn. */
     protected boolean _advanced;
 
 }

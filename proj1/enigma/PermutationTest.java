@@ -86,7 +86,8 @@ public class PermutationTest {
 
     @Test
     public void testDerangement() {
-        perm = new Permutation("(BAC) (FED) (GH) (IJLK) (MSPOQRN) (VUTWZXYX)", UPPER);
+        String a = "(BAC) (FED) (GH) (IJLK) (MSPOQRN) (VUTWZXYX)";
+        perm = new Permutation(a, UPPER);
         assertTrue(perm.derangement());
         perm = new Permutation("(BAC) (FED) (HLIJKZG)", UPPER);
         assertFalse(perm.derangement());

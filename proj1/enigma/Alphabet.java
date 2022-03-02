@@ -48,6 +48,7 @@ class Alphabet {
         return _chars.indexOf(ch);
     }
 
+    /** A custom alphabet. */
     private String _chars;
 
 }

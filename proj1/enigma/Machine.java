@@ -6,7 +6,7 @@ import java.util.Collection;
 import static enigma.EnigmaException.*;
 
 /** Class that represents a complete enigma machine.
- *  @author
+ *  @author Tyler Le
  */
 class Machine {
 
@@ -106,11 +106,9 @@ class Machine {
         for (int i = 0; i < numRotors(); i++) {
             if (i == numRotors() - 1) {
                 getRotor(i)._advanced = true;
-            } else if (_allRotors[i].atNotch()) {
+            } else if (getRotor(i + 1).atNotch() && getRotor(i).rotates()) {
                 getRotor(i)._advanced = true;
                 getRotor(i + 1)._advanced = true;
-            } else if (!getRotor(i).rotates()) {
-                getRotor(i)._advanced = false;
             }
         }
         for (int i = 0; i < numRotors(); i++) {
@@ -145,8 +143,12 @@ class Machine {
 
     /** Common alphabet of my rotors. */
     private final Alphabet _alphabet;
+    /** Number of rotors. */
     private int _numRotors;
+    /** Number of pawls. */
     private int _pawls;
+    /** All rotors in the machine. */
     private Rotor[] _allRotors;
+    /** Permutation given by plugboard. */
     private Permutation _plugboard;
 }

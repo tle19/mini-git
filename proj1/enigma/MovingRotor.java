@@ -26,8 +26,8 @@ class MovingRotor extends Rotor {
 
     @Override
     boolean atNotch() {
-        for (char i : _notches.toCharArray()) {
-            if (alphabet().toChar(i) == setting()) {
+        for (char i : notches().toCharArray()) {
+            if (_perm.wrap(alphabet().toInt(i)) == setting()) {
                 return true;
             }
         }
@@ -41,11 +41,14 @@ class MovingRotor extends Rotor {
 
     @Override
     String notches() {
-        return "";  // FIXME
+        return _notches;
     }
 
+    /** The name of the rotor. */
     private String _name;
+    /** The permutation given by rotor. */
     private Permutation _perm;
+    /** The notches corresponding to the rotor. */
     private String _notches;
 
 }

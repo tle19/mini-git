@@ -86,17 +86,8 @@ public final class Main {
      *  results to _output. */
     private void process() {
         Machine configured = readConfig();
-        //setUp(configured, rotors);
-        List<String> rotorNames = new ArrayList<>();
+        setUp(configured, "");
         while (_input.hasNext()) {
-            rotorNames.add(_input.next());
-        }
-        String[] rotors = new String[rotorNames.size()];
-        for (int i = 0; i < rotors.length; i++) {
-            rotors[i] = rotorNames.get(i);
-        }
-        configured.insertRotors(rotors);
-        while (_input.hasNextLine()) {
             _output.append(configured.convert(_input.next()));
         }
         printMessageLine(_output.toString());
@@ -109,7 +100,7 @@ public final class Main {
             _alphabet = new Alphabet(_config.next());
             int numRotors = _config.nextInt();
             int pawls = _config.nextInt();
-            List<Rotor> allRotors = null;
+            List<Rotor> allRotors = new ArrayList<>();
             while (_config.hasNext()) {
                 allRotors.add(readRotor());
             }
@@ -124,7 +115,10 @@ public final class Main {
         try {
             String name = _config.next();
             String gtype = _config.next();
-            String cycles = _config.nextLine();
+            String cycles = "";
+            while (_config.hasNext("\\(.*\\)")) {
+                cycles += _config.next();
+            }
             Permutation perm = new Permutation(cycles, _alphabet);
             char type = gtype.charAt(0);
             if (type == 'M') {
@@ -137,8 +131,9 @@ public final class Main {
                 return new FixedRotor(name, perm);
             } else if (type == 'R') {
                 return new Reflector(name, perm);
+            } else {
+                throw error("Incorrect rotor format");
             }
-            throw error("Incorrect rotor format");
         } catch (NoSuchElementException excp) {
             throw error("bad rotor description");
         }
@@ -147,8 +142,15 @@ public final class Main {
     /** Set M according to the specification given on SETTINGS,
      *  which must have the format specified in the assignment. */
     private void setUp(Machine M, String settings) {
-        //for (int )
-        //M.insertRotors(settings);
+        List<String> rotorNames = new ArrayList<>();
+        while (_input.hasNext()) {
+            rotorNames.add(_input.next());
+        }
+        String[] rotors = new String[rotorNames.size()];
+        for (int i = 0; i < rotors.length; i++) {
+            rotors[i] = rotorNames.get(i);
+        }
+        M.insertRotors(rotors);
     }
 
     /** Return true iff verbose option specified. */
@@ -159,7 +161,18 @@ public final class Main {
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
-        System.out.println(msg);
+        String result = "";
+        int cap = 4;
+        for (int i = 0; i < msg.length(); i++) {
+            result += msg.charAt(i);
+            if (i == cap) {
+                System.out.println(result);
+                result = "";
+                cap += 5;
+            } else if (msg.length() - 1 == i) {
+                System.out.println(result);
+            }
+        }
     }
 
     /** Alphabet used in this machine. */

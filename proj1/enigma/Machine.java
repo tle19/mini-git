@@ -46,7 +46,7 @@ class Machine {
      *  available rotors (ROTORS[0] names the reflector).
      *  Initially, all rotors are set at their 0 setting. */
     void insertRotors(String[] rotors) {
-        Rotor[] result = new Rotor[numRotors()];
+        Rotor[] result = new Rotor[rotors.length];
         for (int i = 0; i < rotors.length; i++) {
             for (int k = 0; k < numRotors(); k++) {
                 if (getRotor(k).name().equals(rotors[i])) {

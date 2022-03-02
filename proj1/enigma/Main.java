@@ -94,7 +94,6 @@ public final class Main {
             } else {
                 printMessageLine(configured.convert(next.replaceAll(" ", "")));
             }
-            //fix main to span across multiple lines
         }
 
     }
@@ -148,25 +147,38 @@ public final class Main {
     /** Set M according to the specification given on SETTINGS,
      *  which must have the format specified in the assignment. */
     private void setUp(Machine M, String settings) {
-        String[] settingsArr = settings.split(" ");
-        String[] rotors = new String[M.numRotors()];
-        String sett = "";
-        String cycles = "";
-        if (settingsArr[0].equals("*")) {
-            for (int i = 0; i < rotors.length; i++) {
-                rotors[i] = settingsArr[i + 1];
+        try {
+            String[] settingsArr = settings.split(" ");
+            String[] rotors = new String[M.numRotors()];
+            String sett = "";
+            String cycles = "";
+            if (settingsArr[0].equals("*")) {
+                for (int i = 0; i < rotors.length; i++) {
+                    rotors[i] = settingsArr[i + 1];
+                }
+                sett = settingsArr[rotors.length + 1];
+                for (int i = rotors.length + 2; i < settingsArr.length; i++) {
+                    cycles += settingsArr[i];
+                }
+            } else {
+                throw new EnigmaException("incorrect formatting of file.in");
             }
-            sett = settingsArr[rotors.length + 1];
-            for (int i = rotors.length + 2; i < settingsArr.length; i++) {
-                cycles += settingsArr[i];
+            Permutation perm = new Permutation(cycles, _alphabet);
+            M.setPlugboard(perm);
+            M.insertRotors(rotors);
+            M.setRotors(sett);
+            int moving = 0;
+            for (int i = 0; i < M.numRotors(); i++) {
+                if (M.getRotor(i) instanceof MovingRotor) {
+                    moving++;
+                }
             }
-        } else {
-            throw new EnigmaException("incorrect formatting of file.in");
+            if (M.numPawls() != moving) {
+                throw new EnigmaException("rotors do not match arguments");
+            }
+        } catch (ArrayIndexOutOfBoundsException excp) {
+            throw error("invalid amount of rotors");
         }
-        Permutation perm = new Permutation(cycles, _alphabet);
-        M.setPlugboard(perm);
-        M.insertRotors(rotors);
-        M.setRotors(sett);
     }
 
     /** Return true iff verbose option specified. */

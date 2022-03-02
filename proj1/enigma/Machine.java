@@ -55,6 +55,9 @@ class Machine {
 
         }
         _allRotors = result;
+        if (!_allRotors[0].reflecting()) {
+            throw new EnigmaException("Reflector in wrong place");
+        }
     }
 
     /** Set my rotors according to SETTING, which must be a string of

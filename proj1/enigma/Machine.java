@@ -1,6 +1,5 @@
 package enigma;
 
-import java.util.HashMap;
 import java.util.Collection;
 
 import static enigma.EnigmaException.*;

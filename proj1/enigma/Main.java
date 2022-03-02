@@ -85,16 +85,35 @@ public final class Main {
      *  file _config and apply it to the messages in _input, sending the
      *  results to _output. */
     private void process() {
-        // FIXME
+        Machine configured = readConfig();
+        //setUp(configured, rotors);
+        List<String> rotorNames = new ArrayList<>();
+        while (_input.hasNext()) {
+            rotorNames.add(_input.next());
+        }
+        String[] rotors = new String[rotorNames.size()];
+        for (int i = 0; i < rotors.length; i++) {
+            rotors[i] = rotorNames.get(i);
+        }
+        configured.insertRotors(rotors);
+        while (_input.hasNextLine()) {
+            _output.append(configured.convert(_input.next()));
+        }
+        printMessageLine(_output.toString());
     }
 
     /** Return an Enigma machine configured from the contents of configuration
      *  file _config. */
     private Machine readConfig() {
         try {
-            // FIXME
-            _alphabet = new Alphabet();
-            return new Machine(_alphabet, 2, 1, null);
+            _alphabet = new Alphabet(_config.next());
+            int numRotors = _config.nextInt();
+            int pawls = _config.nextInt();
+            List<Rotor> allRotors = null;
+            while (_config.hasNext()) {
+                allRotors.add(readRotor());
+            }
+            return new Machine(_alphabet, numRotors, pawls, allRotors);
         } catch (NoSuchElementException excp) {
             throw error("configuration file truncated");
         }
@@ -103,7 +122,23 @@ public final class Main {
     /** Return a rotor, reading its description from _config. */
     private Rotor readRotor() {
         try {
-            return null; // FIXME
+            String name = _config.next();
+            String gtype = _config.next();
+            String cycles = _config.nextLine();
+            Permutation perm = new Permutation(cycles, _alphabet);
+            char type = gtype.charAt(0);
+            if (type == 'M') {
+                String notches = "";
+                for (int i = 1; i < gtype.length(); i++) {
+                    notches += gtype.charAt(i);
+                }
+                return new MovingRotor(name, perm, notches);
+            } else if (type == 'N') {
+                return new FixedRotor(name, perm);
+            } else if (type == 'R') {
+                return new Reflector(name, perm);
+            }
+            throw error("Incorrect rotor format");
         } catch (NoSuchElementException excp) {
             throw error("bad rotor description");
         }
@@ -112,7 +147,8 @@ public final class Main {
     /** Set M according to the specification given on SETTINGS,
      *  which must have the format specified in the assignment. */
     private void setUp(Machine M, String settings) {
-        // FIXME
+        //for (int )
+        //M.insertRotors(settings);
     }
 
     /** Return true iff verbose option specified. */
@@ -123,7 +159,7 @@ public final class Main {
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
-        // FIXME
+        System.out.println(msg);
     }
 
     /** Alphabet used in this machine. */

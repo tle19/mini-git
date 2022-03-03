@@ -152,18 +152,34 @@ public final class Main {
             String[] rotors = new String[M.numRotors()];
             String sett = "";
             String cycles = "";
+            String ring = "";
+            Permutation perm;
             if (settingsArr[0].equals("*")) {
                 for (int i = 0; i < rotors.length; i++) {
                     rotors[i] = settingsArr[i + 1];
                 }
                 sett = settingsArr[rotors.length + 1];
                 for (int i = rotors.length + 2; i < settingsArr.length; i++) {
-                    cycles += settingsArr[i];
+                    if (settingsArr[i].charAt(0) == '(') {
+                        cycles += settingsArr[i];
+                    } else {
+                        ring += settingsArr[i];
+                    }
+                }
+                perm = new Permutation(cycles, _alphabet);
+                String settN = "";
+                for (int i = 0; i < sett.length(); i++) {
+                    int c = _alphabet.toInt(sett.charAt(i));
+                    int adjust = _alphabet.toInt(ring.charAt(i));
+                    int wrapped = perm.wrap(c - adjust);
+                    settN += _alphabet.toChar(wrapped);
+                }
+                if (settN != "") {
+                    sett = settN;
                 }
             } else {
                 throw new EnigmaException("incorrect formatting of file.in");
             }
-            Permutation perm = new Permutation(cycles, _alphabet);
             M.setPlugboard(perm);
             M.insertRotors(rotors);
             M.setRotors(sett);

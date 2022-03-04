@@ -167,21 +167,12 @@ public final class Main {
                     }
                 }
                 perm = new Permutation(cycles, _alphabet);
-                String settN = "";
-                for (int i = 0; i < sett.length(); i++) {
-                    int c = _alphabet.toInt(sett.charAt(i));
-                    int adjust = _alphabet.toInt(ring.charAt(i));
-                    int wrapped = perm.wrap(c - adjust);
-                    settN += _alphabet.toChar(wrapped);
-                }
-                if (settN != "") {
-                    sett = settN;
-                }
             } else {
                 throw new EnigmaException("incorrect formatting of file.in");
             }
             M.setPlugboard(perm);
             M.insertRotors(rotors);
+            M.setRings(ring);
             M.setRotors(sett);
             int moving = 0;
             for (int i = 0; i < M.numRotors(); i++) {

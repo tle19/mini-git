@@ -65,7 +65,14 @@ class Machine {
      *  to the leftmost rotor setting (not counting the reflector).  */
     void setRotors(String setting) {
         for (int i = 1; i < numRotors(); i++) {
-            _allRotors[i].set(setting.charAt(i - 1));
+            getRotor(i).set(setting.charAt(i - 1));
+        }
+    }
+
+    /** Set my rings according to SETTING. */
+    void setRings(String setting) {
+        for (int i = 1; i < setting.length() + 1; i++) {
+            getRotor(i).setRing(setting.charAt(i - 1));
         }
     }
 

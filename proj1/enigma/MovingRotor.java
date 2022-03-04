@@ -19,6 +19,7 @@ class MovingRotor extends Rotor {
         _notches = notches;
     }
 
+
     @Override
     boolean rotates() {
         return true;

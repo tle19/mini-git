@@ -13,6 +13,7 @@ class Rotor {
         _permutation = perm;
         _setting = 0;
         _advanced = false;
+        _rings = 0;
     }
 
     /** Return my name. */
@@ -50,6 +51,11 @@ class Rotor {
         return _setting;
     }
 
+    /** Return my current ring setting. */
+    int rings() {
+        return _rings;
+    }
+
     /** Set setting() to POSN.  */
     void set(int posn) {
         _setting = posn;
@@ -60,18 +66,39 @@ class Rotor {
         _setting = permutation().alphabet().toInt(cposn);
     }
 
+    /** Set _rings to character RING. */
+    void setRing(int ring) {
+        if (ring == 0) {
+            _rings = 0;
+        } else {
+            _rings = ring;
+        }
+    }
+
+    /** Set _rings to character CRING. */
+    void setRing(char cring) {
+        String comp = "" + cring;
+        if (comp.isEmpty()) {
+            _rings = 0;
+        } else {
+            _rings = permutation().alphabet().toInt(cring);
+        }
+    }
+
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        int first = permutation().permute(permutation().wrap(p + setting()));
-        return permutation().wrap(first - setting());
+        int permuted = permutation().wrap(p + setting()) - _rings;
+        int first = permutation().permute(permuted);
+        return permutation().wrap(first - setting() + _rings);
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        int first = permutation().invert(permutation().wrap(e + setting()));
-        return permutation().wrap(first - setting());
+        int inverted = permutation().wrap(e + setting()) - _rings;
+        int first = permutation().invert(inverted);
+        return permutation().wrap(first - setting() + _rings);
     }
 
     /** Returns the positions of the notches, as a string giving the letters
@@ -104,5 +131,7 @@ class Rotor {
     private int _setting;
     /** Whether or not the rotor has advanced this turn. */
     protected boolean _advanced;
+    /** The current position of the rings on the rotor. */
+    private int _rings;
 
 }

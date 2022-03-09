@@ -13,22 +13,21 @@ public class Nybbles {
     // FIXME: Change these values!
 
     /** Maximum positive value of a Nybble. */
-    public static final int MAX_VALUE = 0;
+    public static final int MAX_VALUE = 7;
     /** Number of nybbles per word  */
-    private static final int NYBBLES_PER_INT = 0;
+    private static final int NYBBLES_PER_INT = 8;
     /** Bits per integer */
-    private static final int BITS_PER_INT = 0;
+    private static final int BITS_PER_INT = 32;
     /** Bits per nybble */
-    private static final int BITS_PER_NYBBLE = 0;
+    private static final int BITS_PER_NYBBLE = 4;
 
-    /** Return an array of size N.
+    /** Return an array of size N. */
     public Nybbles(int N) {
-        // FIXME: Change the line below
-        _data = new int[0];
+        _data = new int[(N + 7) / 8];
         _n = N;
     }
 
-    /** Return the size of THIS. */
+    /** Return the size of THIS.
     public int size() {
         return _n;
     }
@@ -39,7 +38,9 @@ public class Nybbles {
         if (k < 0 || k >= _n) {
             throw new IndexOutOfBoundsException();
         } else {
-            return 0; // REPLACE WITH SOLUTION
+            int nybble = (_data[k / NYBBLES_PER_INT] >> ((k & MOD_8_MASK) << MULT_4_SHIFT)) & NYBBLE_MASK;
+            int sign_shift = BITS_PER_INT - BITS_PER_NYBBLE;
+            return (nybble << sign_shift) >> sign_shift;
         }
     }
 
@@ -51,7 +52,8 @@ public class Nybbles {
         } else if (val < (-MAX_VALUE - 1) || val > MAX_VALUE) {
             throw new IllegalArgumentException();
         } else {
-            _data[0] = 0; // REPLACE WITH SOLUTION
+            _data[k / NYBBLES_PER_INT] &= ~(NYBBLE_MASK << ((k & MOD_8_MASK) << MULT_4_SHIFT));
+            _data[k / NYBBLES_PER_INT] |= (val & NYBBLE_MASK) << ((k & MOD_8_MASK) << MULT_4_SHIFT);
         }
     }
 

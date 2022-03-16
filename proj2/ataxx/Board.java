@@ -34,7 +34,7 @@ import static ataxx.GameException.error;
  *  number of the square in row-major order (counting from 0).
  *
  *  Moves on this board are denoted by Moves.
- *  @author
+ *  @author Tyler Le
  */
 class Board {
 

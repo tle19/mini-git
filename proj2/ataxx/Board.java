@@ -66,6 +66,7 @@ class Board {
         incrPieces(RED, 2);
         _allMoves = new ArrayList<>();
         _numJumps = 0;
+        _totalOpen = SIDE * SIDE - 4;
         setNotifier(NOP);
         clear();
     }
@@ -240,11 +241,11 @@ class Board {
         startUndo();
         PieceColor opponent = _whoseMove.opposite();
         if (move.isExtend()) {
-            set(move.col1(), move.row1(), whoseMove()); // replace later with setBlock
+            set(index(move.col1(), move.row1()), whoseMove());
             incrPieces(whoseMove(), 1);
         } else if (move.isJump()) {
-            set(move.col0(), move.row0(), EMPTY);
-            set(move.col1(), move.row1(), whoseMove());
+            set(index(move.col0(), move.row0()), EMPTY);
+            set(index(move.col1(), move.row1()), whoseMove());
             _numJumps++;
         }
         // FIXME
@@ -285,7 +286,10 @@ class Board {
 
     /** Return true iff it is legal to place a block at C R. */
     boolean legalBlock(char c, char r) {
-        return true; // FIXME
+         if (get(c, r) == EMPTY) {
+             return true;
+         }
+        return false;
     }
 
     /** Return true iff it is legal to place a block at CR. */
@@ -302,7 +306,25 @@ class Board {
         if (!legalBlock(c, r)) {
             throw error("illegal block placement");
         }
-        // FIXME
+        int c1 = Math.abs('a' - c) + 1;
+        int r1 = Math.abs('1' - r) + 1;
+        int c2 = 'g' - c + 1;
+        int r2 = '7' - r + 1;
+        set(c1 * r1, whoseMove());
+        incrPieces(whoseMove(), 1);
+        if (get(c2 * r1) == null) {
+            set(c2 * r1, whoseMove());
+            incrPieces(whoseMove(), 1);
+        }
+        if (get(c1 * r2) == null) {
+            set(c1 * r2, whoseMove());
+            incrPieces(whoseMove(), 1);
+        }
+        if (get(c2 * r2) == null) {
+            set(c2 * r2, whoseMove());
+            incrPieces(whoseMove(), 1);
+        }
+        _totalOpen = SIDE * SIDE - numPieces(RED) - numPieces(BLUE);
         if (!canMove(RED) && !canMove(BLUE)) {
             _winner = EMPTY;
         }
@@ -317,13 +339,13 @@ class Board {
 
     /** Return total number of unblocked squares. */
     int totalOpen() {
-        return 0; // FIXME;
+        return _totalOpen;
     }
 
     /** Return a list of all moves made since the last clear (or start of
      *  game). */
     List<Move> allMoves() {
-        return _allMoves;  // FIXME
+        return _allMoves;
     }
 
     @Override

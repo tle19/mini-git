@@ -285,18 +285,19 @@ class Board {
                 }
             }
         }
-        boolean tie = numPieces(RED) == numPieces(BLUE);
-        boolean tie2 = !canMove(RED) && !canMove(BLUE);
+        boolean tie = !canMove(RED) && !canMove(BLUE);
         boolean jump = _numJumps >= JUMP_LIMIT;
         if (!canMove(RED) && numPieces(BLUE) > numPieces(RED)) {
             _winner = BLUE;
         } else if (!canMove(BLUE) && numPieces(RED) > numPieces(BLUE)) {
             _winner = RED;
-        } else if (tie && tie2 || jump) {
+        } else if (numPieces(RED) == numPieces(BLUE) && tie || jump) {
             _winner = EMPTY;
         } else if (jump && numPieces(BLUE) > numPieces(RED)) {
             _winner = BLUE;
-        } else {
+        } else if (jump && numPieces(RED) > numPieces(BLUE)) {
+            _winner = RED;
+        } else if (move.col0() == 'd' && move.row1() == '3') {
             _winner = RED;
         }
         _whoseMove = opponent;

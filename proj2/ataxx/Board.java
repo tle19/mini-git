@@ -264,30 +264,40 @@ class Board {
             incrPieces(whoseMove(), 1);
             _numJumps = 0;
         } else if (move.isJump()) {
-            //addUndo(index(move.col0(), move.row0()));
             set(index(move.col0(), move.row0()), EMPTY);
             set(index(move.col1(), move.row1()), whoseMove());
             _numJumps++;
         }
         for (int i = 0; i < range.length * 2; i++) {
             if (i < range.length) {
-                if (get(index(move.col1(), move.row1()) + range[i]) == opponent) {
-                    set(index(move.col1(), move.row1()) + range[i], whoseMove());
+                int extend = index(move.col1(), move.row1()) + range[i];
+                if (get(extend) == opponent) {
+                    set(extend, whoseMove());
                     incrPieces(whoseMove(), 1);
                     incrPieces(opponent, -1);
                 }
             } else {
-                if (get(index(move.col1(), move.row1()) - range[i - 4]) == opponent) {
-                    set(index(move.col1(), move.row1()) - range[i - 4], whoseMove());
+                int extend = index(move.col1(), move.row1()) - range[i - 4];
+                if (get(extend) == opponent) {
+                    set(extend, whoseMove());
                     incrPieces(whoseMove(), 1);
                     incrPieces(opponent, -1);
                 }
             }
         }
-        if (!canMove(opponent)) {
-            _winner = whoseMove();
-        } else if (!canMove(whoseMove())) {
-            _winner = opponent;
+        boolean tie = numPieces(RED) == numPieces(BLUE);
+        boolean tie2 = !canMove(RED) && !canMove(BLUE);
+        boolean jump = _numJumps >= JUMP_LIMIT;
+        if (!canMove(RED) && numPieces(BLUE) > numPieces(RED)) {
+            _winner = BLUE;
+        } else if (!canMove(BLUE) && numPieces(RED) > numPieces(BLUE)) {
+            _winner = RED;
+        } else if (tie && tie2 || jump) {
+            _winner = EMPTY;
+        } else if (jump && numPieces(BLUE) > numPieces(RED)) {
+            _winner = BLUE;
+        } else {
+            _winner = RED;
         }
         _whoseMove = opponent;
         announce();
@@ -308,14 +318,22 @@ class Board {
         while (_undoSquares.peek() != null) {
             int pos = _undoSquares.pop();
             PieceColor type = _undoPieces.pop();
-            if (type == whoseMove() && get(pos) == whoseMove().opposite()) {
-                incrPieces(whoseMove(), 1);
-                incrPieces(whoseMove().opposite(), -1);
+            if (type == whoseMove()) {
+                if (get(pos) == whoseMove().opposite()) {
+                    incrPieces(whoseMove(), 1);
+                    incrPieces(whoseMove().opposite(), -1);
+                } else {
+                    incrPieces(whoseMove(), 1);
+                }
             } else if (type == whoseMove().opposite()) {
-                incrPieces(whoseMove().opposite(), 1);
-            }
-            else {
-                incrPieces(whoseMove().opposite(), -1);
+                if (get(pos) == whoseMove()) {
+                    incrPieces(whoseMove(), -1);
+                    incrPieces(whoseMove().opposite(), 1);
+                } else {
+                    incrPieces(whoseMove().opposite(), 1);
+                }
+            } else if (type == EMPTY) {
+                incrPieces(get(pos), -1);
             }
             unrecordedSet(pos, type);
         }
@@ -344,9 +362,9 @@ class Board {
 
     /** Return true iff it is legal to place a block at C R. */
     boolean legalBlock(char c, char r) {
-         if (get(c, r) == EMPTY && _gamestart == false) {
-             return true;
-         }
+        if (get(c, r) == EMPTY && !_gamestart) {
+            return true;
+        }
         return false;
     }
 
@@ -420,7 +438,7 @@ class Board {
             return false;
         }
         Board other = (Board) obj;
-        return Arrays.equals(_board, other._board); // FIXME?
+        return Arrays.equals(_board, other._board);
     }
 
     @Override
@@ -517,6 +535,9 @@ class Board {
      *  the game. */
     private ArrayList<Move> _allMoves;
 
+    /** An identifier to when the game begins, after the first move. */
+    private boolean _gamestart;
+
     /* The undo stack. We keep a stack of squares that have changed and
      * their previous contents.  Any given move may involve several such
      * changes, so we mark the start of the changes for each move (including
@@ -527,7 +548,5 @@ class Board {
     private Stack<Integer> _undoSquares;
     /** Stack of pieces formally at corresponding squares in _UNDOSQUARES. */
     private Stack<PieceColor> _undoPieces;
-
-    private boolean _gamestart;
 
 }

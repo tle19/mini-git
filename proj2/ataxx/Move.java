@@ -7,8 +7,6 @@ package ataxx;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import static java.lang.Math.abs;
-
 /** Represents an Ataxx move. There is one Move object created for
  *  each distinct Move.
  *  @author Tyler Le

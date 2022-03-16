@@ -100,14 +100,14 @@ class Board {
         String s2 = "1234567";
         for (int i = 0; i < s1.length(); i++) {
             for (int k = 0; k < s2.length(); k++) {
-                set(s1.charAt(i), s2.charAt(k), EMPTY);
+                unrecordedSet(s1.charAt(i), s2.charAt(k), EMPTY);
             }
         }
-        set('a', '1', BLUE);
-        set('g', '7', BLUE);
+        unrecordedSet('a', '1', BLUE);
+        unrecordedSet('g', '7', BLUE);
         incrPieces(BLUE, 2);
-        set('g', '1', RED);
-        set('a', '7', RED);
+        unrecordedSet('g', '1', RED);
+        unrecordedSet('a', '7', RED);
         incrPieces(RED, 2);
         announce();
     }
@@ -262,8 +262,9 @@ class Board {
         if (move.isExtend()) {
             set(index(move.col1(), move.row1()), whoseMove());
             incrPieces(whoseMove(), 1);
+            _numJumps = 0;
         } else if (move.isJump()) {
-            int pieces_initial = numPieces(whoseMove());
+            //addUndo(index(move.col0(), move.row0()));
             set(index(move.col0(), move.row0()), EMPTY);
             set(index(move.col1(), move.row1()), whoseMove());
             _numJumps++;
@@ -294,7 +295,7 @@ class Board {
      *  is legal to do so. Passing is undoable. */
     void pass() {
         assert !canMove(_whoseMove);
-        // FIXME
+        _allMoves.add(null);
         startUndo();
         _whoseMove = _whoseMove.opposite();
         announce();
@@ -302,9 +303,24 @@ class Board {
 
     /** Undo the last move. */
     void undo() {
+        while (_undoSquares.peek() != null) {
+            int pos = _undoSquares.pop();
+            PieceColor type = _undoPieces.pop();
+            if (type == whoseMove() && get(pos) == whoseMove().opposite()) {
+                incrPieces(whoseMove(), 1);
+                incrPieces(whoseMove().opposite(), -1);
+            } else if (type == whoseMove().opposite()) {
+                incrPieces(whoseMove().opposite(), 1);
+            }
+            else {
+                incrPieces(whoseMove().opposite(), -1);
+            }
+            unrecordedSet(pos, type);
+        }
+        if (_numJumps > 0) {
+            _numJumps--;
+        }
         _undoSquares.pop();
-        _undoPieces.pop();
-        //_undoPieces.push();
         _whoseMove = _whoseMove.opposite();
         _allMoves.remove(_allMoves.size() - 1);
         _winner = null;
@@ -315,14 +331,13 @@ class Board {
      * _undoSquares and _undoPieces instance variable comments for
      * details on how the beginning of moves are marked. */
     private void startUndo() {
-        _undoSquares.add(null);
-        // FIXME
+        _undoSquares.push(null);
     }
 
     /** Add an undo action for changing SQ on current board. */
     private void addUndo(int sq) {
-        _undoPieces.add(get(sq));
-        // FIXME
+        _undoSquares.push(sq);
+        _undoPieces.push(get(sq));
     }
 
     /** Return true iff it is legal to place a block at C R. */

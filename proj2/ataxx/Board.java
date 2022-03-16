@@ -199,10 +199,10 @@ class Board {
     /** Return true iff player WHO can move, ignoring whether it is
      *  that player's move and whether the game is over. */
     boolean canMove(PieceColor who) {
-        if (numPieces(who) == 0) {
-            return false;
+        if (numPieces(who) > 0) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     /** Return the color of the player who has the next move.  The
@@ -286,6 +286,8 @@ class Board {
         }
         if (!canMove(opponent)) {
             _winner = whoseMove();
+        } else if (!canMove(whoseMove())) {
+            _winner = opponent;
         }
         _whoseMove = opponent;
         announce();

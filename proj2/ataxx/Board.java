@@ -51,7 +51,21 @@ class Board {
     /** A new, cleared board in the initial configuration. */
     Board() {
         _board = new PieceColor[EXTENDED_SIDE * EXTENDED_SIDE];
-        // FIXME
+        String s1 = "abcdefg";
+        String s2 = "1234567";
+        for (int i = 0; i < s1.length(); i++) {
+            for (int k = 0; k < s2.length(); k++) {
+                set(s1.charAt(i), s2.charAt(k), EMPTY);
+            }
+        }
+        set('a', '1', BLUE);
+        set('g', '7', BLUE);
+        incrPieces(BLUE, 2);
+        set('g', '1', RED);
+        set('a', '7', RED);
+        incrPieces(RED, 2);
+        _allMoves = new ArrayList<>();
+        _numJumps = 0;
         setNotifier(NOP);
         clear();
     }
@@ -150,7 +164,16 @@ class Board {
 
     /** Return true iff MOVE is legal on the current board. */
     boolean legalMove(Move move) {
-        return true; // FIXME
+        if (move == null) {
+            return false;
+        } else if (move.col1() < 'a' || move.col1() > 'g') {
+            return false;
+        } else if (move.row1() < '1' || move.row1() > '7') {
+            return false;
+        } else if (get(move.col0(), move.row0()) != whoseMove()) {
+            return false;
+        }
+        return true;
     }
 
     /** Return true iff C0 R0 - C1 R1 is legal on the current board. */
@@ -173,14 +196,14 @@ class Board {
     /** Return total number of moves and passes since the last
      *  clear or the creation of the board. */
     int numMoves() {
-        return 0; // FIXME
+        return allMoves().size();
     }
 
     /** Return number of non-pass moves made in the current game since the
      *  last extend move added a piece to the board (or since the
      *  start of the game). Used to detect end-of-game. */
     int numJumps() {
-        return 0;  // FIXME
+        return _numJumps;
     }
 
     /** Assuming MOVE has the format "-" or "C0R0-C1R1", make the denoted
@@ -216,6 +239,14 @@ class Board {
         _allMoves.add(move);
         startUndo();
         PieceColor opponent = _whoseMove.opposite();
+        if (move.isExtend()) {
+            set(move.col1(), move.row1(), whoseMove()); // replace later with setBlock
+            incrPieces(whoseMove(), 1);
+        } else if (move.isJump()) {
+            set(move.col0(), move.row0(), EMPTY);
+            set(move.col1(), move.row1(), whoseMove());
+            _numJumps++;
+        }
         // FIXME
         _whoseMove = opponent;
         announce();
@@ -292,7 +323,7 @@ class Board {
     /** Return a list of all moves made since the last clear (or start of
      *  game). */
     List<Move> allMoves() {
-        return new ArrayList<Move>();  // FIXME
+        return _allMoves;  // FIXME
     }
 
     @Override

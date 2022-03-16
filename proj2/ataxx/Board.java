@@ -199,8 +199,16 @@ class Board {
     /** Return true iff player WHO can move, ignoring whether it is
      *  that player's move and whether the game is over. */
     boolean canMove(PieceColor who) {
-        if (numPieces(who) > 0) {
-            return true;
+        for (int pos = 0; pos < _board.length; pos++) {
+            if (get(pos) == who) {
+                for (int i = -2; i <= 2; i++) {
+                    for (int k = -2; k <= 2; k++) {
+                        if (get(neighbor(pos, i, k)) == EMPTY) {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         return false;
     }
@@ -258,7 +266,6 @@ class Board {
         _allMoves.add(move);
         startUndo();
         PieceColor opponent = _whoseMove.opposite();
-        int[] range = {1, 10, 11, 12};
         if (move.isExtend()) {
             set(index(move.col1(), move.row1()), whoseMove());
             incrPieces(whoseMove(), 1);
@@ -268,36 +275,29 @@ class Board {
             set(index(move.col1(), move.row1()), whoseMove());
             _numJumps++;
         }
-        for (int i = 0; i < range.length * 2; i++) {
-            if (i < range.length) {
-                int extend = index(move.col1(), move.row1()) + range[i];
-                if (get(extend) == opponent) {
-                    set(extend, whoseMove());
-                    incrPieces(whoseMove(), 1);
-                    incrPieces(opponent, -1);
-                }
-            } else {
-                int extend = index(move.col1(), move.row1()) - range[i - 4];
-                if (get(extend) == opponent) {
-                    set(extend, whoseMove());
+        for (int i = -1; i <= 1; i++) {
+            for (int k = -1; k <= 1; k++) {
+                int pos = neighbor(index(move.col1(), move.row1()), i, k);
+                if (get(pos) == opponent) {
+                    set(pos, whoseMove());
                     incrPieces(whoseMove(), 1);
                     incrPieces(opponent, -1);
                 }
             }
         }
-        boolean tie = !canMove(RED) && !canMove(BLUE);
+        boolean tie = numPieces(RED) == numPieces(BLUE);
+        boolean winblue = numPieces(BLUE) > numPieces(RED);
+        boolean winred = numPieces(RED) > numPieces(BLUE);
         boolean jump = _numJumps >= JUMP_LIMIT;
-        if (!canMove(RED) && numPieces(BLUE) > numPieces(RED)) {
+        if (!canMove(RED) && winblue) {
             _winner = BLUE;
-        } else if (!canMove(BLUE) && numPieces(RED) > numPieces(BLUE)) {
+        } else if (!canMove(BLUE) && winred) {
             _winner = RED;
-        } else if (numPieces(RED) == numPieces(BLUE) && tie || jump) {
+        } else if (!canMove(RED) || !canMove(BLUE) && tie || jump) {
             _winner = EMPTY;
-        } else if (jump && numPieces(BLUE) > numPieces(RED)) {
+        } else if (jump && winblue) {
             _winner = BLUE;
-        } else if (jump && numPieces(RED) > numPieces(BLUE)) {
-            _winner = RED;
-        } else if (move.col0() == 'd' && move.row1() == '3') {
+        } else if (jump && winred) {
             _winner = RED;
         }
         _whoseMove = opponent;

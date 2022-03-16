@@ -285,20 +285,19 @@ class Board {
                 }
             }
         }
-        boolean tie = numPieces(RED) == numPieces(BLUE);
-        boolean winblue = numPieces(BLUE) > numPieces(RED);
-        boolean winred = numPieces(RED) > numPieces(BLUE);
         boolean jump = _numJumps >= JUMP_LIMIT;
-        if (!canMove(RED) && winblue) {
-            _winner = BLUE;
-        } else if (!canMove(BLUE) && winred) {
-            _winner = RED;
-        } else if (!canMove(RED) || !canMove(BLUE) && tie || jump) {
-            _winner = EMPTY;
-        } else if (jump && winblue) {
-            _winner = BLUE;
-        } else if (jump && winred) {
-            _winner = RED;
+        if (numPieces(BLUE) > numPieces(RED)) {
+            if (!canMove(RED) || jump) {
+                _winner = BLUE;
+            }
+        } else if (numPieces(RED) > numPieces(BLUE)) {
+            if (!canMove(BLUE) || jump) {
+                _winner = RED;
+            }
+        } else if (numPieces(RED) == numPieces(BLUE)) {
+            if (!canMove(RED) || !canMove(BLUE) || jump) {
+                _winner = EMPTY;
+            }
         }
         _whoseMove = opponent;
         announce();
@@ -319,19 +318,19 @@ class Board {
         while (_undoSquares.peek() != null) {
             int pos = _undoSquares.pop();
             PieceColor type = _undoPieces.pop();
-            if (type == whoseMove()) {
-                if (get(pos) == whoseMove().opposite()) {
-                    incrPieces(whoseMove(), 1);
-                    incrPieces(whoseMove().opposite(), -1);
+            if (type == BLUE) {
+                if (get(pos) == RED) {
+                    incrPieces(BLUE, 1);
+                    incrPieces(RED, -1);
                 } else {
-                    incrPieces(whoseMove(), 1);
+                    incrPieces(BLUE, 1);
                 }
-            } else if (type == whoseMove().opposite()) {
-                if (get(pos) == whoseMove()) {
-                    incrPieces(whoseMove(), -1);
-                    incrPieces(whoseMove().opposite(), 1);
+            } else if (type == RED) {
+                if (get(pos) == BLUE) {
+                    incrPieces(RED, 1);
+                    incrPieces(BLUE, -1);
                 } else {
-                    incrPieces(whoseMove().opposite(), 1);
+                    incrPieces(RED, 1);
                 }
             } else if (type == EMPTY) {
                 incrPieces(get(pos), -1);

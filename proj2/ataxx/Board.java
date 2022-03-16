@@ -51,22 +51,6 @@ class Board {
     /** A new, cleared board in the initial configuration. */
     Board() {
         _board = new PieceColor[EXTENDED_SIDE * EXTENDED_SIDE];
-        String s1 = "abcdefg";
-        String s2 = "1234567";
-        for (int i = 0; i < s1.length(); i++) {
-            for (int k = 0; k < s2.length(); k++) {
-                set(s1.charAt(i), s2.charAt(k), EMPTY);
-            }
-        }
-        set('a', '1', BLUE);
-        set('g', '7', BLUE);
-        incrPieces(BLUE, 2);
-        set('g', '1', RED);
-        set('a', '7', RED);
-        incrPieces(RED, 2);
-        _allMoves = new ArrayList<>();
-        _numJumps = 0;
-        _totalOpen = SIDE * SIDE - 4;
         setNotifier(NOP);
         clear();
     }
@@ -75,7 +59,15 @@ class Board {
      *  undo history is clear, and whose notifier does nothing. */
     Board(Board board0) {
         _board = board0._board.clone();
-        // FIXME
+        _whoseMove = RED;
+        _allMoves = new ArrayList<>();
+        _numJumps = 0;
+        _totalOpen = board0._totalOpen;
+        _gamestart = board0._gamestart;
+        _winner = board0._winner;
+        _numPieces = board0._numPieces.clone();
+        _undoSquares = board0._undoSquares;
+        _undoPieces = board0._undoPieces;
         setNotifier(NOP);
     }
 
@@ -94,7 +86,29 @@ class Board {
      *  positions and no blocks. */
     void clear() {
         _whoseMove = RED;
-        // FIXME
+        _allMoves = new ArrayList<>();
+        _numJumps = 0;
+        _totalOpen = SIDE * SIDE - 4;
+        _gamestart = false;
+        _winner = null;
+        _undoSquares = new Stack<>();
+        _undoPieces = new Stack<>();
+        for (int i = 0; i < _numPieces.length; i++) {
+            _numPieces[i] = 0;
+        }
+        String s1 = "abcdefg";
+        String s2 = "1234567";
+        for (int i = 0; i < s1.length(); i++) {
+            for (int k = 0; k < s2.length(); k++) {
+                set(s1.charAt(i), s2.charAt(k), EMPTY);
+            }
+        }
+        set('a', '1', BLUE);
+        set('g', '7', BLUE);
+        incrPieces(BLUE, 2);
+        set('g', '1', RED);
+        set('a', '7', RED);
+        incrPieces(RED, 2);
         announce();
     }
 
@@ -185,7 +199,10 @@ class Board {
     /** Return true iff player WHO can move, ignoring whether it is
      *  that player's move and whether the game is over. */
     boolean canMove(PieceColor who) {
-        return true; // FIXME
+        if (numPieces(who) == 0) {
+            return false;
+        }
+        return true;
     }
 
     /** Return the color of the player who has the next move.  The
@@ -230,6 +247,7 @@ class Board {
 
     /** Make the MOVE on this Board, assuming it is legal. */
     void makeMove(Move move) {
+        _gamestart = true;
         if (!legalMove(move)) {
             throw error("Illegal move: %s", move);
         }
@@ -240,15 +258,34 @@ class Board {
         _allMoves.add(move);
         startUndo();
         PieceColor opponent = _whoseMove.opposite();
+        int[] range = {1, 10, 11, 12};
         if (move.isExtend()) {
             set(index(move.col1(), move.row1()), whoseMove());
             incrPieces(whoseMove(), 1);
         } else if (move.isJump()) {
+            int pieces_initial = numPieces(whoseMove());
             set(index(move.col0(), move.row0()), EMPTY);
             set(index(move.col1(), move.row1()), whoseMove());
             _numJumps++;
         }
-        // FIXME
+        for (int i = 0; i < range.length * 2; i++) {
+            if (i < range.length) {
+                if (get(index(move.col1(), move.row1()) + range[i]) == opponent) {
+                    set(index(move.col1(), move.row1()) + range[i], whoseMove());
+                    incrPieces(whoseMove(), 1);
+                    incrPieces(opponent, -1);
+                }
+            } else {
+                if (get(index(move.col1(), move.row1()) - range[i - 4]) == opponent) {
+                    set(index(move.col1(), move.row1()) - range[i - 4], whoseMove());
+                    incrPieces(whoseMove(), 1);
+                    incrPieces(opponent, -1);
+                }
+            }
+        }
+        if (!canMove(opponent)) {
+            _winner = whoseMove();
+        }
         _whoseMove = opponent;
         announce();
     }
@@ -265,7 +302,9 @@ class Board {
 
     /** Undo the last move. */
     void undo() {
-        // FIXME
+        _undoSquares.pop();
+        _undoPieces.pop();
+        //_undoPieces.push();
         _whoseMove = _whoseMove.opposite();
         _allMoves.remove(_allMoves.size() - 1);
         _winner = null;
@@ -276,17 +315,19 @@ class Board {
      * _undoSquares and _undoPieces instance variable comments for
      * details on how the beginning of moves are marked. */
     private void startUndo() {
+        _undoSquares.add(null);
         // FIXME
     }
 
     /** Add an undo action for changing SQ on current board. */
     private void addUndo(int sq) {
+        _undoPieces.add(get(sq));
         // FIXME
     }
 
     /** Return true iff it is legal to place a block at C R. */
     boolean legalBlock(char c, char r) {
-         if (get(c, r) == EMPTY) {
+         if (get(c, r) == EMPTY && _gamestart == false) {
              return true;
          }
         return false;
@@ -306,25 +347,28 @@ class Board {
         if (!legalBlock(c, r)) {
             throw error("illegal block placement");
         }
-        int c1 = Math.abs('a' - c) + 1;
-        int r1 = Math.abs('1' - r) + 1;
-        int c2 = 'g' - c + 1;
-        int r2 = '7' - r + 1;
-        set(c1 * r1, whoseMove());
-        incrPieces(whoseMove(), 1);
-        if (get(c2 * r1) == null) {
-            set(c2 * r1, whoseMove());
-            incrPieces(whoseMove(), 1);
+        int c1 = c - 'a' + 2;
+        int r1 = r - '1' + 2;
+        int c2 = 'g' - c + 2;
+        int r2 = '7' - r + 2;
+        set(r1 * EXTENDED_SIDE + c1, BLOCKED);
+        incrPieces(BLOCKED, 1);
+        if (get(r1 * EXTENDED_SIDE + c2) == EMPTY) {
+            set(r1 * EXTENDED_SIDE + c2, BLOCKED);
+            incrPieces(BLOCKED, 1);
         }
-        if (get(c1 * r2) == null) {
-            set(c1 * r2, whoseMove());
-            incrPieces(whoseMove(), 1);
+        if (get(r2 * EXTENDED_SIDE + c1) == EMPTY) {
+            set(r2 * EXTENDED_SIDE + c1, BLOCKED);
+            incrPieces(BLOCKED, 1);
         }
-        if (get(c2 * r2) == null) {
-            set(c2 * r2, whoseMove());
-            incrPieces(whoseMove(), 1);
+        if (get(r2 * EXTENDED_SIDE + c2) == EMPTY) {
+            set(r2 * EXTENDED_SIDE + c2, BLOCKED);
+            incrPieces(BLOCKED, 1);
         }
-        _totalOpen = SIDE * SIDE - numPieces(RED) - numPieces(BLUE);
+        _totalOpen = SIDE * SIDE;
+        for (int i = 0; i < _numPieces.length; i++) {
+            _totalOpen -= _numPieces[i];
+        }
         if (!canMove(RED) && !canMove(BLUE)) {
             _winner = EMPTY;
         }
@@ -466,5 +510,7 @@ class Board {
     private Stack<Integer> _undoSquares;
     /** Stack of pieces formally at corresponding squares in _UNDOSQUARES. */
     private Stack<PieceColor> _undoPieces;
+
+    private boolean _gamestart;
 
 }

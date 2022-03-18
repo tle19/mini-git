@@ -117,29 +117,34 @@ public class ArrayHeap<T> {
 
     /** Returns the index of the left child of the node at i. */
     private int getLeftOf(int i) {
-        // TODO
-        return 0;
+        return 2 * i;
     }
 
     /** Returns the index of the right child of the node at i. */
     private int getRightOf(int i) {
-        // TODO
-        return 0;
+        return 2 * i + 1;
     }
 
     /** Returns the index of the node that is the parent of the
      *  node at i. */
     private int getParentOf(int i) {
-        // TODO
-        return 0;
+        return Math.floorDiv(i, 2);
     }
 
     /** Returns the index of the node with smaller priority. If one
      * node is null, then returns the index of the non-null node.
      * Precondition: at least one of the nodes is not null. */
     private int minPriorityIndex(int index1, int index2) {
-        // TODO
-        return 0;
+        if (getNode(index1) == null) {
+            return index2;
+        } else if (getNode(index2) == null) {
+            return index1;
+        }
+        if (getNode(index1).priority() < getNode(index2).priority()) {
+            return index1;
+        } else {
+            return index2;
+        }
     }
 
     /** Returns the item with the smallest priority value, but does
@@ -147,26 +152,45 @@ public class ArrayHeap<T> {
      * priority value, returns any of them. Returns null if heap is
      * empty. */
     public T peek() {
-        // TODO
-        return null;
+        if (size() <= 1) {
+            return null;
+        }
+        return getNode(1).item();
     }
 
     /** Bubbles up the node currently at the given index until no longer
      *  needed. */
     private void bubbleUp(int index) {
-        // TODO
+        Node nod = getNode(index);
+        if (nod != null) {
+            Node par = getNode(getParentOf(index));
+            if (par != null && nod.priority() < par.priority()) {
+                swap(index, getParentOf(index));
+                bubbleUp(getParentOf(index));
+            }
+        }
+        
     }
 
     /** Bubbles down the node currently at the given index until no longer
      *  needed. */
     private void bubbleDown(int index) {
-        // TODO
+        while (minPriorityIndex(index, getRightOf(index)) != index) {
+            int tempIndex = getRightOf(index);
+            swap(index, getRightOf(index));
+            index = tempIndex;
+            if (index == 0) {
+                break;
+            }
+        }
     }
 
     /** Inserts an item with the given priority value. Assume that item is
      * not already in the heap. Same as enqueue, or offer. */
     public void insert(T item, double priority) {
-        // TODO
+        Node nod = new Node(item, priority);
+        contents.add(nod);
+        bubbleUp(size() + 1);
     }
 
     /** Returns the element with the smallest priority value, and removes
@@ -174,8 +198,23 @@ public class ArrayHeap<T> {
      * removes any of them. Returns null if the heap is empty. Same as
      * dequeue, or poll. */
     public T removeMin() {
-        // TODO
-        return null;
+        T result = peek();
+        for (int i = 0; i < size() + 1; i++) {
+            if (getNode(i) == null) {
+                continue;
+            }
+            if (getNode(i).item() == result) {
+                swap(i, size());
+                removeNode(size());
+                if (getRightOf(size()) > size()) {
+                    break;
+                }
+                bubbleDown(size());
+                break;
+
+            }
+        }
+        return result;
     }
 
     /** Changes the node in this heap with the given item to have the given

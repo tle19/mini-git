@@ -152,7 +152,7 @@ public class ArrayHeap<T> {
      * priority value, returns any of them. Returns null if heap is
      * empty. */
     public T peek() {
-        if (size() <= 1) {
+        if (size() < 1) {
             return null;
         }
         return getNode(1).item();
@@ -175,12 +175,18 @@ public class ArrayHeap<T> {
     /** Bubbles down the node currently at the given index until no longer
      *  needed. */
     private void bubbleDown(int index) {
-        while (minPriorityIndex(index, getRightOf(index)) != index) {
-            int tempIndex = getRightOf(index);
-            swap(index, getRightOf(index));
-            index = tempIndex;
-            if (index == 0) {
-                break;
+        Node nod = getNode(index);
+        if (nod != null) {
+            Node left = getNode(getLeftOf(index));
+            if (left != null && nod.priority() > left.priority()) {
+                swap(index, getLeftOf(index));
+                bubbleDown(getLeftOf(index));
+            }
+            Node right = getNode(getRightOf(index));
+            nod = getNode(index);
+            if (right != null && nod.priority() > right.priority()) {
+                swap(index, getRightOf(index));
+                bubbleDown(getRightOf(index));
             }
         }
     }
@@ -191,6 +197,7 @@ public class ArrayHeap<T> {
         Node nod = new Node(item, priority);
         contents.add(nod);
         bubbleUp(size());
+        bubbleDown(1);
     }
 
     /** Returns the element with the smallest priority value, and removes
@@ -198,12 +205,13 @@ public class ArrayHeap<T> {
      * removes any of them. Returns null if the heap is empty. Same as
      * dequeue, or poll. */
     public T removeMin() {
-        if (getNode(1).item() != null) {
+        T original = peek();
+        if (getNode(1) != null) {
             swap(1, size());
             removeNode(size());
             bubbleDown(1);
         }
-        return peek();
+        return original;
     }
 
     /** Changes the node in this heap with the given item to have the given

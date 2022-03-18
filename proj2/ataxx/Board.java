@@ -382,32 +382,19 @@ class Board {
         if (!legalBlock(c, r)) {
             throw error("illegal block placement");
         }
-        int c1 = c - 'a' + 2;
-        int r1 = r - '1' + 2;
-        int c2 = 'g' - c + 2;
-        int r2 = '7' - r + 2;
-        set(r1 * EXTENDED_SIDE + c1, BLOCKED);
-        incrPieces(BLOCKED, 1);
-        if (get(r1 * EXTENDED_SIDE + c2) == EMPTY) {
-            set(r1 * EXTENDED_SIDE + c2, BLOCKED);
-            incrPieces(BLOCKED, 1);
-        }
-        if (get(r2 * EXTENDED_SIDE + c1) == EMPTY) {
-            set(r2 * EXTENDED_SIDE + c1, BLOCKED);
-            incrPieces(BLOCKED, 1);
-        }
-        if (get(r2 * EXTENDED_SIDE + c2) == EMPTY) {
-            set(r2 * EXTENDED_SIDE + c2, BLOCKED);
-            incrPieces(BLOCKED, 1);
+        for (int i = 0, pos1 = r - '1'; i < 2; pos1 = '7' - r, i++) {
+            for (int k = 0, pos2 = c - 'a'; k < 2; pos2 = 'g' - c, k++) {
+                int reflected = (pos1 + 2) * EXTENDED_SIDE + (pos2 + 2);
+                if (get(reflected) == EMPTY) {
+                    set(reflected, BLOCKED);
+                    incrPieces(BLOCKED, 1);
+                }
+            }
         }
         _totalOpen = SIDE * SIDE;
         for (int i = 0; i < _numPieces.length; i++) {
             _totalOpen -= _numPieces[i];
         }
-        if (!canMove(RED) && !canMove(BLUE)) {
-            _winner = EMPTY;
-        }
-
         announce();
     }
 

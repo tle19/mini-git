@@ -169,7 +169,7 @@ public class ArrayHeap<T> {
                 bubbleUp(getParentOf(index));
             }
         }
-        
+
     }
 
     /** Bubbles down the node currently at the given index until no longer
@@ -190,7 +190,7 @@ public class ArrayHeap<T> {
     public void insert(T item, double priority) {
         Node nod = new Node(item, priority);
         contents.add(nod);
-        bubbleUp(size() + 1);
+        bubbleUp(size());
     }
 
     /** Returns the element with the smallest priority value, and removes
@@ -198,23 +198,12 @@ public class ArrayHeap<T> {
      * removes any of them. Returns null if the heap is empty. Same as
      * dequeue, or poll. */
     public T removeMin() {
-        T result = peek();
-        for (int i = 0; i < size() + 1; i++) {
-            if (getNode(i) == null) {
-                continue;
-            }
-            if (getNode(i).item() == result) {
-                swap(i, size());
-                removeNode(size());
-                if (getRightOf(size()) > size()) {
-                    break;
-                }
-                bubbleDown(size());
-                break;
-
-            }
+        if (getNode(1).item() != null) {
+            swap(1, size());
+            removeNode(size());
+            bubbleDown(1);
         }
-        return result;
+        return peek();
     }
 
     /** Changes the node in this heap with the given item to have the given

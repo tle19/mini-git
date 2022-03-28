@@ -89,20 +89,62 @@ class AI extends Player {
         best = null;
         int bestScore;
         bestScore = 0;
+        if (sense == 1) {
+            bestScore = -INFTY;
+        } else {
+            bestScore = INFTY;
+        }
+
+        for (int pos = 0; pos < board.size(); pos++) {
+            if (!board.canMove(board.whoseMove())) {
+                break;
+            }
+            int c0 = 0, r0 = 0, c1 = 0, r1 = 0;
+            for (int i = pos; pos - 11 >= 11; pos -= 11) {
+                r0++;
+            }
+            for (int i = -2; i <= 2; i++) {
+                for (int k = -2; k <= 2; k++) {
+                    int index = board.neighbor(pos, i, k);
+                    if (board.get(index) == EMPTY) {
+                        //board.makeMove()
+                    }
+
+
+
+                }
+            }
+            //board.makeMove(c0, r0, c1, r1);
+
+        }
 
         List<Move> moves = board.allMoves();
         for (Move x: moves) {
             board.makeMove(x);
-            int compare = minMax(board, depth - 1, saveMove, sense, alpha, beta);
+            int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
             board.undo();
-            if (compare > bestScore) {
-                bestScore = compare;
-                best = x;
+            if (sense == 1) {
+                if (response > bestScore) {
+                    bestScore = response;
+                    alpha = max(alpha, bestScore);
+                    best = x;
+                }
+            } else {
+                if (response < bestScore) {
+                    bestScore = response;
+                    beta = min(beta, bestScore);
+                    best = x;
+                }
+            }
+            if (alpha >= beta) {
+                break;
             }
         }
+
         if (saveMove) {
             _lastFoundMove = best;
         }
+
         return bestScore;
     }
 
@@ -117,10 +159,12 @@ class AI extends Player {
             default -> 0;
             };
         }
-        //int val = 0;
+
         int heuristicRed = board.redPieces();
         int heuristicBlue = board.bluePieces();
         return heuristicRed - heuristicBlue;
+
+        //int val = 0;
         //for (int i = 0; i < board.size(); i++) {
         //    if (board.get(i) == RED) {
         //        val += 1;

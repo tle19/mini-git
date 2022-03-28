@@ -9,6 +9,9 @@ import java.util.Random;
 import static ataxx.PieceColor.*;
 import static java.lang.Math.min;
 import static java.lang.Math.max;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 /** A Player that computes its own moves.
  *  @author Tyler Le
@@ -85,10 +88,18 @@ class AI extends Player {
         Move best;
         best = null;
         int bestScore;
-        bestScore = 0; // FIXME
+        bestScore = 0;
 
-        // FIXME
-
+        List<Move> moves = board.allMoves();
+        for (Move x: moves) {
+            board.makeMove(x);
+            int compare = minMax(board, depth - 1, saveMove, sense, alpha, beta);
+            board.undo();
+            if (compare > bestScore) {
+                bestScore = compare;
+                best = x;
+            }
+        }
         if (saveMove) {
             _lastFoundMove = best;
         }
@@ -106,8 +117,18 @@ class AI extends Player {
             default -> 0;
             };
         }
-
-        return 0; // FIXME
+        //int val = 0;
+        int heuristicRed = board.redPieces();
+        int heuristicBlue = board.bluePieces();
+        return heuristicRed - heuristicBlue;
+        //for (int i = 0; i < board.size(); i++) {
+        //    if (board.get(i) == RED) {
+        //        val += 1;
+        //   }
+        //    if (board.get(i) == BLUE) {
+        //        val -= 1;
+        //    }
+        //}
     }
 
     /** Pseudo-random number generator for move computation. */

@@ -135,6 +135,11 @@ class Board {
         return _numPieces[color.ordinal()];
     }
 
+    /** Size of Board */
+    int size() {
+        return _board.length;
+    }
+
     /** Increment numPieces(COLOR) by K. */
     private void incrPieces(PieceColor color, int k) {
         _numPieces[color.ordinal()] += k;
@@ -199,7 +204,7 @@ class Board {
     /** Return true iff player WHO can move, ignoring whether it is
      *  that player's move and whether the game is over. */
     boolean canMove(PieceColor who) {
-        for (int pos = 0; pos < _board.length; pos++) {
+        for (int pos = 0; pos < size(); pos++) {
             if (get(pos) == who) {
                 for (int i = -2; i <= 2; i++) {
                     for (int k = -2; k <= 2; k++) {

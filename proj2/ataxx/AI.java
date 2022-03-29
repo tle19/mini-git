@@ -88,56 +88,52 @@ class AI extends Player {
         Move best;
         best = null;
         int bestScore;
-        bestScore = 0;
         if (sense == 1) {
             bestScore = -INFTY;
         } else {
             bestScore = INFTY;
         }
+        char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+        char[] row = {'1', '2', '3', '4', '5', '6', '7'};
 
-        for (int pos = 0; pos < board.size(); pos++) {
-            if (!board.canMove(board.whoseMove())) {
-                break;
-            }
-            int c0 = 0, r0 = 0, c1 = 0, r1 = 0;
-            for (int i = pos; pos - 11 >= 11; pos -= 11) {
-                r0++;
-            }
-            for (int i = -2; i <= 2; i++) {
-                for (int k = -2; k <= 2; k++) {
-                    int index = board.neighbor(pos, i, k);
-                    if (board.get(index) == EMPTY) {
-                        //board.makeMove()
+        for (char c : col) {
+            for (char r : row) {
+                if (board.get(c, r) != EMPTY) {
+                    for (int i = -2; i <= 2; i++) {
+                        for (int k = -2; k <= 2; k++) {
+                            int destination = board.neighbor(board.index(c, r), i, k);
+                            for (char nc : col) {
+                                for (char nr : row) {
+                                    if (board.index(nc, nr) == destination) {
+                                        if (board.get(nc, nr) == EMPTY && board.legalMove(c, r, nc, nr)) {
+                                            board.makeMove(c, r, nc, nr);
+                                            Move currMove = board.allMoves().get(board.allMoves().size() - 1);
+                                            /*int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
+                                            board.undo();
+                                            if (sense == 1) {
+                                                if (response > bestScore) {
+                                                    bestScore = response;
+                                                    alpha = max(alpha, bestScore);
+                                                    best = currMove;
+                                                }
+                                            } else {
+                                                if (response < bestScore) {
+                                                    bestScore = response;
+                                                    beta = min(beta, bestScore);
+                                                    best = currMove;
+                                                }
+                                            }
+                                            if (alpha >= beta) {
+                                                break;
+                                            }
+                                        }*/
+                                    }
+                                }
+
+                            }
+                        }
                     }
-
-
-
                 }
-            }
-            //board.makeMove(c0, r0, c1, r1);
-
-        }
-
-        List<Move> moves = board.allMoves();
-        for (Move x: moves) {
-            board.makeMove(x);
-            int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
-            board.undo();
-            if (sense == 1) {
-                if (response > bestScore) {
-                    bestScore = response;
-                    alpha = max(alpha, bestScore);
-                    best = x;
-                }
-            } else {
-                if (response < bestScore) {
-                    bestScore = response;
-                    beta = min(beta, bestScore);
-                    best = x;
-                }
-            }
-            if (alpha >= beta) {
-                break;
             }
         }
 

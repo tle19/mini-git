@@ -135,7 +135,7 @@ class Board {
         return _numPieces[color.ordinal()];
     }
 
-    /** Size of Board */
+    /** Size of Board. */
     int size() {
         return _board.length;
     }
@@ -190,7 +190,11 @@ class Board {
             return false;
         } else if (move.row1() < '1' || move.row1() > '7') {
             return false;
+        } else if (get(move.col1(), move.row1()) == EMPTY) {
+            return true;
         } else if (get(move.col0(), move.row0()) != whoseMove()) {
+            return false;
+        } else if (move.isPass()) {
             return false;
         }
         return true;

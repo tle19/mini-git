@@ -9,9 +9,6 @@ import java.util.Random;
 import static ataxx.PieceColor.*;
 import static java.lang.Math.min;
 import static java.lang.Math.max;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
 
 /** A Player that computes its own moves.
  *  @author Tyler Le
@@ -84,7 +81,6 @@ class AI extends Player {
         if (depth == 0 || board.getWinner() != null) {
             return staticScore(board, WINNING_VALUE + depth);
         }
-
         Move best;
         best = null;
         int bestScore;
@@ -95,52 +91,50 @@ class AI extends Player {
         }
         char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
         char[] row = {'1', '2', '3', '4', '5', '6', '7'};
-
         for (char c : col) {
             for (char r : row) {
                 if (board.get(c, r) != EMPTY) {
                     for (int i = -2; i <= 2; i++) {
                         for (int k = -2; k <= 2; k++) {
-                            int destination = board.neighbor(board.index(c, r), i, k);
-                            for (char nc : col) {
-                                for (char nr : row) {
-                                    if (board.index(nc, nr) == destination) {
-                                        if (board.get(nc, nr) == EMPTY && board.legalMove(c, r, nc, nr)) {
-                                            board.makeMove(c, r, nc, nr);
-                                            Move currMove = board.allMoves().get(board.allMoves().size() - 1);
-                                            /*int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
-                                            board.undo();
-                                            if (sense == 1) {
-                                                if (response > bestScore) {
-                                                    bestScore = response;
-                                                    alpha = max(alpha, bestScore);
-                                                    best = currMove;
+                            int ind = board.index(c, r);
+                            int destination = board.neighbor(ind, i, k);
+                            if (board.get(destination) != null && destination != ind) {
+                                for (char nc : col) {
+                                    for (char nr : row) {
+                                        if (board.index(nc, nr) == destination) {
+                                            if (board.get(nc, nr) == EMPTY && board.legalMove(c, r, nc, nr)) {
+                                                board.makeMove(c, r, nc, nr);
+                                                Move currMove = board.allMoves().get(board.allMoves().size() - 1);
+                                                int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
+                                                board.undo();
+                                                if (sense == 1) {
+                                                    if (response > bestScore) {
+                                                        bestScore = response;
+                                                        alpha = max(alpha, bestScore);
+                                                    }
+                                                } else {
+                                                    if (response < bestScore) {
+                                                        bestScore = response;
+                                                        beta = min(beta, bestScore);
+                                                    }
                                                 }
-                                            } else {
-                                                if (response < bestScore) {
-                                                    bestScore = response;
-                                                    beta = min(beta, bestScore);
-                                                    best = currMove;
+                                                best = currMove;
+                                                if (alpha >= beta) {
+                                                    break;
                                                 }
                                             }
-                                            if (alpha >= beta) {
-                                                break;
-                                            }
-                                        }*/
+                                        }
                                     }
                                 }
-
                             }
                         }
                     }
                 }
             }
         }
-
         if (saveMove) {
             _lastFoundMove = best;
         }
-
         return bestScore;
     }
 
@@ -155,20 +149,9 @@ class AI extends Player {
             default -> 0;
             };
         }
-
         int heuristicRed = board.redPieces();
         int heuristicBlue = board.bluePieces();
         return heuristicRed - heuristicBlue;
-
-        //int val = 0;
-        //for (int i = 0; i < board.size(); i++) {
-        //    if (board.get(i) == RED) {
-        //        val += 1;
-        //   }
-        //    if (board.get(i) == BLUE) {
-        //        val -= 1;
-        //    }
-        //}
     }
 
     /** Pseudo-random number generator for move computation. */

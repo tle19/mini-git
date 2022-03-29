@@ -9,6 +9,7 @@ import java.util.Random;
 import static ataxx.PieceColor.*;
 import static java.lang.Math.min;
 import static java.lang.Math.max;
+import java.util.ArrayList;
 
 /** A Player that computes its own moves.
  *  @author Tyler Le
@@ -55,8 +56,10 @@ class AI extends Player {
         Board b = new Board(getBoard());
         _lastFoundMove = null;
         if (myColor() == RED) {
+            b._whoseMove = RED;
             minMax(b, MAX_DEPTH, true, 1, -INFTY, INFTY);
         } else {
+            b._whoseMove = BLUE;
             minMax(b, MAX_DEPTH, true, -1, -INFTY, INFTY);
         }
         return _lastFoundMove;
@@ -89,11 +92,39 @@ class AI extends Player {
         } else {
             bestScore = INFTY;
         }
+        /*ArrayList<Move> moves = moveGenerator(board);
+        for (Move mov: moves) {
+            char c = mov.col0();
+            char r = mov.row0();
+            char nc = mov.col1();
+            char nr = mov.row1();
+
+            board.makeMove(c, r, nc, nr);
+            Move currMove = board.allMoves().get(board.allMoves().size() - 1);
+            int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
+            board.undo();
+            if (sense == 1) {
+                if (response > bestScore) {
+                    bestScore = response;
+                    alpha = max(alpha, bestScore);
+                }
+            } else {
+                if (response < bestScore) {
+                    bestScore = response;
+                    beta = min(beta, bestScore);
+                }
+            }
+            best = currMove;
+            if (alpha >= beta) {
+                break;
+            }
+        }*/
+
         char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
         char[] row = {'1', '2', '3', '4', '5', '6', '7'};
         for (char c : col) {
             for (char r : row) {
-                if (board.get(c, r) != EMPTY) {
+                if (board.get(c, r) == myColor()) {
                     for (int i = -2; i <= 2; i++) {
                         for (int k = -2; k <= 2; k++) {
                             int ind = board.index(c, r);
@@ -105,7 +136,7 @@ class AI extends Player {
                                             if (board.get(nc, nr) == EMPTY && board.legalMove(c, r, nc, nr)) {
                                                 board.makeMove(c, r, nc, nr);
                                                 Move currMove = board.allMoves().get(board.allMoves().size() - 1);
-                                                int response = minMax(board, depth - 1, saveMove, -1 * sense, alpha, beta);
+                                                int response = minMax(board, depth - 1, false, -1 * sense, alpha, beta);
                                                 board.undo();
                                                 if (sense == 1) {
                                                     if (response > bestScore) {
@@ -136,6 +167,40 @@ class AI extends Player {
             _lastFoundMove = best;
         }
         return bestScore;
+    }
+
+    /** Helper for the minMax function.*/
+    private ArrayList<Move> moveGenerator(Board board) {
+
+        ArrayList<Move> moves = new ArrayList<>();
+        char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+        char[] row = {'1', '2', '3', '4', '5', '6', '7'};
+        for (char c : col) {
+            for (char r : row) {
+                if (board.get(c, r) != EMPTY) {
+                    for (int i = -2; i <= 2; i++) {
+                        for (int k = -2; k <= 2; k++) {
+                            int ind = board.index(c, r);
+                            int destination = board.neighbor(ind, i, k);
+                            if (destination != ind) {
+                                if (board.get(destination) == EMPTY) {
+                                    for (char nc : col) {
+                                        for (char nr : row) {
+                                            if (board.index(nc, nr) == destination) {
+                                                if (board.legalMove(c, r, nc, nr)) {
+                                                    moves.add(Move.move(c, r, nc, nr));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return moves;
     }
 
     /** Return a heuristic value for BOARD.  This value is +- WINNINGVALUE in

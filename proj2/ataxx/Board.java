@@ -214,7 +214,7 @@ class Board {
                 }
             }
         }
-        return true;
+        return false;
     }
 
     /** Return true iff C0 R0 - C1 R1 is legal on the current board. */
@@ -321,12 +321,12 @@ class Board {
     void winCheck() {
         boolean jump = _numJumps >= JUMP_LIMIT;
         if (numPieces(BLUE) > numPieces(RED)) {
-            if (!canMove(RED) || !canMove(BLUE) || jump) {
+            if (!canMove(RED) || jump) {
                 _winner = BLUE;
             }
         }
         if (numPieces(RED) > numPieces(BLUE)) {
-            if (!canMove(RED) || !canMove(BLUE) || jump) {
+            if (!canMove(BLUE) || jump) {
                 _winner = RED;
             }
         }
@@ -478,20 +478,20 @@ class Board {
             out.format(" ");
             for (char c = 'a'; c <= 'g'; c += 1) {
                 switch (get(c, r)) {
-                    case RED:
-                        out.format(" r");
-                        break;
-                    case BLUE:
-                        out.format(" b");
-                        break;
-                    case BLOCKED:
-                        out.format(" X");
-                        break;
-                    case EMPTY:
-                        out.format(" -");
-                        break;
-                    default:
-                        break;
+                case RED:
+                    out.format(" r");
+                    break;
+                case BLUE:
+                    out.format(" b");
+                    break;
+                case BLOCKED:
+                    out.format(" X");
+                    break;
+                case EMPTY:
+                    out.format(" -");
+                    break;
+                default:
+                    break;
                 }
             }
             out.format("%n");

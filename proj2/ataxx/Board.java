@@ -141,7 +141,7 @@ class Board {
         return _board.length;
     }
 
-    /** Size of Board. */
+    /** Changes player. */
     void changePlayer() {
         _whoseMove = whoseMove().opposite();
     }
@@ -192,6 +192,8 @@ class Board {
     boolean legalMove(Move move) {
         if (move == null) {
             return false;
+        } else if (move.isPass()) {
+            return true;
         } else if (move.col1() < 'a' || move.col1() > 'g') {
             return false;
         } else if (move.row1() < '1' || move.row1() > '7') {
@@ -212,9 +214,7 @@ class Board {
                 }
             }
         }
-        if (move.isPass()) {
-            return true;
-        }
+
         return false;
     }
 
@@ -282,7 +282,12 @@ class Board {
 
     /** Make the MOVE on this Board, assuming it is legal. */
     void makeMove(Move move) {
+        winCheck();
         _gamestart = true;
+        if (_winner != null) {
+            announce();
+            return;
+        }
         if (!legalMove(move)) {
             throw error("Illegal move: %s", move);
         }
@@ -317,7 +322,7 @@ class Board {
         announce();
     }
 
-    /** Checks for winner. */
+    /** Checks to see if there is a winner. */
     void winCheck() {
         boolean jump = _numJumps >= JUMP_LIMIT;
         if (numPieces(BLUE) > numPieces(RED)) {

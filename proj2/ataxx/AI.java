@@ -23,10 +23,6 @@ class AI extends Player {
     private static final int WINNING_VALUE = Integer.MAX_VALUE - 20;
     /** A magnitude greater than a normal value. */
     private static final int INFTY = Integer.MAX_VALUE;
-    /** The columns of the board. */
-    private static final char[] COL = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
-    /** The rows of the board. */
-    private static final char[] ROW = {'1', '2', '3', '4', '5', '6', '7'};
 
     /** A new AI for GAME that will play MYCOLOR. SEED is used to initialize
      *  a random-number generator for use in move computations.  Identical
@@ -139,8 +135,10 @@ class AI extends Player {
      * @param board is the current state of the game. */
     private ArrayList<Move> moveGenerator(Board board) {
         ArrayList<Move> moves = new ArrayList<>();
-        for (char c : COL) {
-            for (char r : ROW) {
+        char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+        char[] row = {'1', '2', '3', '4', '5', '6', '7'};
+        for (char c : col) {
+            for (char r : row) {
                 if (board.get(c, r) != EMPTY) {
                     for (int i = -2; i <= 2; i++) {
                         for (int k = -2; k <= 2; k++) {
@@ -168,8 +166,10 @@ class AI extends Player {
      * @param r of the from row position.
      * @param destination of the to position */
     private boolean legality(Board board, char c, char r, int destination) {
-        for (char nc : COL) {
-            for (char nr : ROW) {
+        char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+        char[] row = {'1', '2', '3', '4', '5', '6', '7'};
+        for (char nc : col) {
+            for (char nr : row) {
                 if (board.index(nc, nr) == destination) {
                     if (board.legalMove(c, r, nc, nr)) {
                         return true;
@@ -187,8 +187,10 @@ class AI extends Player {
      * @param r of the from row position.
      * @param destination of the to position */
     private Move moveValue(Board board, char c, char r, int destination) {
-        for (char nc : COL) {
-            for (char nr : ROW) {
+        char[] col = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+        char[] row = {'1', '2', '3', '4', '5', '6', '7'};
+        for (char nc : col) {
+            for (char nr : row) {
                 if (board.index(nc, nr) == destination) {
                     return Move.move(c, r, nc, nr);
                 }
@@ -203,12 +205,14 @@ class AI extends Player {
         PieceColor winner = board.getWinner();
         if (winner != null) {
             return switch (winner) {
-            case RED -> winningValue;
-            case BLUE -> -winningValue;
-            default -> 0;
+                case RED -> winningValue;
+                case BLUE -> -winningValue;
+                default -> 0;
             };
         }
-        return board.redPieces() - board.bluePieces();
+        int heuristicRed = board.redPieces();
+        int heuristicBlue = board.bluePieces();
+        return heuristicRed - heuristicBlue;
     }
 
     /** Pseudo-random number generator for move computation. */

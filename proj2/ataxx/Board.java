@@ -141,7 +141,7 @@ class Board {
         return _board.length;
     }
 
-    /** Changes player. */
+    /** Size of Board. */
     void changePlayer() {
         _whoseMove = whoseMove().opposite();
     }
@@ -192,8 +192,6 @@ class Board {
     boolean legalMove(Move move) {
         if (move == null) {
             return false;
-        } else if (move.isPass()) {
-            return true;
         } else if (move.col1() < 'a' || move.col1() > 'g') {
             return false;
         } else if (move.row1() < '1' || move.row1() > '7') {
@@ -214,7 +212,9 @@ class Board {
                 }
             }
         }
-
+        if (move.isPass()) {
+            return true;
+        }
         return false;
     }
 
@@ -266,7 +266,7 @@ class Board {
             makeMove(Move.pass());
         } else {
             makeMove(Move.move(move.charAt(0), move.charAt(1), move.charAt(3),
-                               move.charAt(4)));
+                    move.charAt(4)));
         }
     }
 
@@ -283,7 +283,6 @@ class Board {
     /** Make the MOVE on this Board, assuming it is legal. */
     void makeMove(Move move) {
         _gamestart = true;
-        winCheck();
         if (!legalMove(move)) {
             throw error("Illegal move: %s", move);
         }
@@ -318,7 +317,7 @@ class Board {
         announce();
     }
 
-    /** Checks to see if there is a winner. */
+    /** Checks for winner. */
     void winCheck() {
         boolean jump = _numJumps >= JUMP_LIMIT;
         if (numPieces(BLUE) > numPieces(RED)) {
@@ -477,20 +476,20 @@ class Board {
             out.format(" ");
             for (char c = 'a'; c <= 'g'; c += 1) {
                 switch (get(c, r)) {
-                case RED:
-                    out.format(" r");
-                    break;
-                case BLUE:
-                    out.format(" b");
-                    break;
-                case BLOCKED:
-                    out.format(" X");
-                    break;
-                case EMPTY:
-                    out.format(" -");
-                    break;
-                default:
-                    break;
+                    case RED:
+                        out.format(" r");
+                        break;
+                    case BLUE:
+                        out.format(" b");
+                        break;
+                    case BLOCKED:
+                        out.format(" X");
+                        break;
+                    case EMPTY:
+                        out.format(" -");
+                        break;
+                    default:
+                        break;
                 }
             }
             out.format("%n");

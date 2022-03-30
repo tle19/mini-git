@@ -192,7 +192,7 @@ class Board {
     boolean legalMove(Move move) {
         if (move == null) {
             return false;
-        } else if (move.isPass()) {
+        } else if (move.isPass() && !canMove(whoseMove())) {
             return true;
         } else if (move.col1() < 'a' || move.col1() > 'g') {
             return false;
@@ -200,7 +200,7 @@ class Board {
             return false;
         } else if (get(move.col0(), move.row0()) != whoseMove()) {
             return false;
-        } else if (get(move.col1(), move.row1()) == BLOCKED) {
+        } else if (get(move.col1(), move.row1()) != EMPTY) {
             return false;
         }
         for (int i = -2; i <= 2; i++) {
@@ -214,8 +214,7 @@ class Board {
                 }
             }
         }
-
-        return false;
+        return true;
     }
 
     /** Return true iff C0 R0 - C1 R1 is legal on the current board. */
@@ -284,10 +283,6 @@ class Board {
     void makeMove(Move move) {
         winCheck();
         _gamestart = true;
-        if (_winner != null) {
-            announce();
-            return;
-        }
         if (!legalMove(move)) {
             throw error("Illegal move: %s", move);
         }
@@ -326,14 +321,16 @@ class Board {
     void winCheck() {
         boolean jump = _numJumps >= JUMP_LIMIT;
         if (numPieces(BLUE) > numPieces(RED)) {
-            if (!canMove(RED) || jump) {
+            if (!canMove(RED) || !canMove(BLUE) || jump) {
                 _winner = BLUE;
             }
-        } else if (numPieces(RED) > numPieces(BLUE)) {
-            if (!canMove(BLUE) || jump) {
+        }
+        if (numPieces(RED) > numPieces(BLUE)) {
+            if (!canMove(RED) || !canMove(BLUE) || jump) {
                 _winner = RED;
             }
-        } else if (numPieces(RED) == numPieces(BLUE)) {
+        }
+        if (numPieces(RED) == numPieces(BLUE)) {
             if (!canMove(RED) || !canMove(BLUE) || jump) {
                 _winner = EMPTY;
             }

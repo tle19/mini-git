@@ -108,6 +108,9 @@ class AI extends Player {
             char nr = mov.row1();
             board.makeMove(c, r, nc, nr);
             Move currMove = board.allMoves().get(board.allMoves().size() - 1);
+            if (currMove == null) {
+                break;
+            }
             int response = minMax(
                     board, depth - 1, false, -1 * sense, alpha, beta);
             board.undo();

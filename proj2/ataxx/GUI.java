@@ -18,7 +18,7 @@ import static ataxx.PieceColor.*;
 import static ataxx.Utils.*;
 
 /** The GUI for the Ataxx game.
- *  @author
+ *  @author Tyler Le
  */
 class GUI extends TopLevel implements View, CommandSource, Reporter {
 
@@ -138,7 +138,7 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
 
     @Override
     public void announceWin(PieceColor player) {
-        // FIXME
+        /* fix */
     }
 
     @Override

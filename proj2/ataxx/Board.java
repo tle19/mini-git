@@ -135,9 +135,15 @@ class Board {
         return _numPieces[color.ordinal()];
     }
 
-    /** Size of Board. */
+    /** Size of Board.
+     * @return Return the contents of the board. */
     int size() {
         return _board.length;
+    }
+
+    /** Size of Board. */
+    void changePlayer() {
+        _whoseMove = whoseMove().opposite();
     }
 
     /** Increment numPieces(COLOR) by K. */
@@ -195,7 +201,8 @@ class Board {
         }
         for (int i = -2; i <= 2; i++) {
             for (int k = -2; k <= 2; k++) {
-                if (neighbor(index(move.col0(), move.row0()), i, k) == index(move.col1(), move.row1())) {
+                if (neighbor(index(move.col0(), move.row0()), i, k)
+                        == index(move.col1(), move.row1())) {
                     if (get(move.col1(), move.row1()) == EMPTY) {
                         return true;
                     }
@@ -520,7 +527,7 @@ class Board {
     private final PieceColor[] _board;
 
     /** Player that is next to move. */
-    public PieceColor _whoseMove;
+    private PieceColor _whoseMove;
 
     /** Number of consecutive non-extending moves since the
      *  last clear or the beginning of the game. */

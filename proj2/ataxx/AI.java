@@ -102,12 +102,7 @@ class AI extends Player {
         }
         ArrayList<Move> moves = moveGenerator(board);
         for (Move mov: moves) {
-            char c = mov.col0();
-            char r = mov.row0();
-            char nc = mov.col1();
-            char nr = mov.row1();
-            board.makeMove(c, r, nc, nr);
-            Move currMove = board.allMoves().get(board.allMoves().size() - 1);
+            board.makeMove(mov);
             int response = minMax(
                     board, depth - 1, false, -1 * sense, alpha, beta);
             board.undo();
@@ -115,13 +110,13 @@ class AI extends Player {
                 if (response > bestScore) {
                     bestScore = response;
                     alpha = max(alpha, bestScore);
-                    best = currMove;
+                    best = mov;
                 }
             } else {
                 if (response < bestScore) {
                     bestScore = response;
                     beta = min(beta, bestScore);
-                    best = currMove;
+                    best = mov;
                 }
             }
             if (alpha >= beta) {
@@ -180,7 +175,7 @@ class AI extends Player {
         return false;
     }
 
-    /** Legality finer for the moveGenerator function.
+    /** Move finder for the moveGenerator function.
      * @return return the move of the linearized index.
      * @param board of the current game.
      * @param c of the from column position.

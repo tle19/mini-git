@@ -192,7 +192,8 @@ class Board {
     boolean legalMove(Move move) {
         if (move == null) {
             return false;
-        } else if (move.isPass() && !canMove(whoseMove())) {
+        } else if (move.isPass()
+                && !canMove(whoseMove()) && numPieces(whoseMove()) >= 1) {
             return true;
         } else if (move.col1() < 'a' || move.col1() > 'g') {
             return false;
@@ -225,6 +226,9 @@ class Board {
     /** Return true iff player WHO can move, ignoring whether it is
      *  that player's move and whether the game is over. */
     boolean canMove(PieceColor who) {
+        if (numPieces(who) == 0) {
+            return false;
+        }
         for (int pos = 0; pos < size(); pos++) {
             if (get(pos) == who) {
                 for (int i = -2; i <= 2; i++) {
@@ -283,6 +287,10 @@ class Board {
     void makeMove(Move move) {
         winCheck();
         _gamestart = true;
+        if (!legalMove(move) && numPieces(whoseMove()) >= 1) {
+            pass();
+            return;
+        }
         if (!legalMove(move)) {
             throw error("Illegal move: %s", move);
         }
@@ -331,7 +339,7 @@ class Board {
             }
         }
         if (numPieces(RED) == numPieces(BLUE)) {
-            if (!canMove(RED) || !canMove(BLUE) || jump) {
+            if (!canMove(RED) && !canMove(BLUE) || jump) {
                 _winner = EMPTY;
             }
         }

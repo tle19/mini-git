@@ -60,11 +60,13 @@ class AI extends Player {
         Board b = new Board(getBoard());
         _lastFoundMove = null;
         if (myColor() == RED) {
+            //System.out.println("plz");
             if (b.whoseMove() != RED) {
                 b.changePlayer();
             }
             minMax(b, MAX_DEPTH, true, 1, -INFTY, INFTY);
         } else {
+            //System.out.println("naur");
             if (b.whoseMove() != BLUE) {
                 b.changePlayer();
             }
@@ -89,9 +91,10 @@ class AI extends Player {
         /* We use WINNING_VALUE + depth as the winning value so as to favor
          * wins that happen sooner rather than later (depth is larger the
          * fewer moves have been made. */
-        if (depth == 0 || board.getWinner() != null) {
+        if (depth == 1 || board.getWinner() != null) {
             return staticScore(board, WINNING_VALUE + depth);
         }
+        //System.out.println(myColor());
         Move best;
         best = null;
         int bestScore;

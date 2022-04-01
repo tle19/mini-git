@@ -138,7 +138,8 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
 
     @Override
     public void announceWin(PieceColor player) {
-        /* fix */
+        showMessage(player + " wins.", "Outcome", "outcome");
+
     }
 
     @Override

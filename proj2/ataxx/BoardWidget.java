@@ -74,21 +74,56 @@ class BoardWidget extends Pad  {
 
     @Override
     public synchronized void paintComponent(Graphics2D g) {
-        /* fix below */
         g.setColor(BLANK_COLOR);
         g.fillRect(0, 0, _dim, _dim);
+
         g.setColor(LINE_COLOR);
-        for (int c = 0; c < SIDE; c++) {
-            g.drawLine(c, 0, c, SIDE);
+        g.setStroke(LINE_STROKE);
+        for (int c = 0; c <= SIDE; c++) {
+            g.drawLine(c * SQDIM, 0, c * SQDIM, _dim);
         }
-        for (int r = 0; r < SIDE; r++) {
-            g.drawLine(0, r, 0, SIDE);
+        for (int r = 0; r <= SIDE; r++) {
+            g.drawLine(0, r * SQDIM, _dim, r * SQDIM);
+        }
+        int ind = _model.index(_selectedCol, _selectedRow);
+        int cx = ind % 11 - 1;
+        int cy = 8 - (Math.floorDiv(ind, 11) - 1);
+        if (_selectedCol != 0 && _selectedRow != 0) {
+            g.setColor(SELECTED_COLOR);
+            g.fillRect(cx * SQDIM - SQDIM, cy * SQDIM - SQDIM, SQDIM, SQDIM);
+        }
+        for (int i = 0; i < _model.size(); i++) {
+            int x = i % 11 - 1;
+            int y = 8 - (Math.floorDiv(i, 11) - 1);
+            if (_model.get(i) == RED) {
+                drawPiece(g, x, y, RED);
+            }
+            if (_model.get(i) == BLUE) {
+                drawPiece(g, x, y, BLUE);
+            }
+            if (_model.get(i) == BLOCKED) {
+                drawBlock(g, x, y);
+            }
+        }
+    }
+
+    /** Draw a piece centered at (CX, CY) on G. */
+    void drawPiece(Graphics2D g, int cx, int cy, PieceColor p) {
+        int d = PIECE_RADIUS * 2;
+        if (p == RED) {
+            g.setColor(RED_COLOR);
+            g.fillOval(cx * SQDIM - SQDIM + 10, cy * SQDIM - SQDIM + 10, d, d);
+        }
+        if (p == BLUE) {
+            g.setColor(BLUE_COLOR);
+            g.fillOval(cx * SQDIM - SQDIM + 10, cy * SQDIM - SQDIM + 10, d, d);
         }
     }
 
     /** Draw a block centered at (CX, CY) on G. */
     void drawBlock(Graphics2D g, int cx, int cy) {
-        /* fix */
+        g.setColor(BLOCK_COLOR);
+        g.fillRect(cx * SQDIM - SQDIM + 5, cy * SQDIM - SQDIM + 5, BLOCK_WIDTH, BLOCK_WIDTH);
     }
 
     /** Clear selected block, if any, and turn off block mode. */
@@ -104,7 +139,6 @@ class BoardWidget extends Pad  {
 
     /** Issue move command indicated by mouse-click event WHERE. */
     private void handleClick(String unused, MouseEvent where) {
-        /* fix line 111 and 114 */
         int x = where.getX(), y = where.getY();
         char mouseCol, mouseRow;
         if (where.getButton() == MouseEvent.BUTTON1) {
@@ -113,10 +147,10 @@ class BoardWidget extends Pad  {
             if (mouseCol >= 'a' && mouseCol <= 'g'
                 && mouseRow >= '1' && mouseRow <= '7') {
                 if (_blockMode) {
-                    _commandQueue.offer("block c3");
+                    _commandQueue.offer("block " + mouseCol + mouseRow);
                 } else {
                     if (_selectedCol != 0) {
-
+                        _commandQueue.offer(_selectedCol + "" + _selectedRow + "-" + mouseCol + "" + mouseRow);
                         _selectedCol = _selectedRow = 0;
                     } else {
                         _selectedCol = mouseCol;

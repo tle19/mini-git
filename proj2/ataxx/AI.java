@@ -60,13 +60,11 @@ class AI extends Player {
         Board b = new Board(getBoard());
         _lastFoundMove = null;
         if (myColor() == RED) {
-            //System.out.println("plz");
             if (b.whoseMove() != RED) {
                 b.changePlayer();
             }
             minMax(b, MAX_DEPTH, true, 1, -INFTY, INFTY);
         } else {
-            //System.out.println("naur");
             if (b.whoseMove() != BLUE) {
                 b.changePlayer();
             }
@@ -94,7 +92,6 @@ class AI extends Player {
         if (depth == 1 || board.getWinner() != null) {
             return staticScore(board, WINNING_VALUE + depth);
         }
-        //System.out.println(myColor());
         Move best;
         best = null;
         int bestScore;

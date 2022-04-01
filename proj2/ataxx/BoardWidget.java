@@ -77,8 +77,13 @@ class BoardWidget extends Pad  {
         /* fix below */
         g.setColor(BLANK_COLOR);
         g.fillRect(0, 0, _dim, _dim);
-
-
+        g.setColor(LINE_COLOR);
+        for (int c = 0; c < SIDE; c++) {
+            g.drawLine(c, 0, c, SIDE);
+        }
+        for (int r = 0; r < SIDE; r++) {
+            g.drawLine(0, r, 0, SIDE);
+        }
     }
 
     /** Draw a block centered at (CX, CY) on G. */

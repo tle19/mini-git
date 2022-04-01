@@ -107,7 +107,11 @@ class BoardWidget extends Pad  {
         }
     }
 
-    /** Draw a piece centered at (CX, CY) on G. */
+    /** Draw a piece centered at (CX, CY) on G.
+     * @param p is the current piece that is being placed.
+     * @param g is the graphics object.
+     * @param cx is the x position.
+     * @param cy is the y position. */
     void drawPiece(Graphics2D g, int cx, int cy, PieceColor p) {
         int d = PIECE_RADIUS * 2;
         if (p == RED) {
@@ -123,24 +127,10 @@ class BoardWidget extends Pad  {
     /** Draw a block centered at (CX, CY) on G. */
     void drawBlock(Graphics2D g, int cx, int cy) {
         g.setColor(BLOCK_COLOR);
-        g.fillRect(cx * SQDIM - SQDIM + 5, cy * SQDIM - SQDIM + 5, BLOCK_WIDTH, BLOCK_WIDTH);
+        g.fillRect(cx * SQDIM - SQDIM + 5, cy * SQDIM - SQDIM + 5,
+                BLOCK_WIDTH, BLOCK_WIDTH);
 
-        g.setColor(BLANK_COLOR);
-        g.drawOval(cx * SQDIM - SQDIM + 8, cy * SQDIM - SQDIM + 10, BLOCK_WIDTH - 6, BLOCK_WIDTH - 10);
-        g.drawLine(cx * SQDIM - SQDIM + 8, cy * SQDIM - SQDIM + 25, cx * SQDIM - SQDIM + 11, cy * SQDIM - SQDIM + 8);
-        g.drawLine(cx * SQDIM - SQDIM + 11, cy * SQDIM - SQDIM + 8, cx * SQDIM - SQDIM + 18, cy * SQDIM - SQDIM + 12);
-        g.drawLine(cx * SQDIM - SQDIM + 42, cy * SQDIM - SQDIM + 25, cx * SQDIM - SQDIM + 39, cy * SQDIM - SQDIM + 8);
-        g.drawLine(cx * SQDIM - SQDIM + 39, cy * SQDIM - SQDIM + 8, cx * SQDIM - SQDIM + 32, cy * SQDIM - SQDIM + 12);
-        g.drawArc(cx * SQDIM - SQDIM + 20, cy * SQDIM - SQDIM + 25, 5, 6, 180, 180);
-        g.drawArc(cx * SQDIM - SQDIM + 25, cy * SQDIM - SQDIM + 25, 5, 6, 180, 180);
-        g.drawOval(cx * SQDIM - SQDIM + 15, cy * SQDIM - SQDIM + 21, 5, 5);
-        g.drawOval(cx * SQDIM - SQDIM + 30, cy * SQDIM - SQDIM + 21, 5, 5);
-        g.fillOval(cx * SQDIM - SQDIM + 17, cy * SQDIM - SQDIM + 22, 3, 3);
-        g.fillOval(cx * SQDIM - SQDIM + 32, cy * SQDIM - SQDIM + 22, 3, 3);
-        g.drawLine(cx * SQDIM - SQDIM + 10, cy * SQDIM - SQDIM + 25, cx * SQDIM - SQDIM + 6, cy * SQDIM - SQDIM + 23);
-        g.drawLine(cx * SQDIM - SQDIM + 40, cy * SQDIM - SQDIM + 25, cx * SQDIM - SQDIM + 44, cy * SQDIM - SQDIM + 23);
-        g.drawLine(cx * SQDIM - SQDIM + 10, cy * SQDIM - SQDIM + 28, cx * SQDIM - SQDIM + 6, cy * SQDIM - SQDIM + 30);
-        g.drawLine(cx * SQDIM - SQDIM + 40, cy * SQDIM - SQDIM + 28, cx * SQDIM - SQDIM + 44, cy * SQDIM - SQDIM + 30);
+
     }
 
     /** Clear selected block, if any, and turn off block mode. */
@@ -167,7 +157,8 @@ class BoardWidget extends Pad  {
                     _commandQueue.offer("block " + mouseCol + mouseRow);
                 } else {
                     if (_selectedCol != 0) {
-                        _commandQueue.offer(_selectedCol + "" + _selectedRow + "-" + mouseCol + "" + mouseRow);
+                        _commandQueue.offer(_selectedCol + "" + _selectedRow
+                                + "-" + mouseCol + "" + mouseRow);
                         _selectedCol = _selectedRow = 0;
                     } else {
                         _selectedCol = mouseCol;

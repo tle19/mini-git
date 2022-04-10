@@ -92,7 +92,7 @@ public class Main {
      */
     public static void writeStory(String[] args) {
         validateNumArgs("story", args, 2);
-        Utils.writeContents(STORY, Utils.readContentsAsString(STORY) + args[1]);
+        Utils.writeContents(STORY, Utils.readContentsAsString(STORY) + args[1] + '\n');
         System.out.println(Utils.readContentsAsString(STORY));
     }
 
@@ -104,7 +104,9 @@ public class Main {
      */
     public static void makeDog(String[] args) {
         validateNumArgs("dog", args, 4);
-        // FIXME
+        Dog dog = new Dog(args[1], args[2], Integer.parseInt(args[3]));
+        dog.saveDog();
+        System.out.println(dog.toString());
     }
 
     /**
@@ -115,7 +117,8 @@ public class Main {
      */
     public static void celebrateBirthday(String[] args) {
         validateNumArgs("birthday", args, 2);
-        // FIXME
+        Dog.fromFile(args[1]).haveBirthday();
+        System.out.println(Dog.fromFile(args[1]));
     }
 
     /**

@@ -117,8 +117,9 @@ public class Main {
      */
     public static void celebrateBirthday(String[] args) {
         validateNumArgs("birthday", args, 2);
-        Dog.fromFile(args[1]).haveBirthday();
-        System.out.println(Dog.fromFile(args[1]));
+        Dog dog = Dog.fromFile(args[1]);
+        dog.haveBirthday();
+        dog.saveDog();
     }
 
     /**

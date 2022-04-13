@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import static java.lang.System.arraycopy;
 
 /**
  * Note that every sorting algorithm takes in an argument k. The sorting 
@@ -85,42 +86,37 @@ public class MySortingAlgorithms {
       * method is easier to write than a recursive merge method.
       * Note: I'm only talking about the merge operation here,
       * not the entire algorithm, which is easier to do recursively.
+      *
+      * I referenced DSIJ and https://www.geeksforgeeks.org/merge-sort/ to write my implementation .
       */
     public static class MergeSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            if (k < 2 || array == null) {
-                return;
-            }
-            int[] arr1;
-            int[] arr2;
-            if (array.length % 2 == 1) {
-                arr1 = new int[k / 2 + 1];
-            } else {
-                arr1 = new int[k / 2];
-            }
-            arr2 = new int [k / 2];
-            for (int i = 0; i < arr1.length + arr2.length; i += 2) {
-                arr1[i / 2] = array[i];
-                if (i + 1 < k) {
-                    arr2[i / 2] = array[i + 1];
-                }
-            }
-            sort(arr1, arr1.length);
-            sort(arr2, arr2.length);
-            int one = 0;
-            int two = 0;
-            for (int i = 0; i < k; i++) {
-                if 
-                if (arr) {
-                    array[i] = arr1[j];
-                    one++
-                }
-                array[i] = arr2[j];
+            sorter(array, 0, k);
+        }
+
+        public void sorter(int[] a, int L, int H) {
+            if (L < H - 1) {
+                int M = (L + H) / 2;
+                sorter(a, L, M);
+                sorter(a, M, H);
+                merge(a, L, M, H);
             }
         }
 
-        // may want to add additional methods
+        public void merge(int[] a, int L, int M, int H) {
+            for (int i = M; i < H; i++) {
+                int save = a[i];
+                int k;
+                for (k = i; k > L; k--) {
+                    if (a[k - 1] <= save) {
+                        break;
+                    }
+                    a[k] = a[k - 1];
+                }
+                a[k] = save;
+            }
+        }
 
         @Override
         public String toString() {
@@ -184,11 +180,38 @@ public class MySortingAlgorithms {
 
     /**
      * LSD Sort implementation.
+     *
+     * I referenced https://www.geeksforgeeks.org/radix-sort/ for my implementation.
      */
     public static class LSDSort implements SortingAlgorithm {
         @Override
         public void sort(int[] a, int k) {
-            // FIXME
+            int max = 0;
+            for (int i = 0; i < k; i++) {
+                max = Math.max(max, a[i]);
+            }
+            for (int i = 1; max / i > 0; i *= 10)
+                LDS(a, k, i);
+        }
+
+        public void LDS(int[] a, int k, int count) {
+            int counts[] = new int[10];
+            int[] result = new int[k];
+            int len = counts.length;
+            for (int i = 0; i < k; i++) {
+                counts[(a[i] / count) % 10]++;
+            }
+
+            for (int i = 1; i < len; i++) {
+                counts[i] += counts[i - 1];
+            }
+
+            for (int i = k - 1; i >= 0; i--) {
+                result[counts[(a[i] / count) % len] - 1] = a[i];
+                counts[(a[i] / count) % len]--;
+            }
+
+            arraycopy(result, 0, a, 0, k);
         }
 
         @Override

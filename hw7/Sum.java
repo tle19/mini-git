@@ -12,7 +12,7 @@ public class Sum {
         }
         for (int i = 0; i < A.length; i++) {
             int searched = Arrays.binarySearch(A, m - B[i]);
-            if (searched >= 0 && A[searched] + B[i] == m) {
+            if (searched >= 0 && searched < A.length && A[searched] + B[i] == m) {
                 return true;
             }
         }

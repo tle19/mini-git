@@ -42,7 +42,13 @@ public class MySortingAlgorithms {
     public static class InsertionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            for (int i = 0; i < k; i++) {
+                for (int j = k; j > i; j--) {
+                    if (j < k && array[j] <= array[j - 1]) {
+                        swap(array, j - 1, j);
+                    }
+                }
+            }
         }
 
         @Override
@@ -60,7 +66,13 @@ public class MySortingAlgorithms {
     public static class SelectionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            for (int i = 0; i < k; i++) {
+                for (int j = i; j < k; j++) {
+                    if (array[j] <= array[i]) {
+                        swap(array, i, j);
+                    }
+                }
+            }
         }
 
         @Override
@@ -77,7 +89,35 @@ public class MySortingAlgorithms {
     public static class MergeSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            if (k < 2 || array == null) {
+                return;
+            }
+            int[] arr1;
+            int[] arr2;
+            if (array.length % 2 == 1) {
+                arr1 = new int[k / 2 + 1];
+            } else {
+                arr1 = new int[k / 2];
+            }
+            arr2 = new int [k / 2];
+            for (int i = 0; i < arr1.length + arr2.length; i += 2) {
+                arr1[i / 2] = array[i];
+                if (i + 1 < k) {
+                    arr2[i / 2] = array[i + 1];
+                }
+            }
+            sort(arr1, arr1.length);
+            sort(arr2, arr2.length);
+            int one = 0;
+            int two = 0;
+            for (int i = 0; i < k; i++) {
+                if 
+                if (arr) {
+                    array[i] = arr1[j];
+                    one++
+                }
+                array[i] = arr2[j];
+            }
         }
 
         // may want to add additional methods

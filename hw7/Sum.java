@@ -10,13 +10,10 @@ public class Sum {
         if (A == null || B == null) {
             return false;
         }
-        Arrays.sort(A);
-        Arrays.sort(B);
-        for (int i: A) {
-            for (int j: B) {
-                if (i + j == m) {
-                    return true;
-                }
+        for (int i = 0; i < A.length; i++) {
+            int searched = Arrays.binarySearch(A, m - B[i]);
+            if (A[searched] + B[i] == m) {
+                return true;
             }
         }
         return false;

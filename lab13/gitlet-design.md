@@ -49,6 +49,6 @@ This class is the entire suite of all JUnit tests for the gitlet package.
 - After checking out all the files tracked by the current commit, `add.txt` is made empty to represent the staging area is cleared.
 
 ## 4. Design Diagram
-![Gitlet Design Diagram](gitlet-design-0.png)![Gitlet Design Diagram](gitlet-design-1.png)![Gitlet Design Diagram](gitlet-design-2.png)
+![Gitlet Design Diagram](gitlet-design.png)![Gitlet Design Diagram](gitlet-design-1.png)![Gitlet Design Diagram](gitlet-design-2.png)
 
 

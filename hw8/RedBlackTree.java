@@ -45,8 +45,19 @@ public class RedBlackTree<T extends Comparable<T>> {
      * @return new root of the (sub)tree.
      */
     RBTreeNode<T> rotateRight(RBTreeNode<T> node) {
-        // YOUR CODE HERE
-        return null;
+        if (node == null) {
+            return null;
+        } else if (node.left == null) {
+            return node;
+        }
+        RBTreeNode<T> temp = node;
+        RBTreeNode<T> temp2 = node.left.right;
+        node.left.isBlack = temp.isBlack;
+        temp.isBlack = false;
+        node = node.left;
+        node.right = temp;
+        node.right.left = temp2;
+        return node;
     }
 
     /**
@@ -58,8 +69,19 @@ public class RedBlackTree<T extends Comparable<T>> {
      * @return new root of the (sub)tree.
      */
     RBTreeNode<T> rotateLeft(RBTreeNode<T> node) {
-        // YOUR CODE HERE
-        return null;
+        if (node == null) {
+            return null;
+        } else if (node.right == null) {
+            return node;
+        }
+        RBTreeNode<T> temp = node;
+        RBTreeNode<T> temp2 = node.right.left;
+        node.right.isBlack = temp.isBlack;
+        temp.isBlack = false;
+        node = node.right;
+        node.left = temp;
+        node.left.right = temp2;
+        return node;
     }
 
     /**
@@ -108,7 +130,7 @@ public class RedBlackTree<T extends Comparable<T>> {
 
         // Insert (return) new red leaf node.
         if (node == null) {
-            // YOUR CODE HERE
+           return new RBTreeNode(true, item, null, null);
 
         }
 
@@ -117,11 +139,9 @@ public class RedBlackTree<T extends Comparable<T>> {
         if (comp == 0) {
             return node; // do nothing.
         } else if (comp < 0) {
-            // YOUR CODE HERE
-
+            node.left = insert(node.left, item);
         } else {
-            // YOUR CODE HERE
-
+            node.right = insert(node.right, item);
         }
 
         // handle case C and "Right-leaning" situation.

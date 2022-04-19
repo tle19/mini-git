@@ -10,13 +10,15 @@ public class Main {
 
     /** Current Working Directory. */
     static final File CWD = new File(".");
-    // static final File CWD = new File(System.getProperty("user.dir"))
 
     /** Main metadata folder. */
     static final File GITLET_FOLDER = new File(".gitlet");
 
-    /** Folder of commits. */
-    static final File COMMIT_FOLDER = new File(".gitlet/commit");
+    /** Folder containing head pointer. */
+    static final File HEAD_FOLDER = new File(".gitlet/head");
+
+    /** Folder containing master pointer. */
+    static final File MASTER_FOLDER = new File(".gitlet/master");
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
@@ -52,11 +54,12 @@ public class Main {
      */
     public static void init(String[] args) {
         validateNumArgs(args, 1);
-        //make necessary files and make first commit
         GITLET_FOLDER.mkdir();
-        COMMIT_FOLDER.mkdir();
+        HEAD_FOLDER.mkdir();
+        MASTER_FOLDER.mkdir();
+        Commit.COMMIT_FOLDER.mkdir();
         Add.INDEX.mkdir();
-        //commit();
+        commit();
     }
 
     public static void add(String[] args) {
@@ -65,13 +68,21 @@ public class Main {
     }
 
     private static void commit() {
-        String[] msg = {"initial commit"};
-        commit(msg);
         Commit initial = new Commit("initial commit", null);
+        initial.commit();
+        File head = Utils.join(HEAD_FOLDER, initial.getMessage());
+        Utils.writeObject(head, initial);
+        File mast = Utils.join(MASTER_FOLDER, initial.getMessage());
+        Utils.writeObject(mast, initial);
     }
 
     public static void commit(String[] args) {
         validateNumArgs(args, 2);
+        Commit parent = Utils.readObject(HEAD_FOLDER, Commit.class);
+        Commit curr = new Commit(args[1], "parent");
+        // read parent hascode string back into object
+        curr.commit();
+
         //init will make new commit tree with master and head pointer
 
         //following commits will clone previous (head) commit, add/overwrite staged files in commit node and clear staging area.

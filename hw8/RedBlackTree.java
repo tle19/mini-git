@@ -47,12 +47,12 @@ public class RedBlackTree<T extends Comparable<T>> {
     RBTreeNode<T> rotateRight(RBTreeNode<T> node) {
         if (node == null) {
             return null;
-        } else if (node.left == null) {
+        } else if (node.left == null || (node.left == null && node.right == null)) {
             return node;
         }
         RBTreeNode<T> temp = node;
         RBTreeNode<T> temp2 = node.left.right;
-        node.left.isBlack = temp.isBlack;
+        node.left.isBlack = node.isBlack;
         temp.isBlack = false;
         node = node.left;
         node.right = temp;
@@ -71,12 +71,12 @@ public class RedBlackTree<T extends Comparable<T>> {
     RBTreeNode<T> rotateLeft(RBTreeNode<T> node) {
         if (node == null) {
             return null;
-        } else if (node.right == null) {
+        } else if (node.right == null || (node.left == null && node.right == null)) {
             return node;
         }
         RBTreeNode<T> temp = node;
         RBTreeNode<T> temp2 = node.right.left;
-        node.right.isBlack = temp.isBlack;
+        node.right.isBlack = node.isBlack;
         temp.isBlack = false;
         node = node.right;
         node.left = temp;
@@ -146,7 +146,7 @@ public class RedBlackTree<T extends Comparable<T>> {
 
         // handle case C and "Right-leaning" situation.
         if (isRed(node.right) && !isRed(node.left)) {
-            node = rotateLeft(node.right);
+            node = rotateLeft(node);
 
         }
 

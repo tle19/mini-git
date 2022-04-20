@@ -27,7 +27,7 @@ public class Main {
             exitWithError("Please enter a command.");
         }
         File initFile = new File(".gitlet");
-        if (!initFile.exists() && args[0] != "init") {
+        if (!initFile.exists() && args[0] == "init") {
             exitWithError("Not in an initialized Gitlet directory.");
         }
         switch (args[0]) {

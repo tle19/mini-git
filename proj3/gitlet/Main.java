@@ -74,7 +74,7 @@ public class Main {
         COMMIT_FOLDER.mkdir();
         INDEX.mkdir();
 
-        Commit initial = new Commit("initial commit", null);
+        Commit initial = new Commit("initial commit", null, null);
         //initial.commitAdd(null);
         initial.commit();
         File head = Utils.join(HEAD_FOLDER, initial.getSha());
@@ -96,22 +96,24 @@ public class Main {
     public static void commit(String... args) {
         validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD_FOLDER.listFiles()[0], Commit.class);
-        Commit curr = new Commit(args[1], parent.getSha());
-        File file0 = new File(".gitlet/index");
-        File file1 = new File(".gitlet/head");
-        File file2 = new File(".gitlet/master");
+        Commit curr = new Commit(args[1], parent.getSha(), parent);
+
         Add a = Utils.readObject(INDEX.listFiles()[0], Add.class);
         for (String name : (Set<String>) parent.getBlob().keySet()) {
             curr.commitAdd(name, (String) parent.getBlob().get(name));
         }
-
+//        for (String name : (Set<String>) parent.getBlob().keySet()) {
+//            if (a.getBlob().get(name) == curr.getBlob().get(name))
+//            curr.commitAdd(name, (String) parent.getBlob().get(name));
+//        }
+        // replace changed blobs in commit
         curr.commit();
-        File[] del0 = file0.listFiles();
-        File[] del1 = file1.listFiles();
-        File[] del2 = file2.listFiles();
-        del0[0].delete();
-        del1[0].delete();
-        del2[0].delete();
+        File file0 = new File(".gitlet/index");
+        File file1 = new File(".gitlet/head");
+        File file2 = new File(".gitlet/master");
+        file0.listFiles()[0].delete();
+        file1.listFiles()[0].delete();
+        file2.listFiles()[0].delete();
         File head = Utils.join(HEAD_FOLDER, curr.getSha());
         Utils.writeObject(head, curr);
         File mast = Utils.join(MASTER_FOLDER, curr.getSha());
@@ -122,10 +124,19 @@ public class Main {
         //move head pointer to specified commit, and overwrite working directory with commit
         validateNumArgs(args, 2);
 
+
     }
 
     public static void log(String... args) {
         validateNumArgs(args, 1);
+        Commit curr = Utils.readObject(HEAD_FOLDER.listFiles()[0], Commit.class);
+        while (curr != null) {
+            System.out.println("===");
+            System.out.println("commit " + curr.getSha());
+            System.out.println("Date: " + curr.getTime());
+            System.out.println(curr.getMessage() + '\n');
+            curr = curr.getParent2();
+        }
     }
 
     /**

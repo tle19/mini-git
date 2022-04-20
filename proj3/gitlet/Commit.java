@@ -14,8 +14,11 @@ public class Commit implements Serializable {
     /** Time of commit. */
     private Date _time;
 
-    /** Previous commit node. */
+    /** Previous commit node as a sha1 value. */
     private String _parent;
+
+    /** Previous commit node. */
+    private Commit _parent2;
 
     /** Hashmap of blobs. */
     private HashMap<String, String> _blobs = new HashMap<>();
@@ -26,6 +29,14 @@ public class Commit implements Serializable {
     public Commit(String message, String parent) {
         _message = message;
         _parent = parent;
+        date();
+
+    }
+
+    public Commit(String message, String parent, Commit parent2) {
+        _message = message;
+        _parent = parent;
+        _parent2 = parent2;
         date();
 
     }
@@ -62,6 +73,10 @@ public class Commit implements Serializable {
 
     public String getParent() {
         return _parent;
+    }
+
+    public Commit getParent2() {
+        return _parent2;
     }
 
     public String getSha() {

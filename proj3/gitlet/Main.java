@@ -85,18 +85,30 @@ public class Main {
         File file = new File(args[1]);
         Blob b = new Blob(file);
         a.add(args[1], b.getName());
-        Utils.writeObject(INDEX, a);
+        File stage = new File(".gitlet/index/staged");
+        Utils.writeObject(stage, a);
     }
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD_FOLDER, Commit.class);
         Commit curr = new Commit(args[1], parent.getSha());
-        File file = new File(".gitlet/index");
-        Add a = Utils.readObject(file, Add.class);
+        File file0 = new File(".gitlet/index");
+        File file1 = new File(".gitlet/head");
+        File file2 = new File(".gitlet/master");
+        Add a = Utils.readObject(file0, Add.class);
         curr.commitAdd(a.getBlob());
-        a.resetStage();
         curr.commit();
+        File[] del0 = file0.listFiles();
+        File[] del1 = file1.listFiles();
+        File[] del2 = file2.listFiles();
+        del0[0].delete();
+        del1[0].delete();
+        del2[0].delete();
+        File head = Utils.join(HEAD_FOLDER, curr.getSha());
+        Utils.writeObject(head, curr);
+        File mast = Utils.join(MASTER_FOLDER, curr.getSha());
+        Utils.writeObject(mast, curr);
     }
 
     public static void checkout(String... args) {

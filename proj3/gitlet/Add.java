@@ -25,7 +25,4 @@ public class Add implements Serializable {
         return _blobs;
     }
 
-    public static void resetStage() {
-        _blobs = new HashMap<String, String>();
-    }
 }

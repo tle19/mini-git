@@ -50,14 +50,14 @@ public class RedBlackTree<T extends Comparable<T>> {
         } else if (node.left == null) {
             return node;
         }
-        RBTreeNode<T> temp = node;
-        RBTreeNode<T> temp2 = node.left.right;
-        node.left.isBlack = node.isBlack;
-        temp.isBlack = !temp.isBlack;
-        node = node.left;
-        node.right = temp;
-        node.right.left = temp2;
-        return node;
+
+        root = node.left;
+        root.isBlack = node.isBlack;
+        RBTreeNode<T> temp = root.right;
+        root.right = node;
+        node.left = temp;
+        node.isBlack = false;
+        return root;
     }
 
     /**
@@ -74,14 +74,13 @@ public class RedBlackTree<T extends Comparable<T>> {
         } else if (node.right == null) {
             return node;
         }
-        RBTreeNode<T> temp = node;
-        RBTreeNode<T> temp2 = node.right.left;
-        node.right.isBlack = node.isBlack;
-        temp.isBlack = !temp.isBlack;
-        node = node.right;
-        node.left = temp;
-        node.left.right = temp2;
-        return node;
+        root = node.right;
+        root.isBlack = node.isBlack;
+        RBTreeNode<T> temp = root.left;
+        root.left = node;
+        node.right = temp;
+        node.isBlack = false;
+        return root;
     }
 
     /**

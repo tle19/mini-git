@@ -95,12 +95,12 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
-        Commit parent = Utils.readObject(Utils.join(HEAD_FOLDER), Commit.class);
+        Commit parent = Utils.readObject(HEAD_FOLDER.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha());
         File file0 = new File(".gitlet/index");
         File file1 = new File(".gitlet/head");
         File file2 = new File(".gitlet/master");
-        Add a = Utils.readObject(file0, Add.class);
+        Add a = Utils.readObject(INDEX.listFiles()[0], Add.class);
         for (String name : (Set<String>) parent.getBlob().keySet()) {
             curr.commitAdd(name, (String) parent.getBlob().get(name));
         }

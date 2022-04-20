@@ -22,7 +22,7 @@ public class Main {
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
-    public static void main(String[] args) {
+    public static void main(String... args) {
         if (args.length == 0) {
             exitWithError("Please enter a command.");
         }
@@ -56,31 +56,40 @@ public class Main {
      * Does required filesystem operations to allow for persistence.
      * (creates any necessary folders or files)
      */
-    public static void init(String[] args) {
+    public static void init(String... args) {
         validateNumArgs(args, 1);
-        GITLET_FOLDER.mkdir();
-        HEAD_FOLDER.mkdir();
-        MASTER_FOLDER.mkdir();
-        Commit.COMMIT_FOLDER.mkdir();
-        Add.INDEX.mkdir();
-        commit();
+        File initFile = new File(".gitlet");
+        if (!initFile.exists()) {
+            GITLET_FOLDER.mkdir();
+            HEAD_FOLDER.mkdir();
+            MASTER_FOLDER.mkdir();
+            Commit.COMMIT_FOLDER.mkdir();
+            Add.INDEX.mkdir();
+            commit();
+        } else {
+            exitWithError("Not in an initialized Gitlet directory.");
+        }
     }
 
-    public static void add(String[] args) {
+    public static void add(String... args) {
         validateNumArgs(args, 2);
-        //put file in staging area
+        Add a = new Add();
+        File file = new File(args[1]);
+        Blob b = new Blob(file);
+        a.add(args[1], b.getName());
+        Utils.writeObject(Utils.join(".gitlet/index"), a);
     }
 
     private static void commit() {
         Commit initial = new Commit("initial commit", null);
         initial.commit();
-        File head = Utils.join(HEAD_FOLDER, initial.getMessage());
+        File head = Utils.join(HEAD_FOLDER, initial.getSha());
         Utils.writeObject(head, initial);
-        File mast = Utils.join(MASTER_FOLDER, initial.getMessage());
+        File mast = Utils.join(MASTER_FOLDER, initial.getSha());
         Utils.writeObject(mast, initial);
     }
 
-    public static void commit(String[] args) {
+    public static void commit(String... args) {
         validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD_FOLDER, Commit.class);
         Commit curr = new Commit(args[1], "parent");
@@ -94,13 +103,13 @@ public class Main {
 
     }
 
-    public static void checkout(String[] args) {
+    public static void checkout(String... args) {
         //move head pointer to specified commit, and overwrite working directory with commit
         validateNumArgs(args, 2);
 
     }
 
-    public static void log(String[] args) {
+    public static void log(String... args) {
         validateNumArgs(args, 1);
     }
 

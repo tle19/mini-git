@@ -48,8 +48,8 @@ public class Commit implements Serializable {
         Utils.writeObject(file, this);
     }
 
-    public void commitAdd(HashMap<String, String> blob) {
-        _blobs = blob;
+    public void commitAdd(String key, String val) {
+        _blobs.put(key, val);
     }
 
     public String getMessage() {
@@ -66,5 +66,9 @@ public class Commit implements Serializable {
 
     public String getSha() {
         return _sha;
+    }
+
+    public HashMap<String, String> getBlob() {
+        return _blobs;
     }
 }

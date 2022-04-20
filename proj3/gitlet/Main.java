@@ -2,6 +2,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Driver class for Gitlet, the tiny stupid version-control system.
  *  @author Tyler Le
@@ -91,13 +95,16 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
-        Commit parent = Utils.readObject(HEAD_FOLDER, Commit.class);
+        Commit parent = Utils.readObject(Utils.join(HEAD_FOLDER), Commit.class);
         Commit curr = new Commit(args[1], parent.getSha());
         File file0 = new File(".gitlet/index");
         File file1 = new File(".gitlet/head");
         File file2 = new File(".gitlet/master");
         Add a = Utils.readObject(file0, Add.class);
-        curr.commitAdd(a.getBlob());
+        for (String name : (Set<String>) parent.getBlob().keySet()) {
+            curr.commitAdd(name, (String) parent.getBlob().get(name));
+        }
+
         curr.commit();
         File[] del0 = file0.listFiles();
         File[] del1 = file1.listFiles();

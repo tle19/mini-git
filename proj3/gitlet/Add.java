@@ -11,7 +11,7 @@ public class Add implements Serializable {
     static final File INDEX = new File(".gitlet/index");
 
     /** Hashmap of blobs. */
-    private HashMap<String, String> _blobs;
+    private static HashMap<String, String> _blobs;
 
     Add() {
         _blobs = new HashMap<String, String>();
@@ -19,5 +19,13 @@ public class Add implements Serializable {
 
     public void add(String name, String id) {
         _blobs.put(name, id);
+    }
+
+    public static HashMap<String, String> getBlob() {
+        return _blobs;
+    }
+
+    public static void resetStage() {
+        _blobs = new HashMap<String, String>();
     }
 }

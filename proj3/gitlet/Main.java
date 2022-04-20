@@ -26,10 +26,10 @@ public class Main {
         if (args.length == 0) {
             exitWithError("Please enter a command.");
         }
-        File initFile = new File(".gitlet");
-        if (!initFile.exists() && args[0] == "init") {
-            exitWithError("Not in an initialized Gitlet directory.");
-        }
+//        File initFile = new File(".gitlet");
+//        if (!initFile.exists() && !args[0].equals("init")) {
+//            exitWithError("Not in an initialized Gitlet directory.");
+//        }
         switch (args[0]) {
             case "init":
                 init(args);
@@ -65,6 +65,7 @@ public class Main {
         Add.INDEX.mkdir();
 
         Commit initial = new Commit("initial commit", null);
+        //initial.commitAdd(null);
         initial.commit();
         File head = Utils.join(HEAD_FOLDER, initial.getSha());
         Utils.writeObject(head, initial);
@@ -84,15 +85,12 @@ public class Main {
     public static void commit(String... args) {
         validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD_FOLDER, Commit.class);
-        Commit curr = new Commit(args[1], "parent");
-        // read parent hascode string back into object
+        Commit curr = new Commit(args[1], parent.getSha());
+        File file = new File(".gitlet/index");
+        Add a = Utils.readObject(file, Add.class);
+        curr.commitAdd(a.getBlob());
+        a.resetStage();
         curr.commit();
-
-        //init will make new commit tree with master and head pointer
-
-        //following commits will clone previous (head) commit, add/overwrite staged files in commit node and clear staging area.
-        // head and master pointer point to new commit. master always points to tip of the master branch (recent commit). head pointer always points to current branch.
-
     }
 
     public static void checkout(String... args) {

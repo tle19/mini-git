@@ -30,7 +30,7 @@ public class Commit implements Serializable {
         _message = message;
         _parent = parent;
         date();
-        _sha = Utils.sha1(_time.toString(), _blobs.toString());
+
     }
 
     private void date() {
@@ -46,9 +46,13 @@ public class Commit implements Serializable {
     }
 
     public void commit() {
+        _sha = Utils.sha1(_time.toString(), _blobs.toString());
         File file = Utils.join(COMMIT_FOLDER, _sha);
-        //_blobs.put();
         Utils.writeObject(file, this);
+    }
+
+    public void commitAdd(HashMap<String, String> blob) {
+        _blobs = blob;
     }
 
     public String getMessage() {

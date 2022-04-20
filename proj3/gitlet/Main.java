@@ -26,10 +26,10 @@ public class Main {
         if (args.length == 0) {
             exitWithError("Please enter a command.");
         }
-//        File f = new File(System.getProperty("user.dir") + "\\.gitlet");
-//        if (!f.exists() && args[0] != "init") {
-//            exitWithError("Not in an initialized Gitlet directory.");
-//        }
+        File initFile = new File(".gitlet");
+        if (!initFile.exists() && args[0] != "init") {
+            exitWithError("Not in an initialized Gitlet directory.");
+        }
         switch (args[0]) {
             case "init":
                 init(args);
@@ -58,17 +58,18 @@ public class Main {
      */
     public static void init(String... args) {
         validateNumArgs(args, 1);
-        File initFile = new File(".gitlet");
-        if (!initFile.exists()) {
-            GITLET_FOLDER.mkdir();
-            HEAD_FOLDER.mkdir();
-            MASTER_FOLDER.mkdir();
-            Commit.COMMIT_FOLDER.mkdir();
-            Add.INDEX.mkdir();
-            commit();
-        } else {
-            exitWithError("Not in an initialized Gitlet directory.");
-        }
+        GITLET_FOLDER.mkdir();
+        HEAD_FOLDER.mkdir();
+        MASTER_FOLDER.mkdir();
+        Commit.COMMIT_FOLDER.mkdir();
+        Add.INDEX.mkdir();
+
+        Commit initial = new Commit("initial commit", null);
+        initial.commit();
+        File head = Utils.join(HEAD_FOLDER, initial.getSha());
+        Utils.writeObject(head, initial);
+        File mast = Utils.join(MASTER_FOLDER, initial.getSha());
+        Utils.writeObject(mast, initial);
     }
 
     public static void add(String... args) {
@@ -78,15 +79,6 @@ public class Main {
         Blob b = new Blob(file);
         a.add(args[1], b.getName());
         Utils.writeObject(Utils.join(".gitlet/index"), a);
-    }
-
-    private static void commit() {
-        Commit initial = new Commit("initial commit", null);
-        initial.commit();
-        File head = Utils.join(HEAD_FOLDER, initial.getSha());
-        Utils.writeObject(head, initial);
-        File mast = Utils.join(MASTER_FOLDER, initial.getSha());
-        Utils.writeObject(mast, initial);
     }
 
     public static void commit(String... args) {

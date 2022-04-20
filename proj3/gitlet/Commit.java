@@ -3,10 +3,8 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Date;
-import java.time.Instant;
 
 public class Commit implements Serializable {
 
@@ -14,7 +12,7 @@ public class Commit implements Serializable {
     private String _message;
 
     /** Time of commit. */
-    private LocalDateTime _time;
+    private Date _time;
 
     /** Previous commit node. */
     private String _parent;
@@ -29,39 +27,43 @@ public class Commit implements Serializable {
     static final File COMMIT_FOLDER = new File(".gitlet/commit");
 
     public Commit(String message, String parent) {
-        this._message = message;
-        this._parent = parent;
-//        if (this._parent == null) {
-//            this._time = LocalDateTime.ofEpochSecond(0, 0, null);
-//        } else {
-//            Date date = new Date();
-//            this._time = LocalDateTime.now();
-//        }
+        _message = message;
+        _parent = parent;
+        date();
+        _sha = Utils.sha1(_time.toString(), _blobs.toString());
     }
 
+    private void date() {
+        if (_parent == null) {
+            _time = new Date(0);
+        } else {
+            _time = new Date(System.currentTimeMillis());
+        }
+    }
     public static Commit fromFile(String message) {
         File file = Utils.join(COMMIT_FOLDER, message);
         return Utils.readObject(file, Commit.class);
     }
 
     public void commit() {
-        File file = Utils.join(COMMIT_FOLDER, this._message);
+        File file = Utils.join(COMMIT_FOLDER, _sha);
+        //_blobs.put();
         Utils.writeObject(file, this);
     }
 
     public String getMessage() {
-        return this._message;
+        return _message;
     }
 
-    public LocalDateTime getTimestamp() {
-        return this._time;
+    public Date getTime() {
+        return _time;
     }
 
     public String getParent() {
-        return this._parent;
+        return _parent;
     }
 
     public String getSha() {
-        return this._sha;
+        return _sha;
     }
 }

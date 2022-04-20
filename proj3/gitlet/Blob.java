@@ -9,9 +9,12 @@ public class Blob implements Serializable {
 
     private String _name;
 
-    Blob(File file) {
+    private String _filename;
+
+    Blob(File file, String filename) {
         _blob = Utils.readContents(file);
         _name = Utils.sha1(_blob);
+        _filename = filename;
     }
 
     public String getName() {
@@ -20,5 +23,9 @@ public class Blob implements Serializable {
 
     public byte[] getBlob() {
         return _blob;
+    }
+
+    public String getFileName() {
+        return _filename;
     }
 }

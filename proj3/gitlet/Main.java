@@ -1,11 +1,11 @@
 package gitlet;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.SQLOutput;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /** Driver class for Gitlet, the tiny stupid version-control system.
  *  @author Tyler Le
@@ -29,6 +29,9 @@ public class Main {
 
     /** Folder of commits. */
     static final File COMMIT_FOLDER = new File(".gitlet/commit");
+
+    /** Folder of blobs. */
+    static final File BLOBS = new File(".gitlet/blobs");
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
@@ -73,9 +76,9 @@ public class Main {
         MASTER_FOLDER.mkdir();
         COMMIT_FOLDER.mkdir();
         INDEX.mkdir();
+        BLOBS.mkdir();
 
         Commit initial = new Commit("initial commit", null, null);
-        //initial.commitAdd(null);
         initial.commit();
         File head = Utils.join(HEAD_FOLDER, initial.getSha());
         Utils.writeObject(head, initial);
@@ -85,28 +88,36 @@ public class Main {
 
     public static void add(String... args) {
         validateNumArgs(args, 2);
-        Add a = new Add();
         File file = new File(args[1]);
-        Blob b = new Blob(file);
-        a.add(args[1], b.getName());
-        File stage = new File(".gitlet/index/staged");
-        Utils.writeObject(stage, a);
+        Blob b = new Blob(file, args[1]);
+
+        for (File f : BLOBS.listFiles()) {
+            Blob blub = Utils.readObject(f, Blob.class);
+            if (blub.getFileName() == args[1]) {
+                f.delete();
+            }
+        }
+
+        File blobLocation = Utils.join(BLOBS, b.getName());
+        Utils.writeObject(blobLocation, b);
+        File stage = Utils.join(INDEX, b.getName());
+        Utils.writeObject(stage, b);
     }
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD_FOLDER.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha(), parent);
+        for (String key : parent.getBlob().keySet()) {
+            curr.commitAdd(key, parent.getBlob().get(key));
 
-        Add a = Utils.readObject(INDEX.listFiles()[0], Add.class);
-        for (String name : (Set<String>) parent.getBlob().keySet()) {
-            curr.commitAdd(name, (String) parent.getBlob().get(name));
         }
-//        for (String name : (Set<String>) parent.getBlob().keySet()) {
-//            if (a.getBlob().get(name) == curr.getBlob().get(name))
-//            curr.commitAdd(name, (String) parent.getBlob().get(name));
-//        }
-        // replace changed blobs in commit
+        for (File f : INDEX.listFiles()) {
+            Blob b = Utils.readObject(f, Blob.class);
+            curr.commitAdd(b.getFileName(), b.getName());
+        }
+
+
         curr.commit();
         File file0 = new File(".gitlet/index");
         File file1 = new File(".gitlet/head");
@@ -122,18 +133,36 @@ public class Main {
 
     public static void checkout(String... args) {
         //move head pointer to specified commit, and overwrite working directory with commit
-        validateNumArgs(args, 2);
-
-
+        if (args.length == 3) { //&& args[1] == "--"
+            Commit head = Utils.readObject(HEAD_FOLDER.listFiles()[0], Commit.class);
+            String blob = head.getBlob().get(args[2]);
+            if (blob != null) {
+                Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
+                Utils.writeContents(Utils.join(args[2]), cont.getBlob());
+            }
+        } else if (args.length == 4) { //&& args[2] == "--"
+            Commit curr = Utils.readObject(Utils.join(".gitlet/commit", args[1]), Commit.class);
+            String blob = curr.getBlob().get(args[3]);
+            if (blob != null) {
+                Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
+                Utils.writeContents(Utils.join(args[3]), cont.getBlob());
+            }
+        } else {
+            exitWithError("Incorrect operands.");
+        }
     }
 
     public static void log(String... args) {
         validateNumArgs(args, 1);
         Commit curr = Utils.readObject(HEAD_FOLDER.listFiles()[0], Commit.class);
+        String pattern = "EEE MMM dd HH:mm:ss yyyy Z";
+        SimpleDateFormat simpleDateFormat =
+                new SimpleDateFormat(pattern, new Locale("en", "US"));
         while (curr != null) {
             System.out.println("===");
             System.out.println("commit " + curr.getSha());
-            System.out.println("Date: " + curr.getTime());
+            String date = simpleDateFormat.format(curr.getTime());
+            System.out.println("Date: " + date);
             System.out.println(curr.getMessage() + '\n');
             curr = curr.getParent2();
         }

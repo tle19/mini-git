@@ -20,6 +20,12 @@ public class Main {
     /** Folder containing master pointer. */
     static final File MASTER_FOLDER = new File(".gitlet/master");
 
+    /** Folder of files that are staged */
+    static final File INDEX = new File(".gitlet/index");
+
+    /** Folder of commits. */
+    static final File COMMIT_FOLDER = new File(".gitlet/commit");
+
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
     public static void main(String... args) {
@@ -61,8 +67,8 @@ public class Main {
         GITLET_FOLDER.mkdir();
         HEAD_FOLDER.mkdir();
         MASTER_FOLDER.mkdir();
-        Commit.COMMIT_FOLDER.mkdir();
-        Add.INDEX.mkdir();
+        COMMIT_FOLDER.mkdir();
+        INDEX.mkdir();
 
         Commit initial = new Commit("initial commit", null);
         //initial.commitAdd(null);
@@ -79,7 +85,7 @@ public class Main {
         File file = new File(args[1]);
         Blob b = new Blob(file);
         a.add(args[1], b.getName());
-        Utils.writeObject(Utils.join(".gitlet/index"), a);
+        Utils.writeObject(INDEX, a);
     }
 
     public static void commit(String... args) {

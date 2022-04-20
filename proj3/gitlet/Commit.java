@@ -23,9 +23,6 @@ public class Commit implements Serializable {
     /** SHA ID of commit. */
     private String _sha;
 
-    /** Folder of commits. */
-    static final File COMMIT_FOLDER = new File(".gitlet/commit");
-
     public Commit(String message, String parent) {
         _message = message;
         _parent = parent;
@@ -41,13 +38,13 @@ public class Commit implements Serializable {
         }
     }
     public static Commit fromFile(String message) {
-        File file = Utils.join(COMMIT_FOLDER, message);
+        File file = Utils.join(Main.COMMIT_FOLDER, message);
         return Utils.readObject(file, Commit.class);
     }
 
     public void commit() {
         _sha = Utils.sha1(_time.toString(), _blobs.toString());
-        File file = Utils.join(COMMIT_FOLDER, _sha);
+        File file = Utils.join(Main.COMMIT_FOLDER, _sha);
         Utils.writeObject(file, this);
     }
 

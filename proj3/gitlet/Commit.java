@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Date;
@@ -26,41 +25,36 @@ public class Commit implements Serializable {
     /** SHA ID of commit. */
     private String _sha;
 
-    public Commit(String message, String parent) {
-        _message = message;
-        _parent = parent;
-        date();
-
-    }
-
     public Commit(String message, String parent, Commit parent2) {
         _message = message;
         _parent = parent;
         _parent2 = parent2;
-        date();
-
-    }
-
-    private void date() {
         if (_parent == null) {
             _time = new Date(0);
         } else {
             _time = new Date(System.currentTimeMillis());
         }
     }
-    public static Commit fromFile(String message) {
-        File file = Utils.join(Main.COMMIT_FOLDER, message);
-        return Utils.readObject(file, Commit.class);
-    }
 
     public void commit() {
         _sha = Utils.sha1(_time.toString(), _blobs.toString());
+
         File file = Utils.join(Main.COMMIT_FOLDER, _sha);
         Utils.writeObject(file, this);
+
+        File head = Utils.join(Main.HEAD, getSha());
+        Utils.writeObject(head, this);
+
+        File mast = Utils.join(Main.MASTER, getSha());
+        Utils.writeObject(mast, this);
     }
 
-    public void commitAdd(String key, String val) {
+    public void put(String key, String val) {
         _blobs.put(key, val);
+    }
+
+    public void replace(HashMap<String, String> blobs) {
+        _blobs = blobs;
     }
 
     public String getMessage() {
@@ -86,4 +80,6 @@ public class Commit implements Serializable {
     public HashMap<String, String> getBlob() {
         return _blobs;
     }
+
+
 }

@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Date;
 
@@ -53,8 +54,18 @@ public class Commit implements Serializable {
         _blobs.put(key, val);
     }
 
-    public void replace(HashMap<String, String> blobs) {
-        _blobs = blobs;
+    public void putAll(HashMap<String, String> map) {
+        _blobs.putAll(map);
+    }
+
+    public void log() {
+        String pattern = "EEE MMM dd HH:mm:ss yyyy Z";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        System.out.println("===");
+        System.out.println("commit " + getSha());
+        String date = simpleDateFormat.format(getTime());
+        System.out.println("Date: " + date);
+        System.out.println(getMessage() + '\n');
     }
 
     public String getMessage() {

@@ -27,10 +27,10 @@ public class Main {
     static final File REFS = new File(".gitlet/refs");
 
     /** Folder containing head pointer. */
-    static final File HEAD = new File(".gitlet/head");
+    static final File HEAD = new File(".gitlet/refs/head");
 
     /** Folder containing master pointer. */
-    static final File MASTER = new File(".gitlet/master");
+    static final File MASTER = new File(".gitlet/refs/master");
 
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
@@ -45,7 +45,7 @@ public class Main {
 //        }
         switch (args[0]) {
         case "init":
-            init(args); //init()
+            init(args);
             break;
         case "add":
             add(args);
@@ -57,16 +57,16 @@ public class Main {
             rm(args);
             break;
         case "log":
-            log(args); //log()
+            log(args);
             break;
         case "global-log":
-            global_log(args); //log()
+            global_log(args);
             break;
         case "find":
             find(args);
             break;
         case "status":
-            status(args); //status()
+            status(args);
             break;
         case "checkout":
             checkout(args);
@@ -116,6 +116,7 @@ public class Main {
             Blob blub = Utils.readObject(f, Blob.class);
             if (blub.getFileName() == args[1]) {
                 f.delete();
+                break;
             }
         }
 
@@ -129,7 +130,7 @@ public class Main {
         validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha(), parent);
-        curr.replace(parent.getBlob());
+        curr.putAll(parent.getBlob());
 
         for (File file : INDEX.listFiles()) {
             Blob b = Utils.readObject(file, Blob.class);
@@ -142,26 +143,25 @@ public class Main {
     }
 
     public static void rm(String... args) {
-
+        
     }
 
     public static void log(String... args) {
         validateNumArgs(args, 1);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        String pattern = "EEE MMM dd HH:mm:ss yyyy Z";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         while (curr != null) {
-            System.out.println("===");
-            System.out.println("commit " + curr.getSha());
-            String date = simpleDateFormat.format(curr.getTime());
-            System.out.println("Date: " + date);
-            System.out.println(curr.getMessage() + '\n');
+            curr.log();
             curr = curr.getParent2();
         }
     }
 
     public static void global_log(String... args) {
-
+        validateNumArgs(args, 1);
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        while (curr != null) {
+            curr.log();
+            curr = curr.getParent2();
+        }
     }
 
     public static void find(String... args) {
@@ -173,14 +173,15 @@ public class Main {
     }
 
     public static void checkout(String... args) {
-        if (args.length == 3) { //&& args[1] == "--"
+        System.out.println();
+        if (args[1].equals("--") && args.length == 3) {
             Commit head = Utils.readObject(HEAD.listFiles()[0], Commit.class);
             String blob = head.getBlob().get(args[2]);
             if (blob != null) {
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
                 Utils.writeContents(Utils.join(args[2]), cont.getBlob());
             }
-        } else if (args.length == 4) { //&& args[2] == "--"
+        } else if (args[2].equals("--") && args.length == 4) {
             Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]), Commit.class);
             String blob = curr.getBlob().get(args[3]);
             if (blob != null) {

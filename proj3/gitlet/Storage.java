@@ -28,4 +28,16 @@ public class Storage implements Serializable {
         return _blobs;
     }
 
+    public void clear() {
+        _blobs.clear();
+    }
+
+    public void remove(String key) {
+        _blobs.remove(key);
+    }
+
+    public boolean contains(String key) {
+        return _blobs.containsKey(key);
+    }
+
 }

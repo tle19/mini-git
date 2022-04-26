@@ -8,7 +8,7 @@ import java.io.File;
 public class Main {
 
     /** Current Working Directory. */
-    static final File CWD = new File(".");
+    static final File CWD = new File(System.getProperty("user.dir"));
 
     /** Main metadata folder. */
     static final File GITLET_FOLDER = new File(".gitlet");
@@ -109,6 +109,9 @@ public class Main {
         File stage = Utils.join(INDEX, "stage");
         Utils.writeObject(stage, new Storage());
 
+        File remove = Utils.join(INDEX, "remove");
+        Utils.writeObject(remove, new Storage());
+
         File blobs = Utils.join(BLOBS, "blobs");
         Utils.writeObject(stage, new Storage());
 
@@ -125,20 +128,9 @@ public class Main {
 
         File file = new File(args[1]);
         Blob b = new Blob(file, args[1]);
-        
-//        for (File f : BLOBS.listFiles()) {
-//            Blob blub = Utils.readObject(f, Blob.class);
-//            if (blub.getFileName() == args[1]) {
-//                f.delete();
-//                break;
-//            }
-//        }
 
         File blobLocation = Utils.join(BLOBS, b.getHash());
         Utils.writeObject(blobLocation, b);
-
-//        File stage = Utils.join(INDEX, b.getHash());
-//        Utils.writeObject(stage, b);
 
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
@@ -148,21 +140,21 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
+
+        File stage = Utils.join(INDEX, "stage");
+        Storage staged = Utils.readObject(stage, Storage.class);
+        if (staged.getBlob().keySet().size() == 0 || args[1] == "") {
+            exitWithError("No changes added to the commit.");
+        }
+
         Commit parent = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha(), parent);
         curr.putAll(parent.getBlob());
 
-//        for (File file : INDEX.listFiles()) {
-//            Blob b = Utils.readObject(file, Blob.class);
-//            curr.put(b.getFileName(), b.getHash());
-//            file.delete();
-//        }
-        File stage = Utils.join(INDEX, "stage");
-        Storage staged = Utils.readObject(stage, Storage.class);
         for (String keys : staged.getBlob().keySet()) {
             curr.put(keys, staged.get(keys).getHash());
         }
-        staged.getBlob().clear();
+        staged.clear();
         Utils.writeObject(stage, staged);
 
         HEAD.listFiles()[0].delete();
@@ -171,9 +163,25 @@ public class Main {
     }
 
     public static void rm(String... args) {
-        for (File file : INDEX.listFiles()) {
-            file.delete();
+        validateNumArgs(args, 2);
+        File stage = Utils.join(INDEX, "stage");
+        Storage staged = Utils.readObject(stage, Storage.class);
+        File remove = Utils.join(INDEX, "remove");
+        Storage removed = Utils.readObject(remove, Storage.class);
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        // h.txt is different than testing/src/h.txt
+        if (staged.contains(args[1])) {
+            removed.put(args[1], staged.get(args[1]));
+            staged.remove(args[1]);
+            Utils.writeObject(remove, removed);
+            Utils.writeObject(stage, staged);
+        } else if (curr.getBlob().containsKey(args[1])) {
+            String s = curr.getBlob().get(args[1]);
+            removed.put(args[1], Utils.readObject(Utils.join(BLOBS, s), Blob.class));
+        } else {
+            exitWithError("No reason to remove the file.");
         }
+
     }
 
     public static void log(String... args) {
@@ -199,6 +207,26 @@ public class Main {
     }
 
     public static void status(String... args) {
+        System.out.println("=== Branches ===");
+        System.out.println("*master");
+        for (File file : REFS.listFiles()) {
+
+        }
+        System.out.println('\n' + "=== Staged Files ===");
+        File stage = Utils.join(INDEX, "stage");
+        Storage staged = Utils.readObject(stage, Storage.class);
+        for (String keys : staged.getBlob().keySet()) {
+            System.out.println(keys);
+        }
+        System.out.println('\n' + "=== Removed Files ===");
+        File remove = Utils.join(INDEX, "remove");
+        Storage removed = Utils.readObject(remove, Storage.class);
+        for (String keys : removed.getBlob().keySet()) {
+            System.out.println(keys);
+        }
+        System.out.println('\n' + "=== Modifications Not Staged For Commit ===");
+        System.out.println('\n' + "=== Untracked Files ===");
+        System.out.println('\n');
 
     }
 

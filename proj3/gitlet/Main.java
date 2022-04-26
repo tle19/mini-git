@@ -174,10 +174,14 @@ public class Main {
         for (String keys : staged.getBlob().keySet()) {
             curr.put(keys, staged.get(keys).getHash());
         }
+        for (String keys : removed.getBlob().keySet()) {
+            curr.getBlob().remove(keys);
+        }
 
         staged.clear();
         removed.clear();
         Utils.writeObject(stage, staged);
+        Utils.writeObject(remove, removed);
 
         HEAD.listFiles()[0].delete();
         MASTER.listFiles()[0].delete();
@@ -272,8 +276,9 @@ public class Main {
 
     public static void checkout(String... args) {
         System.out.println();
-        if (args[1].equals("--") && args.length == 3) {
-            File file = new File(args[2] + "")
+        boolean commitTrue = false;
+        if (args.length == 3 && args[1].equals("--")) {
+            File file = new File(args[2] + "");
             if (!file.exists()) {
                 System.out.println("File does not exist in that commit.");
             }
@@ -283,20 +288,69 @@ public class Main {
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
                 Utils.writeContents(Utils.join(args[2]), cont.getBlob());
             }
-        } else if (args[2].equals("--") && args.length == 4) {
+        } else if (args.length == 4 && args[2].equals("--")) {
+            for (File f : COMMIT_FOLDER.listFiles()) {
+                if (f.getName().equals(args[1])) {
+                    commitTrue = true;
+                }
+            }
+            if (commitTrue == false) {
+                exitWithError("No commit with that id exists.");
+            }
+            File file = new File(args[3] + "");
+            if (!file.exists()) {
+                System.out.println("File does not exist in that commit.");
+            }
             Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]), Commit.class);
             String blob = curr.getBlob().get(args[3]);
             if (blob != null) {
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
                 Utils.writeContents(Utils.join(args[3]), cont.getBlob());
             }
-        } else {
+        } else if (args.length == 2) {
+            //exitWithError("There is an untracked file in the way; delete it, or add and commit it first.");
+            for (File file : REFS.listFiles()) {
+                if (file.getName().equals(args[1])) {
+                    commitTrue = true;
+                }
+            }
+            if (commitTrue == false) {
+                exitWithError("No such branch exists.");
+            }
+            Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+            Commit mast = Utils.readObject(MASTER.listFiles()[0], Commit.class);
+            Commit br = Utils.readObject(Utils.join(REFS, args[1]), Commit.class);
+            if (curr.getSha().equals(br.getSha()) || curr.getSha().equals(mast.getSha())) {
+                exitWithError("No need to checkout the current branch.");
+            }
+
+            for (String keys : br.getBlob().keySet()) {
+                String blob = br.getBlob().get(keys);
+                if (blob != null) {
+                    Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
+                    Utils.writeContents(Utils.join(args[3]), cont.getBlob());
+                }
+            }
+            File head = Utils.join(Main.HEAD, br.getSha());
+            Utils.writeObject(head, br);
+        }
+        else {
             exitWithError("Incorrect operands.");
         }
     }
 
     public static void branch(String... args) {
-
+        validateNumArgs(args, 2);
+        for (File file : REFS.listFiles()) {
+            if (file.getName().equals(args[1])) {
+                exitWithError("A branch with that name already exists.");
+            }
+        }
+        File newBranch = Utils.join(REFS, args[1]);
+        File head = HEAD.listFiles()[0];
+        Commit br = new Commit(null, head.getName(),
+                Utils.readObject(head, Commit.class));
+        Utils.writeObject(newBranch, br);
     }
 
     public static void rmBranch(String... args) {

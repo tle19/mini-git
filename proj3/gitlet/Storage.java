@@ -1,21 +1,31 @@
 package gitlet;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Storage {
+public class Storage implements Serializable {
 
-    private HashMap<String, String> _blobs;
+    /** A hashmap storing the blobs. */
+    private HashMap<String, Blob> _blobs;
 
     Storage() {
         _blobs = new HashMap<>();
     }
 
-    public void put(String key, String val) {
+    public void put(String key, Blob val) {
         _blobs.put(key, val);
     }
 
-    public void putAll(HashMap<String, String> map) {
+    public void putAll(HashMap<String, Blob> map) {
         _blobs.putAll(map);
+    }
+
+    public Blob get(String key) {
+        return _blobs.get(key);
+    }
+
+    public HashMap<String, Blob> getBlob() {
+        return _blobs;
     }
 
 }

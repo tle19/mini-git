@@ -59,7 +59,7 @@ public class Main {
             log(args);
             break;
         case "global-log":
-            global_log(args);
+            globalLog(args);
             break;
         case "find":
             find(args);
@@ -74,7 +74,7 @@ public class Main {
             branch(args);
             break;
         case "rm-branch":
-            rm_branch(args);
+            rmBranch(args);
             break;
         case "reset":
             reset(args);
@@ -93,6 +93,10 @@ public class Main {
      * @param args Command argument. */
     public static void init(String... args) {
         validateNumArgs(args, 1);
+        File initFile = new File(".gitlet");
+        if (initFile.exists()) {
+            exitWithError("A Gitlet version-control system already exists in the current directory.");
+        }
 
         GITLET_FOLDER.mkdir();
         BLOBS.mkdir();
@@ -102,27 +106,44 @@ public class Main {
         HEAD.mkdir();
         MASTER.mkdir();
 
+        File stage = Utils.join(INDEX, "stage");
+        Utils.writeObject(stage, new Storage());
+
+        File blobs = Utils.join(BLOBS, "blobs");
+        Utils.writeObject(stage, new Storage());
+
         Commit initial = new Commit("initial commit", null, null);
         initial.commit();
     }
 
     public static void add(String... args) {
         validateNumArgs(args, 2);
+        File exist = new File(args[1] + "");
+        if (!exist.exists()) {
+            exitWithError("File does not exist.");
+        }
+
         File file = new File(args[1]);
         Blob b = new Blob(file, args[1]);
-
-        for (File f : BLOBS.listFiles()) {
-            Blob blub = Utils.readObject(f, Blob.class);
-            if (blub.getFileName() == args[1]) {
-                f.delete();
-                break;
-            }
-        }
+        
+//        for (File f : BLOBS.listFiles()) {
+//            Blob blub = Utils.readObject(f, Blob.class);
+//            if (blub.getFileName() == args[1]) {
+//                f.delete();
+//                break;
+//            }
+//        }
 
         File blobLocation = Utils.join(BLOBS, b.getHash());
         Utils.writeObject(blobLocation, b);
-        File stage = Utils.join(INDEX, b.getHash());
-        Utils.writeObject(stage, b);
+
+//        File stage = Utils.join(INDEX, b.getHash());
+//        Utils.writeObject(stage, b);
+
+        File stage = Utils.join(INDEX, "stage");
+        Storage staged = Utils.readObject(stage, Storage.class);
+        staged.put(args[1], b);
+        Utils.writeObject(stage, staged);
     }
 
     public static void commit(String... args) {
@@ -131,18 +152,28 @@ public class Main {
         Commit curr = new Commit(args[1], parent.getSha(), parent);
         curr.putAll(parent.getBlob());
 
-        for (File file : INDEX.listFiles()) {
-            Blob b = Utils.readObject(file, Blob.class);
-            curr.put(b.getFileName(), b.getHash());
-            file.delete();
+//        for (File file : INDEX.listFiles()) {
+//            Blob b = Utils.readObject(file, Blob.class);
+//            curr.put(b.getFileName(), b.getHash());
+//            file.delete();
+//        }
+        File stage = Utils.join(INDEX, "stage");
+        Storage staged = Utils.readObject(stage, Storage.class);
+        for (String keys : staged.getBlob().keySet()) {
+            curr.put(keys, staged.get(keys).getHash());
         }
+        staged.getBlob().clear();
+        Utils.writeObject(stage, staged);
+
         HEAD.listFiles()[0].delete();
         MASTER.listFiles()[0].delete();
         curr.commit();
     }
 
     public static void rm(String... args) {
-
+        for (File file : INDEX.listFiles()) {
+            file.delete();
+        }
     }
 
     public static void log(String... args) {
@@ -154,7 +185,7 @@ public class Main {
         }
     }
 
-    public static void global_log(String... args) {
+    public static void globalLog(String... args) {
         validateNumArgs(args, 1);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         while (curr != null) {
@@ -196,7 +227,7 @@ public class Main {
 
     }
 
-    public static void rm_branch(String... args) {
+    public static void rmBranch(String... args) {
 
     }
 
@@ -223,8 +254,8 @@ public class Main {
      * Checks the number of arguments versus the expected number,
      * exits if it does not.
      *
-     * @param cmd Name of command you are validating
      * @param args Argument array from command line
+     * @param n Number of arguments being validated
      */
     public static void validateNumArgs(String[] args, int n) {
         if (args.length != n) {

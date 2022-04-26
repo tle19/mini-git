@@ -25,7 +25,7 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 > branch other
 <<<
 + h.txt wug2.txt
- > add h.txt
+> add h.txt
 <<<
 > rm g.txt
 <<<

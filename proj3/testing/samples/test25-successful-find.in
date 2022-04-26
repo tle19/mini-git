@@ -1,4 +1,4 @@
-# Test special cases of merge.
+# Test the find command when it succeeds.
 # Set up one commit with two files.
 # Initialize and add two files.
 # Standard commands and definitions
@@ -22,26 +22,47 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 <<<
 > commit "Two files"
 <<<
-> branch b1
-<<<
-+ h.txt wug2.txt
-> add h.txt
-<<<
-> commit "Add h.txt"
-<<<
-> branch b2
-<<<
 > rm f.txt
 <<<
-> commit "remove f.txt"
+> commit "Remove one file"
 <<<
-> merge b1
-Given branch is an ancestor of the current branch.
++ f.txt notwug.txt
+> add f.txt
 <<<
-> checkout b2
+> commit "Two files"
 <<<
-= f.txt wug.txt
-> merge master
-Current branch fast-forwarded.
+> log
+===
+${COMMIT_HEAD}
+Two files
+
+===
+${COMMIT_HEAD}
+Remove one file
+
+===
+${COMMIT_HEAD}
+Two files
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+# UID of initial version
+D UID1 "${4}"
+# UID of second version
+D UID2 "${3}"
+# UID of third version
+D UID3 "${2}"
+# UID of current version
+D UID4 "${1}"
+> find "Two files"
+(${UID4}\n${UID2}|${UID2}\n${UID4})
+<<<*
+> find "initial commit"
+${UID1}
 <<<
-* f.txt
+> find "Remove one file"
+${UID3}
+<<<

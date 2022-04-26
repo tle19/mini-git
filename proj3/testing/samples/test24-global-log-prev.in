@@ -1,4 +1,6 @@
-# Test special cases of merge.
+# Check that global-log prints out commits that are no longer in any branch.
+# FIXME: kludged around problem with regular-expression pattern characters in
+#        log.
 # Set up one commit with two files.
 # Initialize and add two files.
 # Standard commands and definitions
@@ -22,26 +24,31 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 <<<
 > commit "Two files"
 <<<
-> branch b1
-<<<
-+ h.txt wug2.txt
+# Kludge starts.
+D DATE1 "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d"
+D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE1}) [-+](\d\d\d\d[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
++ h.txt wug.txt
 > add h.txt
 <<<
-> commit "Add h.txt"
+> commit "Add h"
 <<<
-> branch b2
+> log
+${COMMIT_LOG}
+${COMMIT_LOG}
+${COMMIT_LOG}
+<<<*
+D L1 "${1} [-+]${2}"
+> log
+===
+${COMMIT_HEAD}
+Add h
+
+===
+${COMMIT_HEAD}${ARBLINES}
+<<<*
+D ID "${2}"
+> reset ${ID}
 <<<
-> rm f.txt
-<<<
-> commit "remove f.txt"
-<<<
-> merge b1
-Given branch is an ancestor of the current branch.
-<<<
-> checkout b2
-<<<
-= f.txt wug.txt
-> merge master
-Current branch fast-forwarded.
-<<<
-* f.txt
+> global-log
+${ARBLINES}${L1}?${ARBLINES}
+<<<*

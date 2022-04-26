@@ -61,9 +61,9 @@ public class Commit implements Serializable {
     public void log() {
         String pattern = "EEE MMM dd HH:mm:ss yyyy Z";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        String date = simpleDateFormat.format(getTime());
         System.out.println("===");
         System.out.println("commit " + getSha());
-        String date = simpleDateFormat.format(getTime());
         System.out.println("Date: " + date);
         System.out.println(getMessage() + '\n');
     }

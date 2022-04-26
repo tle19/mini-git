@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 
 /** Driver class for Gitlet, the tiny stupid version-control system.
  *  @author Tyler Le
@@ -84,7 +83,7 @@ public class Main {
             merge(args);
             break;
         default:
-            exitWithError("No command with that name exists.");
+            //exitWithError("No command with that name exists.");
         }
     }
 
@@ -93,7 +92,7 @@ public class Main {
      * (creates any necessary folders or files)
      * @param args Command argument. */
     public static void init(String... args) {
-        validateNumArgs(args, 1);
+        //validateNumArgs(args, 1);
 
         GITLET_FOLDER.mkdir();
         BLOBS.mkdir();
@@ -108,7 +107,7 @@ public class Main {
     }
 
     public static void add(String... args) {
-        validateNumArgs(args, 2);
+        //validateNumArgs(args, 2);
         File file = new File(args[1]);
         Blob b = new Blob(file, args[1]);
 
@@ -127,7 +126,7 @@ public class Main {
     }
 
     public static void commit(String... args) {
-        validateNumArgs(args, 2);
+        //validateNumArgs(args, 2);
         Commit parent = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha(), parent);
         curr.putAll(parent.getBlob());
@@ -143,11 +142,11 @@ public class Main {
     }
 
     public static void rm(String... args) {
-        
+
     }
 
     public static void log(String... args) {
-        validateNumArgs(args, 1);
+        //validateNumArgs(args, 1);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         while (curr != null) {
             curr.log();
@@ -156,12 +155,12 @@ public class Main {
     }
 
     public static void global_log(String... args) {
-        validateNumArgs(args, 1);
-        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        while (curr != null) {
-            curr.log();
-            curr = curr.getParent2();
-        }
+//        validateNumArgs(args, 1);
+//        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+//        while (curr != null) {
+//            curr.log();
+//            curr = curr.getParent2();
+//        }
     }
 
     public static void find(String... args) {
@@ -189,7 +188,7 @@ public class Main {
                 Utils.writeContents(Utils.join(args[3]), cont.getBlob());
             }
         } else {
-            exitWithError("Incorrect operands.");
+            //exitWithError("Incorrect operands.");
         }
     }
 

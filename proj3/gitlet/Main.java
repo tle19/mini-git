@@ -38,10 +38,9 @@ public class Main {
         if (args.length == 0) {
             exitWithError("Please enter a command.");
         }
-//        File initFile = new File(".gitlet");
-//        if (!initFile.exists() && !args[0].equals("init")) {
-//            exitWithError("Not in an initialized Gitlet directory.");
-//        }
+        if (!GITLET_FOLDER.exists() && !args[0].equals("init")) {
+            exitWithError("Not in an initialized Gitlet directory.");
+        }
         switch (args[0]) {
         case "init":
             init(args);
@@ -121,13 +120,30 @@ public class Main {
 
     public static void add(String... args) {
         validateNumArgs(args, 2);
+
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         File exist = new File(args[1] + "");
-        if (!exist.exists()) {
+        if (!exist.exists() && !curr.getBlob().containsKey(args[1])) {
             exitWithError("File does not exist.");
         }
 
         File file = new File(args[1]);
         Blob b = new Blob(file, args[1]);
+
+        File remove = Utils.join(INDEX, "remove");
+        Storage removed = Utils.readObject(remove, Storage.class);
+
+        if (curr.getBlob().containsKey(args[1])) {
+            if (curr.getBlob().get(args[1]).equals(b.getHash())) {
+                System.exit(0);
+            }
+            if (b.getHash().equals(curr.getBlob().get(args[1]))) {
+                Utils.writeContents(Utils.join(args[1]), curr.getBlob().get(args[1]).getBytes());
+                removed.remove(args[1]);
+                System.exit(0);
+
+            }
+        }
 
         File blobLocation = Utils.join(BLOBS, b.getHash());
         Utils.writeObject(blobLocation, b);
@@ -140,11 +156,15 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
-
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
-        if (staged.getBlob().keySet().size() == 0 || args[1] == "") {
+        File remove = Utils.join(INDEX, "remove");
+        Storage removed = Utils.readObject(remove, Storage.class);
+        if (staged.getBlob().keySet().size() == 0 && removed.getBlob().keySet().size() == 0) {
             exitWithError("No changes added to the commit.");
+        }
+        if (args[1].equals("")) {
+            exitWithError("Please enter a commit messasge.");
         }
 
         Commit parent = Utils.readObject(HEAD.listFiles()[0], Commit.class);
@@ -154,7 +174,9 @@ public class Main {
         for (String keys : staged.getBlob().keySet()) {
             curr.put(keys, staged.get(keys).getHash());
         }
+
         staged.clear();
+        removed.clear();
         Utils.writeObject(stage, staged);
 
         HEAD.listFiles()[0].delete();
@@ -171,13 +193,13 @@ public class Main {
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         // h.txt is different than testing/src/h.txt
         if (staged.contains(args[1])) {
-            removed.put(args[1], staged.get(args[1]));
             staged.remove(args[1]);
-            Utils.writeObject(remove, removed);
             Utils.writeObject(stage, staged);
         } else if (curr.getBlob().containsKey(args[1])) {
             String s = curr.getBlob().get(args[1]);
             removed.put(args[1], Utils.readObject(Utils.join(BLOBS, s), Blob.class));
+            Utils.join(args[1]).delete();
+            Utils.writeObject(remove, removed);
         } else {
             exitWithError("No reason to remove the file.");
         }
@@ -203,7 +225,19 @@ public class Main {
     }
 
     public static void find(String... args) {
+        validateNumArgs(args, 2);
+        boolean exists = false;
+        for (File file : COMMIT_FOLDER.listFiles()) {
+            Commit curr = Utils.readObject(file, Commit.class);
+            if (curr.getMessage().equals(args[1])) {
+                System.out.println(curr.getSha());
+                exists = true;
+            }
+        }
 
+        if (!exists) {
+            exitWithError("Found no commit with that message.");
+        }
     }
 
     public static void status(String... args) {
@@ -225,6 +259,12 @@ public class Main {
             System.out.println(keys);
         }
         System.out.println('\n' + "=== Modifications Not Staged For Commit ===");
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+//        if (curr.getBlob().containsKey(args[1])) {
+//            if (curr.getBlob().get(args[1]).equals(b.getHash())) {
+//                System.exit(0);
+//            }
+//        }
         System.out.println('\n' + "=== Untracked Files ===");
         System.out.println('\n');
 
@@ -233,6 +273,10 @@ public class Main {
     public static void checkout(String... args) {
         System.out.println();
         if (args[1].equals("--") && args.length == 3) {
+            File file = new File(args[2] + "")
+            if (!file.exists()) {
+                System.out.println("File does not exist in that commit.");
+            }
             Commit head = Utils.readObject(HEAD.listFiles()[0], Commit.class);
             String blob = head.getBlob().get(args[2]);
             if (blob != null) {

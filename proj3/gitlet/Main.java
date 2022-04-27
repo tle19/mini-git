@@ -26,11 +26,7 @@ public class Main {
     static final File REFS = new File(".gitlet/refs");
 
     /** Folder containing head pointer. */
-    static final File HEAD = new File(".gitlet/refs/head");
-
-    /** Folder containing master pointer. */
-    static final File MASTER = new File(".gitlet/refs/master");
-
+    static final File HEAD = new File(".gitlet/head");
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
@@ -103,7 +99,6 @@ public class Main {
         COMMIT_FOLDER.mkdir();
         REFS.mkdir();
         HEAD.mkdir();
-        MASTER.mkdir();
 
         File stage = Utils.join(INDEX, "stage");
         Utils.writeObject(stage, new Storage());
@@ -116,6 +111,12 @@ public class Main {
 
         Commit initial = new Commit("initial commit", null, null);
         initial.commit();
+
+        File mast = Utils.join(REFS, "master");
+        Utils.writeObject(mast, initial);
+
+        File head = Utils.join(HEAD, initial.getSha());
+        Utils.writeObject(head, initial);
     }
 
     public static void add(String... args) {
@@ -190,9 +191,21 @@ public class Main {
         Utils.writeObject(stage, staged);
         Utils.writeObject(remove, removed);
 
+        String path = "master";
+        for (File file : REFS.listFiles()) {
+            if (Utils.readObject(file, Commit.class).getSha().equals(HEAD.listFiles()[0].getName())) {
+                path = file.getName();
+                break;
+            }
+        }
+        File head = Utils.join(REFS, path);
+
         HEAD.listFiles()[0].delete();
-        MASTER.listFiles()[0].delete();
         curr.commit();
+        Utils.writeObject(head, curr);
+
+        File f = Utils.join(HEAD, curr.getSha());
+        Utils.writeObject(f, curr);
     }
 
     public static void rm(String... args) {
@@ -252,9 +265,8 @@ public class Main {
 
     public static void status(String... args) {
         System.out.println("=== Branches ===");
-        System.out.println("*master");
         for (File file : REFS.listFiles()) {
-
+            System.out.println("*" + file.getName());
         }
         System.out.println('\n' + "=== Staged Files ===");
         File stage = Utils.join(INDEX, "stage");
@@ -270,18 +282,12 @@ public class Main {
         }
         System.out.println('\n' + "=== Modifications Not Staged For Commit ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-//        if (curr.getBlob().containsKey(args[1])) {
-//            if (curr.getBlob().get(args[1]).equals(b.getHash())) {
-//                System.exit(0);
-//            }
-//        }
         System.out.println('\n' + "=== Untracked Files ===");
         System.out.println('\n');
 
     }
 
     public static void checkout(String... args) {
-        System.out.println();
         boolean commitTrue = false;
         if (args.length == 3 && args[1].equals("--")) {
             File file = new File(args[2] + "");
@@ -295,29 +301,33 @@ public class Main {
                 Utils.writeContents(Utils.join(args[2]), cont.getBlob());
             }
         } else if (args.length == 4 && args[2].equals("--")) {
+            String trueID = null;
             for (File f : COMMIT_FOLDER.listFiles()) {
-                if (f.getName().equals(args[1])) {
+                String shortID = f.getName().substring(0, 8);
+                if (f.getName().equals(args[1]) || shortID.equals(args[1])) {
                     commitTrue = true;
+                    trueID = f.getName();
+                    break;
                 }
             }
-            if (commitTrue == false) {
+            if (!commitTrue) {
                 exitWithError("No commit with that id exists.");
             }
             File file = new File(args[3] + "");
             if (!file.exists()) {
-                System.out.println("File does not exist in that commit.");
+                exitWithError("File does not exist in that commit.");
             }
-            Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]), Commit.class);
+            Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, trueID), Commit.class);
             String blob = curr.getBlob().get(args[3]);
             if (blob != null) {
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
                 Utils.writeContents(Utils.join(args[3]), cont.getBlob());
             }
         } else if (args.length == 2) {
-            //exitWithError("There is an untracked file in the way; delete it, or add and commit it first.");
             for (File file : REFS.listFiles()) {
                 if (file.getName().equals(args[1])) {
                     commitTrue = true;
+                    break;
                 }
             }
             if (commitTrue == false) {
@@ -325,13 +335,18 @@ public class Main {
             }
 
             Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-            try {
-                Commit br = Utils.readObject(Utils.join(REFS, args[1]), Commit.class);
-            } catch (IllegalArgumentException x) {
-                exitWithError("No need to checkout the current branch.");
-            }
-
             Commit br = Utils.readObject(Utils.join(REFS, args[1]), Commit.class);
+//            boolean tracked = false;
+//            for (File f : BLOBS.listFiles()) {
+//                Blob blub = Utils.readObject(f, Blob.class);
+//                if (Utils.readContents(Utils.join(blub.getFileName())).equals(blub.getBlob())) {
+//                    tracked = true;
+//                    break;
+//                }
+//            }
+//            if (!tracked) {
+//                exitWithError("There is an untracked file in the way; delete it, or add and commit it first.");
+//            }
             if (curr.getSha().equals(br.getSha())) {
                 exitWithError("No need to checkout the current branch.");
             }
@@ -340,10 +355,16 @@ public class Main {
                 String blob = br.getBlob().get(keys);
                 if (blob != null) {
                     Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
-                    Utils.writeContents(Utils.join(args[3]), cont.getBlob());
+                    Utils.writeContents(Utils.join(keys), cont.getBlob());
                 }
             }
-            File head = Utils.join(Main.HEAD, br.getSha());
+            for (String keys : curr.getBlob().keySet()) {
+                if (!br.getBlob().containsKey(keys)) {
+                    Utils.join(keys).delete();
+                }
+            }
+            File head = Utils.join(HEAD, br.getSha());
+            HEAD.listFiles()[0].delete();
             Utils.writeObject(head, br);
         }
         else {
@@ -360,13 +381,34 @@ public class Main {
         }
         File newBranch = Utils.join(REFS, args[1]);
         File head = HEAD.listFiles()[0];
-        Commit br = new Commit(null, head.getName(),
-                Utils.readObject(head, Commit.class));
+        Commit header = Utils.readObject(head, Commit.class);
+        Commit br = new Commit(header.getMessage(), head.getName(), header);
+        br.initializeSha();
+//        for (String keys : header.getBlob().keySet()) {
+//            br.put(keys, header.getBlob().get(keys));
+//        }
         Utils.writeObject(newBranch, br);
+        Utils.writeObject(Utils.join(COMMIT_FOLDER, br.getSha()), br);
     }
 
     public static void rmBranch(String... args) {
+        validateNumArgs(args, 2);
+        boolean exists = false;
+        for (File file : REFS.listFiles()) {
+            if (file.getName().equals(args[1])) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            exitWithError("A branch with that name does not exist.");
+        }
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        if (curr.getSha().equals(Utils.readObject(Utils.join(REFS, args[1]), Commit.class).getSha())) {
+            exitWithError("Cannot remove the current branch.");
+        }
 
+        Utils.join(REFS, args[1]).delete();
     }
 
     public static void reset(String... args) {

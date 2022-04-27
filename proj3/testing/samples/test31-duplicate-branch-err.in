@@ -17,7 +17,7 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 + f.txt wug.txt
 + g.txt notwug.txt
 > add g.txt
-=<<<
+<<<
 > add f.txt
 <<<
 > commit "Main two files"

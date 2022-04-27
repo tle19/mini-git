@@ -43,11 +43,6 @@ public class Commit implements Serializable {
         File file = Utils.join(Main.COMMIT_FOLDER, _sha);
         Utils.writeObject(file, this);
 
-        File head = Utils.join(Main.HEAD, getSha());
-        Utils.writeObject(head, this);
-
-        File mast = Utils.join(Main.MASTER, getSha());
-        Utils.writeObject(mast, this);
     }
 
     public void put(String key, String val) {
@@ -92,5 +87,7 @@ public class Commit implements Serializable {
         return _blobs;
     }
 
-
+    public void initializeSha() {
+        _sha = Utils.sha1(_time.toString(), _blobs.toString());
+    }
 }

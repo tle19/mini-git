@@ -127,11 +127,17 @@ public class Main {
             exitWithError("File does not exist.");
         }
 
-        File file = new File(args[1]);
-        Blob b = new Blob(file, args[1]);
-
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
+        if (removed.contains(args[1])) {
+            Utils.writeContents(Utils.join(args[1]), removed.getBlob().get(args[1]).getBlob());
+            removed.remove(args[1]);
+            Utils.writeObject(remove, removed);
+            System.exit(0);
+        }
+
+        File file = new File(args[1]);
+        Blob b = new Blob(file, args[1]);
 
         if (curr.getBlob().containsKey(args[1])) {
             if (curr.getBlob().get(args[1]).equals(b.getHash())) {
@@ -140,6 +146,7 @@ public class Main {
             if (b.getHash().equals(curr.getBlob().get(args[1]))) {
                 Utils.writeContents(Utils.join(args[1]), curr.getBlob().get(args[1]).getBytes());
                 removed.remove(args[1]);
+                Utils.writeObject(remove, removed);
                 System.exit(0);
 
             }
@@ -238,7 +245,6 @@ public class Main {
                 exists = true;
             }
         }
-
         if (!exists) {
             exitWithError("Found no commit with that message.");
         }
@@ -317,10 +323,16 @@ public class Main {
             if (commitTrue == false) {
                 exitWithError("No such branch exists.");
             }
+
             Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-            Commit mast = Utils.readObject(MASTER.listFiles()[0], Commit.class);
+            try {
+                Commit br = Utils.readObject(Utils.join(REFS, args[1]), Commit.class);
+            } catch (IllegalArgumentException x) {
+                exitWithError("No need to checkout the current branch.");
+            }
+
             Commit br = Utils.readObject(Utils.join(REFS, args[1]), Commit.class);
-            if (curr.getSha().equals(br.getSha()) || curr.getSha().equals(mast.getSha())) {
+            if (curr.getSha().equals(br.getSha())) {
                 exitWithError("No need to checkout the current branch.");
             }
 

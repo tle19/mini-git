@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.Arrays;
 
 /** Driver class for Gitlet, the tiny stupid version-control system.
  *  @author Tyler Le
@@ -27,6 +28,9 @@ public class Main {
 
     /** Folder containing head pointer. */
     static final File HEAD = new File(".gitlet/head");
+
+    /** Text file containing the current branch. */
+    private static File _current = new File(".gitlet/branch.txt");
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
@@ -90,7 +94,8 @@ public class Main {
         validateNumArgs(args, 1);
         File initFile = new File(".gitlet");
         if (initFile.exists()) {
-            exitWithError("A Gitlet version-control system already exists in the current directory.");
+            exitWithError("A Gitlet version-control system "
+                    + "already exists in the current directory.");
         }
 
         GITLET_FOLDER.mkdir();
@@ -117,6 +122,8 @@ public class Main {
 
         File head = Utils.join(HEAD, initial.getSha());
         Utils.writeObject(head, initial);
+
+        Utils.writeContents(_current, "master");
     }
 
     public static void add(String... args) {
@@ -131,7 +138,8 @@ public class Main {
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
         if (removed.contains(args[1])) {
-            Utils.writeContents(Utils.join(args[1]), removed.getBlob().get(args[1]).getBlob());
+            Utils.writeContents(Utils.join(args[1]),
+                    removed.getBlob().get(args[1]).getBlob());
             removed.remove(args[1]);
             Utils.writeObject(remove, removed);
             System.exit(0);
@@ -145,7 +153,8 @@ public class Main {
                 System.exit(0);
             }
             if (b.getHash().equals(curr.getBlob().get(args[1]))) {
-                Utils.writeContents(Utils.join(args[1]), curr.getBlob().get(args[1]).getBytes());
+                Utils.writeContents(Utils.join(args[1]),
+                        curr.getBlob().get(args[1]).getBytes());
                 removed.remove(args[1]);
                 Utils.writeObject(remove, removed);
                 System.exit(0);
@@ -168,7 +177,8 @@ public class Main {
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
-        if (staged.getBlob().keySet().size() == 0 && removed.getBlob().keySet().size() == 0) {
+        if (staged.getBlob().keySet().size() == 0
+                && removed.getBlob().keySet().size() == 0) {
             exitWithError("No changes added to the commit.");
         }
         if (args[1].equals("")) {
@@ -193,17 +203,16 @@ public class Main {
 
         String path = "master";
         for (File file : REFS.listFiles()) {
-            if (Utils.readObject(file, Commit.class).getSha().equals(HEAD.listFiles()[0].getName())) {
+            if (Utils.readObject(file, Commit.class).getSha().equals
+                    (HEAD.listFiles()[0].getName())) {
                 path = file.getName();
                 break;
             }
         }
-        File head = Utils.join(REFS, path);
-
-        HEAD.listFiles()[0].delete();
         curr.commit();
+        HEAD.listFiles()[0].delete();
+        File head = Utils.join(REFS, path);
         Utils.writeObject(head, curr);
-
         File f = Utils.join(HEAD, curr.getSha());
         Utils.writeObject(f, curr);
     }
@@ -215,13 +224,14 @@ public class Main {
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        // h.txt is different than testing/src/h.txt
+
         if (staged.contains(args[1])) {
             staged.remove(args[1]);
             Utils.writeObject(stage, staged);
         } else if (curr.getBlob().containsKey(args[1])) {
             String s = curr.getBlob().get(args[1]);
-            removed.put(args[1], Utils.readObject(Utils.join(BLOBS, s), Blob.class));
+            removed.put(args[1],
+                    Utils.readObject(Utils.join(BLOBS, s), Blob.class));
             Utils.join(args[1]).delete();
             Utils.writeObject(remove, removed);
         } else {
@@ -241,10 +251,8 @@ public class Main {
 
     public static void globalLog(String... args) {
         validateNumArgs(args, 1);
-        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        while (curr != null) {
-            curr.log();
-            curr = curr.getParent2();
+        for (File f : COMMIT_FOLDER.listFiles()) {
+            Utils.readObject(f, Commit.class).log();
         }
     }
 
@@ -266,7 +274,12 @@ public class Main {
     public static void status(String... args) {
         System.out.println("=== Branches ===");
         for (File file : REFS.listFiles()) {
-            System.out.println("*" + file.getName());
+            if (Arrays.equals(Utils.readContents(_current),
+                    file.getName().getBytes())) {
+                System.out.println("*" + file.getName());
+            } else {
+                System.out.println(file.getName());
+            }
         }
         System.out.println('\n' + "=== Staged Files ===");
         File stage = Utils.join(INDEX, "stage");
@@ -280,15 +293,22 @@ public class Main {
         for (String keys : removed.getBlob().keySet()) {
             System.out.println(keys);
         }
-        System.out.println('\n' + "=== Modifications Not Staged For Commit ===");
-        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        System.out.println('\n'
+                + "=== Modifications Not Staged For Commit ===");
         System.out.println('\n' + "=== Untracked Files ===");
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (!curr.getBlob().containsKey(s) &&
+                    !curr.getBlob().get(s).equals(Utils.sha1(
+                            Utils.readContentsAsString(Utils.join(s))))) {
+                System.out.println(s);
+            }
+        }
         System.out.println('\n');
 
     }
 
     public static void checkout(String... args) {
-        boolean commitTrue = false;
         if (args.length == 3 && args[1].equals("--")) {
             File file = new File(args[2] + "");
             if (!file.exists()) {
@@ -297,10 +317,12 @@ public class Main {
             Commit head = Utils.readObject(HEAD.listFiles()[0], Commit.class);
             String blob = head.getBlob().get(args[2]);
             if (blob != null) {
-                Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
+                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                        Blob.class);
                 Utils.writeContents(Utils.join(args[2]), cont.getBlob());
             }
         } else if (args.length == 4 && args[2].equals("--")) {
+            boolean commitTrue = false;
             String trueID = null;
             for (File f : COMMIT_FOLDER.listFiles()) {
                 String shortID = f.getName().substring(0, 8);
@@ -317,59 +339,65 @@ public class Main {
             if (!file.exists()) {
                 exitWithError("File does not exist in that commit.");
             }
-            Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, trueID), Commit.class);
+            Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, trueID),
+                    Commit.class);
             String blob = curr.getBlob().get(args[3]);
             if (blob != null) {
-                Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
+                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                        Blob.class);
                 Utils.writeContents(Utils.join(args[3]), cont.getBlob());
             }
         } else if (args.length == 2) {
-            for (File file : REFS.listFiles()) {
-                if (file.getName().equals(args[1])) {
-                    commitTrue = true;
-                    break;
-                }
-            }
-            if (commitTrue == false) {
-                exitWithError("No such branch exists.");
-            }
-
-            Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-            Commit br = Utils.readObject(Utils.join(REFS, args[1]), Commit.class);
-//            boolean tracked = false;
-//            for (File f : BLOBS.listFiles()) {
-//                Blob blub = Utils.readObject(f, Blob.class);
-//                if (Utils.readContents(Utils.join(blub.getFileName())).equals(blub.getBlob())) {
-//                    tracked = true;
-//                    break;
-//                }
-//            }
-//            if (!tracked) {
-//                exitWithError("There is an untracked file in the way; delete it, or add and commit it first.");
-//            }
-            if (curr.getSha().equals(br.getSha())) {
-                exitWithError("No need to checkout the current branch.");
-            }
-
-            for (String keys : br.getBlob().keySet()) {
-                String blob = br.getBlob().get(keys);
-                if (blob != null) {
-                    Blob cont = Utils.readObject(Utils.join(BLOBS, blob), Blob.class);
-                    Utils.writeContents(Utils.join(keys), cont.getBlob());
-                }
-            }
-            for (String keys : curr.getBlob().keySet()) {
-                if (!br.getBlob().containsKey(keys)) {
-                    Utils.join(keys).delete();
-                }
-            }
-            File head = Utils.join(HEAD, br.getSha());
-            HEAD.listFiles()[0].delete();
-            Utils.writeObject(head, br);
-        }
-        else {
+            checkout2(args[1]);
+        } else {
             exitWithError("Incorrect operands.");
         }
+    }
+
+    public static void checkout2(String args) {
+        boolean commitTrue = false;
+        for (File file : REFS.listFiles()) {
+            if (file.getName().equals(args)) {
+                commitTrue = true;
+                break;
+            }
+        }
+        if (!commitTrue) {
+            exitWithError("No such branch exists.");
+        }
+
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
+
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (!curr.getBlob().containsKey(s) &&
+                    !br.getBlob().get(s).equals(Utils.sha1(
+                            Utils.readContentsAsString(Utils.join(s))))) {
+                exitWithError("There is an untracked file in the way; "
+                        + "delete it, or add and commit it first.");
+            }
+        }
+        if (Arrays.equals(Utils.readContents(_current), args.getBytes())) {
+            exitWithError("No need to checkout the current branch.");
+        }
+
+        for (String keys : br.getBlob().keySet()) {
+            String blob = br.getBlob().get(keys);
+            if (blob != null) {
+                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                        Blob.class);
+                Utils.writeContents(Utils.join(keys), cont.getBlob());
+            }
+        }
+        for (String keys : curr.getBlob().keySet()) {
+            if (!br.getBlob().containsKey(keys)) {
+                Utils.join(keys).delete();
+            }
+        }
+        Utils.writeContents(_current, args);
+        File head = Utils.join(HEAD, br.getSha());
+        HEAD.listFiles()[0].delete();
+        Utils.writeObject(head, br);
     }
 
     public static void branch(String... args) {
@@ -382,13 +410,7 @@ public class Main {
         File newBranch = Utils.join(REFS, args[1]);
         File head = HEAD.listFiles()[0];
         Commit header = Utils.readObject(head, Commit.class);
-        Commit br = new Commit(header.getMessage(), head.getName(), header);
-        br.initializeSha();
-//        for (String keys : header.getBlob().keySet()) {
-//            br.put(keys, header.getBlob().get(keys));
-//        }
-        Utils.writeObject(newBranch, br);
-        Utils.writeObject(Utils.join(COMMIT_FOLDER, br.getSha()), br);
+        Utils.writeObject(newBranch, header);
     }
 
     public static void rmBranch(String... args) {
@@ -404,15 +426,60 @@ public class Main {
             exitWithError("A branch with that name does not exist.");
         }
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        if (curr.getSha().equals(Utils.readObject(Utils.join(REFS, args[1]), Commit.class).getSha())) {
+        if (Arrays.equals(Utils.readContents(_current), args[1].getBytes())) {
             exitWithError("Cannot remove the current branch.");
         }
 
         Utils.join(REFS, args[1]).delete();
+        Utils.writeContents(_current, "");
     }
 
     public static void reset(String... args) {
+        validateNumArgs(args, 2);
+        boolean commitTrue = false;
+        for (File f : COMMIT_FOLDER.listFiles()) {
+            String shortID = f.getName().substring(0, 8);
+            if (f.getName().equals(args[1]) || shortID.equals(args[1])) {
+                commitTrue = true;
+                break;
+            }
+        }
+        if (!commitTrue) {
+            exitWithError("No commit with that id exists.");
+        }
 
+        Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
+                Commit.class);
+
+//        for (String s : Utils.plainFilenamesIn(CWD)) {
+//            if (!curr.getBlob().containsKey(s) &&
+//                    !curr.getBlob().get(s).equals(Utils.sha1(
+//                            Utils.readContentsAsString(Utils.join(s))))) {
+//                exitWithError("There is an untracked file in the way; "
+//                        + "delete it, or add and commit it first.");
+//            }
+//        }
+
+        for (String keys : curr.getBlob().keySet()) {
+            String blob = curr.getBlob().get(keys);
+            if (blob != null) {
+                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                        Blob.class);
+                Utils.writeContents(Utils.join(keys), cont.getBlob());
+            }
+        }
+        File stage = Utils.join(INDEX, "stage");
+        Storage staged = Utils.readObject(stage, Storage.class);
+        staged.clear();
+        Utils.writeObject(stage, staged);
+
+        File remove = Utils.join(INDEX, "remove");
+        Storage removed = Utils.readObject(remove, Storage.class);
+        removed.clear();
+        Utils.writeObject(remove, removed);
+
+        File head = Utils.join(HEAD, curr.getSha());
+        Utils.writeObject(head, curr);
     }
 
     public static void merge(String... args) {

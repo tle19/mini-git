@@ -297,13 +297,13 @@ public class Main {
                 + "=== Modifications Not Staged For Commit ===");
         System.out.println('\n' + "=== Untracked Files ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        for (String s : Utils.plainFilenamesIn(CWD)) {
-            if (!curr.getBlob().containsKey(s)
-                    && !curr.getBlob().get(s).equals(Utils.sha1(
-                            Utils.readContentsAsString(Utils.join(s))))) {
-                System.out.println(s);
-            }
-        }
+//        for (String s : Utils.plainFilenamesIn(CWD)) {
+//            if (!curr.getBlob().containsKey(s)
+//                    && !curr.getBlob().get(s).equals(Utils.sha1(
+//                            Utils.readContentsAsString(Utils.join(s))))) {
+//                System.out.println(s);
+//            }
+//        }
         System.out.println('\n');
 
     }
@@ -451,7 +451,14 @@ public class Main {
         Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
                 Commit.class);
 
-
+//        for (String s : Utils.plainFilenamesIn(CWD)) {
+//            if (!curr.getBlob().containsKey(s) &&
+//                    !curr.getBlob().get(s).equals(Utils.sha1(
+//                            Utils.readContentsAsString(Utils.join(s))))) {
+//                exitWithError("There is an untracked file in the way; "
+//                        + "delete it, or add and commit it first.");
+//            }
+//        }
 
         for (String keys : curr.getBlob().keySet()) {
             String blob = curr.getBlob().get(keys);
@@ -476,7 +483,8 @@ public class Main {
     }
 
     public static void merge(String... args) {
-
+        validateNumArgs(args, 2);
+        
     }
 
     /**

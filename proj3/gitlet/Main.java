@@ -298,8 +298,8 @@ public class Main {
         System.out.println('\n' + "=== Untracked Files ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         for (String s : Utils.plainFilenamesIn(CWD)) {
-            if (!curr.getBlob().containsKey(s) &&
-                    !curr.getBlob().get(s).equals(Utils.sha1(
+            if (!curr.getBlob().containsKey(s)
+                    && !curr.getBlob().get(s).equals(Utils.sha1(
                             Utils.readContentsAsString(Utils.join(s))))) {
                 System.out.println(s);
             }
@@ -370,8 +370,8 @@ public class Main {
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
 
         for (String s : Utils.plainFilenamesIn(CWD)) {
-            if (!curr.getBlob().containsKey(s) &&
-                    !br.getBlob().get(s).equals(Utils.sha1(
+            if (!curr.getBlob().containsKey(s)
+                    && !br.getBlob().get(s).equals(Utils.sha1(
                             Utils.readContentsAsString(Utils.join(s))))) {
                 exitWithError("There is an untracked file in the way; "
                         + "delete it, or add and commit it first.");
@@ -451,14 +451,7 @@ public class Main {
         Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
                 Commit.class);
 
-//        for (String s : Utils.plainFilenamesIn(CWD)) {
-//            if (!curr.getBlob().containsKey(s) &&
-//                    !curr.getBlob().get(s).equals(Utils.sha1(
-//                            Utils.readContentsAsString(Utils.join(s))))) {
-//                exitWithError("There is an untracked file in the way; "
-//                        + "delete it, or add and commit it first.");
-//            }
-//        }
+
 
         for (String keys : curr.getBlob().keySet()) {
             String blob = curr.getBlob().get(keys);

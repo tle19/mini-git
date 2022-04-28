@@ -26,6 +26,9 @@ public class Commit implements Serializable {
     /** SHA ID of commit. */
     private String _sha;
 
+    /** Branch indentifier. */
+    private String _br;
+
     public Commit(String message, String parent, Commit parent2) {
         _message = message;
         _parent = parent;
@@ -43,6 +46,13 @@ public class Commit implements Serializable {
         File file = Utils.join(Main.COMMIT_FOLDER, _sha);
         Utils.writeObject(file, this);
 
+    }
+    public void setBranch(String br) {
+        _br = br;
+    }
+
+    public String getBranch() {
+        return _br;
     }
 
     public void put(String key, String val) {

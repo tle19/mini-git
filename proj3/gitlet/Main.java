@@ -116,6 +116,7 @@ public class Main {
 
         Commit initial = new Commit("initial commit", null, null);
         initial.commit();
+        initial.setBranch("master");
 
         File mast = Utils.join(REFS, "master");
         Utils.writeObject(mast, initial);
@@ -209,6 +210,7 @@ public class Main {
                 break;
             }
         }
+        curr.setBranch(path);
         curr.commit();
         HEAD.listFiles()[0].delete();
         File head = Utils.join(REFS, path);
@@ -297,13 +299,13 @@ public class Main {
                 + "=== Modifications Not Staged For Commit ===");
         System.out.println('\n' + "=== Untracked Files ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-//        for (String s : Utils.plainFilenamesIn(CWD)) {
-//            if (!curr.getBlob().containsKey(s)
-//                    && !curr.getBlob().get(s).equals(Utils.sha1(
-//                            Utils.readContentsAsString(Utils.join(s))))) {
-//                System.out.println(s);
-//            }
-//        }
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (!curr.getBlob().containsKey(s) && curr.getBlob().get(s) != null
+                    && !curr.getBlob().get(s).equals(Utils.sha1(
+                            Utils.readContents(Utils.join(s))))) {
+                System.out.println(s);
+            }
+        }
         System.out.println('\n');
 
     }
@@ -316,11 +318,9 @@ public class Main {
             }
             Commit head = Utils.readObject(HEAD.listFiles()[0], Commit.class);
             String blob = head.getBlob().get(args[2]);
-            if (blob != null) {
-                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
-                        Blob.class);
-                Utils.writeContents(Utils.join(args[2]), cont.getBlob());
-            }
+            Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                    Blob.class);
+            Utils.writeContents(Utils.join(args[2]), cont.getBlob());
         } else if (args.length == 4 && args[2].equals("--")) {
             boolean commitTrue = false;
             String trueID = null;
@@ -342,11 +342,9 @@ public class Main {
             Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, trueID),
                     Commit.class);
             String blob = curr.getBlob().get(args[3]);
-            if (blob != null) {
-                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
-                        Blob.class);
-                Utils.writeContents(Utils.join(args[3]), cont.getBlob());
-            }
+            Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                    Blob.class);
+            Utils.writeContents(Utils.join(args[3]), cont.getBlob());
         } else if (args.length == 2) {
             checkout2(args[1]);
         } else {
@@ -370,7 +368,7 @@ public class Main {
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
 
         for (String s : Utils.plainFilenamesIn(CWD)) {
-            if (!curr.getBlob().containsKey(s)
+            if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)
                     && !br.getBlob().get(s).equals(Utils.sha1(
                             Utils.readContentsAsString(Utils.join(s))))) {
                 exitWithError("There is an untracked file in the way; "
@@ -383,11 +381,9 @@ public class Main {
 
         for (String keys : br.getBlob().keySet()) {
             String blob = br.getBlob().get(keys);
-            if (blob != null) {
-                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
-                        Blob.class);
-                Utils.writeContents(Utils.join(keys), cont.getBlob());
-            }
+            Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                    Blob.class);
+            Utils.writeContents(Utils.join(keys), cont.getBlob());
         }
         for (String keys : curr.getBlob().keySet()) {
             if (!br.getBlob().containsKey(keys)) {
@@ -448,26 +444,31 @@ public class Main {
             exitWithError("No commit with that id exists.");
         }
 
-        Commit curr = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
+        Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
+                Commit.class);
+        Commit br = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
                 Commit.class);
 
-//        for (String s : Utils.plainFilenamesIn(CWD)) {
-//            if (!curr.getBlob().containsKey(s) &&
-//                    !curr.getBlob().get(s).equals(Utils.sha1(
-//                            Utils.readContentsAsString(Utils.join(s))))) {
-//                exitWithError("There is an untracked file in the way; "
-//                        + "delete it, or add and commit it first.");
-//            }
-//        }
-
-        for (String keys : curr.getBlob().keySet()) {
-            String blob = curr.getBlob().get(keys);
-            if (blob != null) {
-                Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
-                        Blob.class);
-                Utils.writeContents(Utils.join(keys), cont.getBlob());
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)) {
+                exitWithError("There is an untracked file in the way; "
+                        + "delete it, or add and commit it first.");
             }
         }
+
+        for (String keys : br.getBlob().keySet()) {
+            String blob = br.getBlob().get(keys);
+            Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
+                    Blob.class);
+            Utils.writeContents(Utils.join(keys), cont.getBlob());
+        }
+
+        for (String keys : curr.getBlob().keySet()) {
+            if (!br.getBlob().containsKey(keys)) {
+                Utils.join(keys).delete();
+            }
+        }
+
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         staged.clear();
@@ -478,13 +479,18 @@ public class Main {
         removed.clear();
         Utils.writeObject(remove, removed);
 
-        File head = Utils.join(HEAD, curr.getSha());
-        Utils.writeObject(head, curr);
+        Utils.writeContents(_current, br.getBranch());
+        HEAD.listFiles()[0].delete();
+        File head = Utils.join(HEAD, br.getSha());
+        Utils.writeObject(head, br);
+
+        File brHead = Utils.join(REFS, "master");
+        Utils.writeObject(brHead, br);
     }
 
     public static void merge(String... args) {
         validateNumArgs(args, 2);
-        
+
     }
 
     /**

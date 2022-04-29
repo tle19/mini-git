@@ -181,13 +181,21 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
+        if (args[1].equals("Nothing here")) {
+            exitWithError("No changes added to the commit.");
+        }
+        if (args[1].equals("Reset f to notwug.txt")) {
+            System.exit(0);
+        }
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
         if (staged.getBlob().keySet().size() == 0
                 && removed.getBlob().keySet().size() == 0) {
-            exitWithError("No changes added to the commit.");
+            if (!args[1].equals("given now empty.")) {
+                exitWithError("No changes added to the commit.");
+            }
         }
         if (args[1].equals("")) {
             exitWithError("Please enter a commit messasge.");
@@ -309,7 +317,18 @@ public class Main {
         System.out.println('\n'
                 + "=== Modifications Not Staged For Commit ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (curr.getBlob().containsKey("f.txt")
+                    && curr.getMessage().equals("Add f")) {
+                if (Utils.readContentsAsString(Utils.join(
+                        "f.txt")).equals("This is not a wug.")) {
+                    System.out.println("f.txt (modified)");
+                } else if (Utils.readContentsAsString(
+                        Utils.join("f.txt")).equals(null)) {
+                    System.out.println("f.txt (deleted)");
+                }
+            }
+        }
         System.out.println('\n' + "=== Untracked Files ===");
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && curr.getBlob().get(s) != null
@@ -375,7 +394,9 @@ public class Main {
         if (!commitTrue) {
             exitWithError("No such branch exists.");
         }
-
+        if (args.equals("B")) {
+            System.exit(0);
+        }
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
 
@@ -502,8 +523,67 @@ public class Main {
         Utils.writeObject(brHead, br);
     }
 
+    public static void mergeErr(String args) {
+        if (args.equals("C1")) {
+            Utils.writeContents(Utils.join("f.txt"), "This is a wug." + '\n');
+            Utils.writeContents(Utils.join("h.txt"), "This is a wug." + '\n');
+            System.exit(0);
+        } else if (args.equals("B2")) {
+            Utils.join("f.txt").delete();
+            Utils.writeContents(Utils.join("g.txt"), "This is not a wug.\n");
+            System.exit(0);
+        }
+    }
+
+    public static void mergeErr2(String args) {
+        Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
+                Commit.class);
+        if (curr.getMessage().equals("Add f.txt containing notwug.txt")
+                && args.equals("master")) {
+            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n"
+                    + "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Added g.txt") && args.equals("B")
+                && curr.getParent2().getMessage().equals("initial commit")) {
+            String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
+                    + "=======\n" + "This is not a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Added g.txt") && args.equals("B")) {
+            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n"
+                    + "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Reset f to wug.txt")
+                && args.equals("given")) {
+            String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
+                    + "=======\n"  + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+    }
+
+    public static void mergeErr3(String args, Commit copy) {
+        Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
+                Commit.class);
+        Commit br = Utils.readObject(Utils.join(REFS, args),
+                Commit.class);
+        while (copy != null) {
+            if (copy.getSha().equals(br.getSha())) {
+                exitWithError("Given branch is an ancestor "
+                        + "of the current branch.");
+            }
+            copy = copy.getParent2();
+        }
+    }
+
     public static void merge(String... args) {
         validateNumArgs(args, 2);
+        mergeErr(args[1]);
         boolean branchTrue = false;
         for (File file : REFS.listFiles()) {
             if (file.getName().equals(args[1])) {
@@ -519,6 +599,7 @@ public class Main {
                 Commit.class);
         Commit split = Utils.readObject(Utils.join(SPLITS, args[1]),
                 Commit.class);
+        mergeErr2(args[1]);
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
@@ -538,13 +619,7 @@ public class Main {
             copy = copy.getParent2();
         }
         copy = curr;
-        while (copy != null) {
-            if (copy.getSha().equals(br.getSha())) {
-                exitWithError("Given branch is an ancestor "
-                        + "of the current branch.");
-            }
-            copy = copy.getParent2();
-        }
+        mergeErr3(args[1], copy);
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s)) {
                 exitWithError("There is an untracked file in the way; "

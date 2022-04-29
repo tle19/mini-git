@@ -34,7 +34,7 @@
 > add A.txt
 <<<
 > add F.txt
- <<<
+<<<
 > commit "msg2"
 <<<
 = A.txt nota.txt

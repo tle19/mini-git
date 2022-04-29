@@ -31,10 +31,10 @@
 <<<
 + F.txt notf.txt
 + A.txt nota.txt
- > add A.txt
+> add A.txt
 <<<
 > add F.txt
- <<<
+<<<
 > commit "msg2"
 <<<
 = A.txt nota.txt
@@ -72,7 +72,7 @@
 = G.txt g.txt
 > merge master
 <<<
- = A.txt nota.txt
+= A.txt nota.txt
 = B.txt notb.txt
 * C.txt
 * D.txt

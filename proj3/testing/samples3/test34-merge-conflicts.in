@@ -1,4 +1,4 @@
-# Check various merge error cases.
+# Create two branches and merge other into master with a merge conflict.
 # Set up one commit with two files.
 # Initialize and add two files.
 # Standard commands and definitions
@@ -29,38 +29,53 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 <<<
 > rm g.txt
 <<<
-> commit "Add h.txt and remove g.txt"
++ f.txt wug2.txt
+> add f.txt
+<<<
+> commit "Add h.txt, remove g.txt, and change f.txt"
 <<<
 > checkout other
 <<<
-> merge other
-Cannot merge a branch with itself.
-<<<
-> rm f.txt
++ f.txt notwug.txt
+> add f.txt
 <<<
 + k.txt wug3.txt
 > add k.txt
 <<<
-> commit "Add k.txt and remove f.txt"
+> commit "Add k.txt and modify f.txt"
 <<<
 > checkout master
 <<<
-> merge foobar
-A branch with that name does not exist.
-<<<
-+ k.txt wug.txt
+> log
+===
+${COMMIT_HEAD}
+${ARBLINES}
+<<<*
+D MASTER_HEAD "${1}"
 > merge other
-There is an untracked file in the way; delete it, or add and commit it first.
+Encountered a merge conflict.
 <<<
-- k.txt
-I blank-status2.inc
-+ k.txt wug.txt
-> add k.txt
-<<<
-> merge other
-You have uncommitted changes.
-<<<
-> rm k.txt
-<<<
-- k.txt
-I blank-status2.inc
+* g.txt
+= h.txt wug2.txt
+= k.txt wug3.txt
+= f.txt conflict1.txt
+> log
+${COMMIT_LOG}
+===
+commit ${MASTER_HEAD}
+${ARBLINES}
+<<<*
+> status
+=== Branches ===
+\*master
+other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<*

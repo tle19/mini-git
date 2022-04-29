@@ -53,7 +53,20 @@ A branch with that name does not exist.
 There is an untracked file in the way; delete it, or add and commit it first.
 <<<
 - k.txt
-I blank-status2.inc
+> status
+=== Branches ===
+*master
+other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
 + k.txt wug.txt
 > add k.txt
 <<<
@@ -63,4 +76,17 @@ You have uncommitted changes.
 > rm k.txt
 <<<
 - k.txt
-I blank-status2.inc
+> status
+=== Branches ===
+*master
+other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

@@ -1,6 +1,3 @@
-# Create two branches and merge other into master.
-# Set up one commit with two files.
-# Initialize and add two files.
 # Standard commands and definitions
 > init
 <<<
@@ -14,45 +11,3 @@ D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]
 D ARBLINE "[^\n]*(?=\n|\Z)"
 # Zero or more arbitrary full lines of text.
 D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
-+ f.txt wug.txt
-+ g.txt notwug.txt
-> add g.txt
-<<<
-> add f.txt
-<<<
-> commit "Two files"
-<<<
-> branch other
-<<<
-+ h.txt wug2.txt
-> add h.txt
-<<<
-> rm g.txt
-<<<
-> commit "Add h.txt and remove g.txt"
-<<<
-> checkout other
-<<<
-> rm f.txt
-<<<
-+ k.txt wug3.txt
-> add k.txt
-<<<
-> commit "Add k.txt and remove f.txt"
-<<<
-> checkout master
-<<<
-> merge other
-<<<
-* f.txt
-* g.txt
-= h.txt wug2.txt
-= k.txt wug3.txt
-> log
-===
-${COMMIT_HEAD}
-Merged other into master\.
-
-${ARBLINES}
-<<<*
-I blank-status2.inc

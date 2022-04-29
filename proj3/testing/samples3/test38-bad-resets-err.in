@@ -1,4 +1,5 @@
-# Check various merge error cases.
+# Various error cases for reset
+# Check reset command.
 # Set up one commit with two files.
 # Initialize and add two files.
 # Standard commands and definitions
@@ -31,36 +32,30 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 <<<
 > commit "Add h.txt and remove g.txt"
 <<<
+> log
+===
+${COMMIT_HEAD}
+Add h.txt and remove g.txt
+
+===
+${COMMIT_HEAD}
+Two files
+
+===
+${COMMIT_HEAD}
+initial commit
+<<<*
+D INIT "${3}"
+D TWO "${2}"
+D MASTER1 "${1}"
+
 > checkout other
 <<<
-> merge other
-Cannot merge a branch with itself.
+# Almost certain not to exist.
+> reset 025052f2b193d417df998517a4c539918801b430
+No commit with that id exists.
 <<<
-> rm f.txt
-<<<
-+ k.txt wug3.txt
-> add k.txt
-<<<
-> commit "Add k.txt and remove f.txt"
-<<<
-> checkout master
-<<<
-> merge foobar
-A branch with that name does not exist.
-<<<
-+ k.txt wug.txt
-> merge other
++ h.txt wug3.txt
+> reset ${MASTER1}
 There is an untracked file in the way; delete it, or add and commit it first.
 <<<
-- k.txt
-I blank-status2.inc
-+ k.txt wug.txt
-> add k.txt
-<<<
-> merge other
-You have uncommitted changes.
-<<<
-> rm k.txt
-<<<
-- k.txt
-I blank-status2.inc

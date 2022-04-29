@@ -1,4 +1,4 @@
-# Check various merge error cases.
+# Check that commit clears the staging area.
 # Set up one commit with two files.
 # Initialize and add two files.
 # Standard commands and definitions
@@ -22,45 +22,33 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 <<<
 > commit "Two files"
 <<<
-> branch other
-<<<
-+ h.txt wug2.txt
-> add h.txt
-<<<
-> rm g.txt
-<<<
-> commit "Add h.txt and remove g.txt"
-<<<
-> checkout other
-<<<
-> merge other
-Cannot merge a branch with itself.
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
 <<<
 > rm f.txt
 <<<
-+ k.txt wug3.txt
-> add k.txt
+> commit "Removed f.txt"
 <<<
-> commit "Add k.txt and remove f.txt"
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
 <<<
-> checkout master
-<<<
-> merge foobar
-A branch with that name does not exist.
-<<<
-+ k.txt wug.txt
-> merge other
-There is an untracked file in the way; delete it, or add and commit it first.
-<<<
-- k.txt
-I blank-status2.inc
-+ k.txt wug.txt
-> add k.txt
-<<<
-> merge other
-You have uncommitted changes.
-<<<
-> rm k.txt
-<<<
-- k.txt
-I blank-status2.inc

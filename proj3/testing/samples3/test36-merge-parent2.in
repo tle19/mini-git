@@ -1,6 +1,4 @@
-# Create two branches and merge other into master.
-# Set up one commit with two files.
-# Initialize and add two files.
+# Create two branches and merge where second merge parents must be followed.
 # Standard commands and definitions
 > init
 <<<
@@ -14,45 +12,48 @@ D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]
 D ARBLINE "[^\n]*(?=\n|\Z)"
 # Zero or more arbitrary full lines of text.
 D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
+> branch B1
+<<<
+> branch B2
+<<<
+> checkout B1
+<<<
++ h.txt wug.txt
+> add h.txt
+<<<
+> commit "Add h.txt"
+<<<
+> checkout B2
+<<<
 + f.txt wug.txt
+> add f.txt
+<<<
+> commit "f.txt added"
+<<<
+> branch C1
+<<<
 + g.txt notwug.txt
 > add g.txt
 <<<
-> add f.txt
-<<<
-> commit "Two files"
-<<<
-> branch other
-<<<
-+ h.txt wug2.txt
-> add h.txt
-<<<
-> rm g.txt
-<<<
-> commit "Add h.txt and remove g.txt"
-<<<
-> checkout other
-<<<
 > rm f.txt
 <<<
-+ k.txt wug3.txt
-> add k.txt
+> commit "g.txt added, f.txt removed"
 <<<
-> commit "Add k.txt and remove f.txt"
+= g.txt notwug.txt
+* f.txt
+* h.txt
+> checkout B1
 <<<
-> checkout master
-<<<
-> merge other
-<<<
+= h.txt wug.txt
 * f.txt
 * g.txt
-= h.txt wug2.txt
-= k.txt wug3.txt
-> log
-===
-${COMMIT_HEAD}
-Merged other into master\.
-
-${ARBLINES}
-<<<*
-I blank-status2.inc
+> merge C1
+<<<
+= f.txt wug.txt
+= h.txt wug.txt
+* g.txt
+> merge B2
+<<<
+* f.txt
+= g.txt notwug.txt
+= h.txt wug.txt

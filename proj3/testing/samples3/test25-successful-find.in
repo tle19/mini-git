@@ -1,4 +1,4 @@
-# Check various merge error cases.
+# Test the find command when it succeeds.
 # Set up one commit with two files.
 # Initialize and add two files.
 # Standard commands and definitions
@@ -22,45 +22,47 @@ D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
 <<<
 > commit "Two files"
 <<<
-> branch other
-<<<
-+ h.txt wug2.txt
-> add h.txt
-<<<
-> rm g.txt
-<<<
-> commit "Add h.txt and remove g.txt"
-<<<
-> checkout other
-<<<
-> merge other
-Cannot merge a branch with itself.
-<<<
 > rm f.txt
 <<<
-+ k.txt wug3.txt
-> add k.txt
+> commit "Remove one file"
 <<<
-> commit "Add k.txt and remove f.txt"
++ f.txt notwug.txt
+> add f.txt
 <<<
-> checkout master
+> commit "Two files"
 <<<
-> merge foobar
-A branch with that name does not exist.
+> log
+===
+${COMMIT_HEAD}
+Two files
+
+===
+${COMMIT_HEAD}
+Remove one file
+
+===
+${COMMIT_HEAD}
+Two files
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+# UID of initial version
+D UID1 "${4}"
+# UID of second version
+D UID2 "${3}"
+# UID of third version
+D UID3 "${2}"
+# UID of current version
+D UID4 "${1}"
+> find "Two files"
+(${UID4}\n${UID2}|${UID2}\n${UID4})
+<<<*
+> find "initial commit"
+${UID1}
 <<<
-+ k.txt wug.txt
-> merge other
-There is an untracked file in the way; delete it, or add and commit it first.
+> find "Remove one file"
+${UID3}
 <<<
-- k.txt
-I blank-status2.inc
-+ k.txt wug.txt
-> add k.txt
-<<<
-> merge other
-You have uncommitted changes.
-<<<
-> rm k.txt
-<<<
-- k.txt
-I blank-status2.inc

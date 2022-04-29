@@ -1,6 +1,4 @@
-# Check various merge error cases.
-# Set up one commit with two files.
-# Initialize and add two files.
+# Test branch removal.
 # Standard commands and definitions
 > init
 <<<
@@ -14,53 +12,26 @@ D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]
 D ARBLINE "[^\n]*(?=\n|\Z)"
 # Zero or more arbitrary full lines of text.
 D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
-+ f.txt wug.txt
-+ g.txt notwug.txt
-> add g.txt
-<<<
-> add f.txt
-<<<
-> commit "Two files"
-<<<
 > branch other
 <<<
-+ h.txt wug2.txt
-> add h.txt
++ f.txt wug.txt
+> add f.txt
 <<<
-> rm g.txt
-<<<
-> commit "Add h.txt and remove g.txt"
+> commit "File f.txt"
 <<<
 > checkout other
 <<<
-> merge other
-Cannot merge a branch with itself.
++ g.txt notwug.txt
+> add g.txt
 <<<
-> rm f.txt
-<<<
-+ k.txt wug3.txt
-> add k.txt
-<<<
-> commit "Add k.txt and remove f.txt"
+> commit "File g.txt"
 <<<
 > checkout master
 <<<
-> merge foobar
-A branch with that name does not exist.
+> rm-branch other
 <<<
-+ k.txt wug.txt
-> merge other
-There is an untracked file in the way; delete it, or add and commit it first.
+> checkout other
+No such branch exists.
 <<<
-- k.txt
-I blank-status2.inc
-+ k.txt wug.txt
-> add k.txt
-<<<
-> merge other
-You have uncommitted changes.
-<<<
-> rm k.txt
-<<<
-- k.txt
-I blank-status2.inc
+* g.txt
+= f.txt wug.txt

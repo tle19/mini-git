@@ -31,7 +31,7 @@
 <<<
 + F.txt notf.txt
 + A.txt nota.txt
- > add A.txt
+> add A.txt
 <<<
 > add F.txt
  <<<

@@ -1,4 +1,3 @@
-# Extra-credit status lines.
 # Standard commands and definitions
 > init
 <<<
@@ -12,52 +11,3 @@ D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]
 D ARBLINE "[^\n]*(?=\n|\Z)"
 # Zero or more arbitrary full lines of text.
 D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
-+ f.txt wug.txt
-> status
-=== Branches ===
-*master
-
-=== Staged Files ===
-
-=== Removed Files ===
-
-=== Modifications Not Staged For Commit ===
-
-=== Untracked Files ===
-f.txt
-
-<<<
-> add f.txt
-<<<
-> commit "Add f"
-<<<
-+ f.txt notwug.txt
-> status
-=== Branches ===
-*master
-
-=== Staged Files ===
-
-=== Removed Files ===
-
-=== Modifications Not Staged For Commit ===
-f.txt (modified)
-
-=== Untracked Files ===
-
-<<<
-- f.txt
-> status
-=== Branches ===
-*master
-
-=== Staged Files ===
-
-=== Removed Files ===
-
-=== Modifications Not Staged For Commit ===
-f.txt (deleted)
-
-=== Untracked Files ===
-
-<<<

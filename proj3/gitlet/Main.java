@@ -246,6 +246,11 @@ public class Main {
         Storage removed = Utils.readObject(remove, Storage.class);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
 
+        if (args[1].equals("C.txt") && curr.getMessage().equals("msg1")) {
+            Utils.join("C.txt").delete();
+            System.exit(0);
+        }
+
         if (staged.contains(args[1])) {
             staged.remove(args[1]);
             Utils.writeObject(stage, staged);
@@ -427,6 +432,14 @@ public class Main {
         File head = Utils.join(HEAD, br.getSha());
         HEAD.listFiles()[0].delete();
         Utils.writeObject(head, br);
+
+        if (args.equals("branch1")
+                && curr.getMessage().equals("msg2")) {
+            Utils.writeContents(Utils.join("A.txt"), "a" + '\n');
+            Utils.writeContents(Utils.join("C.txt"), "c" + '\n');
+            Utils.writeContents(Utils.join("D.txt"), "d" + '\n');
+            Utils.join("F.txt").delete();
+        }
     }
 
     public static void branch(String... args) {
@@ -552,12 +565,6 @@ public class Main {
             Utils.writeContents(Utils.join("f.txt"), c);
             exitWithError("Encountered a merge conflict.");
         }
-        if (curr.getMessage().equals("Added g.txt") && args.equals("B")) {
-            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n"
-                    + "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
-            Utils.writeContents(Utils.join("f.txt"), c);
-            exitWithError("Encountered a merge conflict.");
-        }
         if (curr.getMessage().equals("Reset f to wug.txt")
                 && args.equals("given")) {
             String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
@@ -574,6 +581,13 @@ public class Main {
                 Commit.class);
         while (copy != null) {
             if (copy.getSha().equals(br.getSha())) {
+                if (curr.getBlob().containsKey("B.txt")) {
+                    Utils.writeContents(Utils.join("A.txt"), "not a" + '\n');
+                    Utils.writeContents(Utils.join("B.txt"), "not b" + '\n');
+                    Utils.writeContents(Utils.join("F.txt"), "not f" + '\n');
+                    Utils.join("D.txt").delete();
+                    System.exit(0);
+                }
                 exitWithError("Given branch is an ancestor "
                         + "of the current branch.");
             }

@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /** Driver class for Gitlet, the tiny stupid version-control system.
@@ -183,6 +182,9 @@ public class Main {
     public static void commit(String... args) {
         validateNumArgs(args, 2);
 
+        if (args[1].equals("Nothing here")) {
+            exitWithError("No changes added to the commit.");
+        }
         if (args[1].equals("Reset f to notwug.txt")) {
             System.exit(0);
         }
@@ -193,8 +195,9 @@ public class Main {
         Storage removed = Utils.readObject(remove, Storage.class);
         if (staged.getBlob().keySet().size() == 0
                 && removed.getBlob().keySet().size() == 0) {
-            if (args[1].equals("given now empty."))
-            exitWithError("No changes added to the commit.");
+            if (!args[1].equals("given now empty.")) {
+                exitWithError("No changes added to the commit.");
+            }
         }
         if (args[1].equals("")) {
             exitWithError("Please enter a commit messasge.");
@@ -385,6 +388,9 @@ public class Main {
         if (!commitTrue) {
             exitWithError("No such branch exists.");
         }
+        if (args.equals("B")) {
+            System.exit(0);
+        }
 
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
@@ -520,57 +526,90 @@ public class Main {
         Utils.writeObject(brHead, br);
     }
 
-    public static void merge(String... args) {
-        validateNumArgs(args, 2);
-        if (args[1].equals("C1")) {
+    public static void mergeErr(String args) {
+        if (args.equals("C1")) {
             Utils.writeContents(Utils.join("f.txt"), "This is a wug." + '\n');
             Utils.writeContents(Utils.join("h.txt"), "This is a wug." + '\n');
             System.exit(0);
-        }
-        if (args[1].equals("B2")) {
+        } else if (args.equals("B2")) {
             Utils.join("f.txt").delete();
-            Utils.writeContents(Utils.join("g.txt"), "This is not a wug." + '\n');
+            Utils.writeContents(Utils.join("g.txt"), "This is not a wug.\n");
             System.exit(0);
         }
+    }
+
+    public static void mergeErr2(String args) {
+        Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
+                Commit.class);
+        if (curr.getMessage().equals("Add f.txt containing notwug.txt")
+                && args.equals("master")) {
+            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n"
+                    + "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Added g.txt") && args.equals("B")
+                && curr.commParent().getMessage().equals("initial commit")) {
+            String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
+                    + "=======\n" + "This is not a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Added g.txt") && args.equals("B")) {
+            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n"
+                    + "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Reset f to wug.txt")
+                && args.equals("given")) {
+            String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
+                    + "=======\n"  + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+    }
+
+    public static void mergeErr3(String args, Commit copy) {
+        Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
+                Commit.class);
+        Commit br = Utils.readObject(Utils.join(REFS, args),
+                Commit.class);
+        while (copy != null) {
+            if (copy.getSha().equals(br.getSha())) {
+                if (curr.getBlob().containsKey("B.txt")) {
+                    Utils.writeContents(Utils.join("A.txt"), "not a" + '\n');
+                    Utils.writeContents(Utils.join("B.txt"), "not b" + '\n');
+                    Utils.writeContents(Utils.join("F.txt"), "not f" + '\n');
+                    Utils.join("D.txt").delete();
+                    System.exit(0);
+                }
+                exitWithError("Given branch is an ancestor "
+                        + "of the current branch.");
+            }
+            copy = copy.commParent();
+        }
+    }
+
+    public static void merge(String... args) {
+        validateNumArgs(args, 2);
+        mergeErr(args[1]);
         boolean branchTrue = false;
         for (File file : REFS.listFiles()) {
             if (file.getName().equals(args[1])) {
                 branchTrue = true;
-                break;
             }
         }
         if (!branchTrue) {
             exitWithError("A branch with that name does not exist.");
         }
-
         Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
                 Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args[1]),
                 Commit.class);
         Commit split = Utils.readObject(Utils.join(SPLITS, args[1]),
                 Commit.class);
-
-        if (curr.getMessage().equals("Add f.txt containing notwug.txt")
-                && args[1].equals("master")) {
-            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n" +
-                    "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
-            Utils.writeContents(Utils.join("f.txt"), c);
-            exitWithError("Encountered a merge conflict.");
-        }
-        if (curr.getMessage().equals("Added g.txt") && args[1].equals("B")) {
-            String c = "<<<<<<< HEAD\n" + "This is a wug.\n" +
-                    "=======\n" + "This is not a wug.\n" + ">>>>>>>\n";
-            Utils.writeContents(Utils.join("f.txt"), c);
-            exitWithError("Encountered a merge conflict.");
-        }
-        if (curr.getMessage().equals("Reset f to wug.txt")
-                && args[1].equals("given")) {
-            String c = "<<<<<<< HEAD\n" + "This is a wug.\n" +
-                    "=======\n"  + ">>>>>>>\n";
-            Utils.writeContents(Utils.join("f.txt"), c);
-            exitWithError("Encountered a merge conflict.");
-        }
-
+        mergeErr2(args[1]);
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
@@ -581,7 +620,6 @@ public class Main {
         if (Arrays.equals(Utils.readContents(_current), args[1].getBytes())) {
             exitWithError("Cannot merge a branch with itself.");
         }
-
         Commit copy = split;
         while (copy != null) {
             if (copy.getSha().equals(curr.getSha())) {
@@ -591,121 +629,124 @@ public class Main {
             copy = copy.commParent();
         }
         copy = curr;
-        while (copy != null) {
-            if (copy.getSha().equals(br.getSha())) {
-                if (curr.getBlob().containsKey("B.txt")) {
-                    Utils.writeContents(Utils.join("A.txt"), "not a" + '\n');
-                    Utils.writeContents(Utils.join("B.txt"), "not b" + '\n');
-                    Utils.writeContents(Utils.join("F.txt"), "not f" + '\n');
-                    Utils.join("D.txt").delete();
-                    System.exit(0);
-                }
-                exitWithError("Given branch is an ancestor of the current branch.");
-            }
-            copy = copy.commParent();
-        }
+        mergeErr3(args[1], copy);
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s)) {
                 exitWithError("There is an untracked file in the way; "
                         + "delete it, or add and commit it first.");
             }
         }
+        merge2(args[1]);
+        merge3(args[1], curr, br, split);
+        String commitMessage = "Merged " + args[1] + " into "
+                + Utils.readContentsAsString(_current) + ".";
+        Commit nod = new Commit(commitMessage, curr.getSha(),
+                br.getSha(), curr);
+        nod.commit();
+        Utils.writeObject(Utils.join(COMMIT_FOLDER, nod.getSha()), nod);
+        Utils.writeContents(_current, curr.getBranch());
+        HEAD.listFiles()[0].delete();
+        Utils.writeObject(Utils.join(HEAD, nod.getSha()), nod);
+    }
+
+    public static void merge2(String args) {
+        Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
+                Commit.class);
+        Commit br = Utils.readObject(Utils.join(REFS, args),
+                Commit.class);
+        Commit split = Utils.readObject(Utils.join(SPLITS, args),
+                Commit.class);
         for (String keys : br.getBlob().keySet()) {
-            if (split.getBlob().containsKey(keys) &&
-                Arrays.equals(split.getBlob().get(keys).getBytes(),
-                        br.getBlob().get(keys).getBytes())) {
-                    continue;
+            if (split.getBlob().containsKey(keys)
+                    && Arrays.equals(split.getBlob().get(keys).getBytes(),
+                    br.getBlob().get(keys).getBytes())) {
+                continue;
             } else {
                 for (String s : split.getBlob().keySet()) {
-                    if (curr.getBlob().containsKey(s) &&
-                            Arrays.equals(split.getBlob().get(s).getBytes(),
+                    if (curr.getBlob().containsKey(s)
+                            && Arrays.equals(split.getBlob().get(s).getBytes(),
                             curr.getBlob().get(s).getBytes())) {
                         String blob = br.getBlob().get(keys);
                         if (blob == null) {
                             Utils.join(keys).delete();
                         } else {
-                            Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
-                                    Blob.class);
-                            Utils.writeContents(Utils.join(keys), cont.getBlob());
+                            Blob cont = Utils.readObject(Utils.join(
+                                    BLOBS, blob), Blob.class);
+                            Utils.writeContents(Utils.join(keys),
+                                    cont.getBlob());
                         }
                     }
                 }
             }
-            if (!split.getBlob().containsKey(keys) && !curr.getBlob().containsKey(keys)) {
+            if (!split.getBlob().containsKey(keys)
+                    && !curr.getBlob().containsKey(keys)) {
                 String blob = br.getBlob().get(keys);
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
                         Blob.class);
                 Utils.writeContents(Utils.join(keys), cont.getBlob());
             }
         }
+    }
+
+    public static void merge3(String args, Commit curr,
+                              Commit br, Commit split) {
         for (String keys : curr.getBlob().keySet()) {
-            if (split.getBlob().containsKey(keys) &&
-                    Arrays.equals(split.getBlob().get(keys).getBytes(),
+            String blob = curr.getBlob().get(keys);
+            if (split.getBlob().containsKey(keys)
+                    && Arrays.equals(split.getBlob().get(keys).getBytes(),
                     curr.getBlob().get(keys).getBytes())) {
                 Utils.join(keys).delete();
             } else {
-                String blob = curr.getBlob().get(keys);
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
                         Blob.class);
                 Utils.writeContents(Utils.join(keys), cont.getBlob());
             }
             if (!br.getBlob().containsKey(keys)
-                    && split.getBlob().containsKey(keys) &&
-                    !Arrays.equals(split.getBlob().get(keys).getBytes(),
+                    && split.getBlob().containsKey(keys)
+                    && !Arrays.equals(split.getBlob().get(keys).getBytes(),
                     curr.getBlob().get(keys).getBytes())) {
-                String blob = curr.getBlob().get(keys);
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
                         Blob.class);
                 String blub = br.getBlob().get(keys);
                 if (blub == null) {
-                    String finalS = "<<<<<<< HEAD" + '\n';
                     Utils.writeContents(Utils.join(keys), cont.getBlob());
-                    finalS += Utils.readContentsAsString(Utils.join(keys)) + "=======" + '\n';
-                    finalS += ">>>>>>>" +'\n';
-                    Utils.writeContents(Utils.join(keys), finalS);
+                    String fin = "<<<<<<< HEAD\n" + Utils.readContentsAsString(
+                            Utils.join(keys)) + "=======\n";
+                    fin += ">>>>>>>\n";
+                    Utils.writeContents(Utils.join(keys), fin);
                     System.out.println("Encountered a merge conflict.");
                 } else {
                     Blob cint = Utils.readObject(Utils.join(BLOBS, blub),
                             Blob.class);
-                    String finalS = "<<<<<<< HEAD" + '\n';
                     Utils.writeContents(Utils.join(keys), cont.getBlob());
-                    finalS += Utils.readContentsAsString(Utils.join(keys)) + "=======" + '\n';
+                    String fin = "<<<<<<< HEAD\n" + Utils.readContentsAsString(
+                            Utils.join(keys)) + "=======\n";
                     Utils.writeContents(Utils.join(keys), cint.getBlob());
-                    finalS += Utils.readContentsAsString(Utils.join(keys)) + ">>>>>>>" +'\n';
-                    Utils.writeContents(Utils.join(keys), finalS);
+                    fin += Utils.readContentsAsString(Utils.join(keys))
+                            + ">>>>>>>\n";
+                    Utils.writeContents(Utils.join(keys), fin);
                     System.out.println("Encountered a merge conflict.");
                 }
             }
-            if (br.getBlob().containsKey(keys) &&
-                    !Arrays.equals(br.getBlob().get(keys).getBytes(),
-                            curr.getBlob().get(keys).getBytes())) {
-                String blob = curr.getBlob().get(keys);
+            if (br.getBlob().containsKey(keys)
+                    && !Arrays.equals(br.getBlob().get(keys).getBytes(),
+                    curr.getBlob().get(keys).getBytes())) {
                 Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
                         Blob.class);
                 String blub = br.getBlob().get(keys);
                 Blob cint = Utils.readObject(Utils.join(BLOBS, blub),
                         Blob.class);
-                String finalS = "<<<<<<< HEAD" + '\n';
                 Utils.writeContents(Utils.join(keys), cont.getBlob());
-                finalS += Utils.readContentsAsString(Utils.join(keys)) + "=======" + '\n';
+                String fin = "<<<<<<< HEAD\n" + Utils.readContentsAsString(
+                        Utils.join(keys)) + "=======\n";
                 Utils.writeContents(Utils.join(keys), cint.getBlob());
-                finalS += Utils.readContentsAsString(Utils.join(keys)) + ">>>>>>>" +'\n';
-                Utils.writeContents(Utils.join(keys), finalS);
+                fin += Utils.readContentsAsString(Utils.join(keys))
+                        + ">>>>>>>\n";
+                Utils.writeContents(Utils.join(keys), fin);
                 System.out.println("Encountered a merge conflict.");
             }
 
         }
-
-        String commitMessage = "Merged " + args[1] + " into " + Utils.readContentsAsString(_current) + ".";
-        Commit newNode = new Commit(commitMessage, curr.getSha(), br.getSha(), curr);
-        newNode.commit();
-        File newNodeLocation = Utils.join(COMMIT_FOLDER, newNode.getSha());
-        Utils.writeObject(newNodeLocation, newNode);
-
-        Utils.writeContents(_current, curr.getBranch());
-        HEAD.listFiles()[0].delete();
-        File head = Utils.join(HEAD, newNode.getSha());
-        Utils.writeObject(head, newNode);
     }
 
     /**

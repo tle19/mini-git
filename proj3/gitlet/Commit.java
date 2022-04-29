@@ -44,11 +44,11 @@ public class Commit implements Serializable {
         }
     }
 
-    public Commit(String message, String parent, String parent2 , Commit commParent) {
+    public Commit(String message, String parent, String parent2, Commit c) {
         _message = message;
         _parent = parent;
         _parent2 = parent2;
-        _commParent = commParent;
+        _commParent = c;
         if (_parent == null) {
             _time = new Date(0);
         } else {

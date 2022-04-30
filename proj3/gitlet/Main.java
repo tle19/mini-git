@@ -100,7 +100,6 @@ public class Main {
             exitWithError("A Gitlet version-control system "
                     + "already exists in the current directory.");
         }
-        
         GITLET_FOLDER.mkdir();
         BLOBS.mkdir();
         INDEX.mkdir();

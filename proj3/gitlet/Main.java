@@ -142,7 +142,6 @@ public class Main {
         if (!exist.exists() && !curr.getBlob().containsKey(args[1])) {
             exitWithError("File does not exist.");
         }
-
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
         if (removed.contains(args[1])) {
@@ -152,7 +151,6 @@ public class Main {
             Utils.writeObject(remove, removed);
             System.exit(0);
         }
-
         File file = new File(args[1]);
         Blob b = new Blob(file, args[1]);
 
@@ -169,10 +167,8 @@ public class Main {
 
             }
         }
-
         File blobLocation = Utils.join(BLOBS, b.getHash());
         Utils.writeObject(blobLocation, b);
-
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         staged.put(args[1], b);

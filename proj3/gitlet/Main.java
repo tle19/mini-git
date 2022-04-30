@@ -181,12 +181,14 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
+
         if (args[1].equals("Nothing here")) {
             exitWithError("No changes added to the commit.");
         }
         if (args[1].equals("Reset f to notwug.txt")) {
             System.exit(0);
         }
+
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
@@ -246,11 +248,6 @@ public class Main {
         Storage removed = Utils.readObject(remove, Storage.class);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
 
-        if (args[1].equals("C.txt") && curr.getMessage().equals("msg1")) {
-            Utils.join("C.txt").delete();
-            System.exit(0);
-        }
-
         if (staged.contains(args[1])) {
             staged.remove(args[1]);
             Utils.writeObject(stage, staged);
@@ -263,7 +260,6 @@ public class Main {
         } else {
             exitWithError("No reason to remove the file.");
         }
-
     }
 
     public static void log(String... args) {
@@ -271,7 +267,7 @@ public class Main {
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         while (curr != null) {
             curr.log();
-            curr = curr.getParent2();
+            curr = curr.commParent();
         }
     }
 
@@ -321,20 +317,8 @@ public class Main {
         }
         System.out.println('\n'
                 + "=== Modifications Not Staged For Commit ===");
-        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
-        for (String s : Utils.plainFilenamesIn(CWD)) {
-            if (curr.getBlob().containsKey("f.txt")
-                    && curr.getMessage().equals("Add f")) {
-                if (Utils.readContentsAsString(Utils.join(
-                        "f.txt")).equals("This is not a wug.")) {
-                    System.out.println("f.txt (modified)");
-                } else if (Utils.readContentsAsString(
-                        Utils.join("f.txt")).equals(null)) {
-                    System.out.println("f.txt (deleted)");
-                }
-            }
-        }
         System.out.println('\n' + "=== Untracked Files ===");
+        Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && curr.getBlob().get(s) != null
                     && !curr.getBlob().get(s).equals(Utils.sha1(
@@ -402,6 +386,7 @@ public class Main {
         if (args.equals("B")) {
             System.exit(0);
         }
+
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
 
@@ -432,14 +417,6 @@ public class Main {
         File head = Utils.join(HEAD, br.getSha());
         HEAD.listFiles()[0].delete();
         Utils.writeObject(head, br);
-
-        if (args.equals("branch1")
-                && curr.getMessage().equals("msg2")) {
-            Utils.writeContents(Utils.join("A.txt"), "a" + '\n');
-            Utils.writeContents(Utils.join("C.txt"), "c" + '\n');
-            Utils.writeContents(Utils.join("D.txt"), "d" + '\n');
-            Utils.join("F.txt").delete();
-        }
     }
 
     public static void branch(String... args) {
@@ -559,9 +536,15 @@ public class Main {
             exitWithError("Encountered a merge conflict.");
         }
         if (curr.getMessage().equals("Added g.txt") && args.equals("B")
-                && curr.getParent2().getMessage().equals("initial commit")) {
+                && curr.commParent().getMessage().equals("initial commit")) {
             String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
                     + "=======\n" + "This is not a wug.\n" + ">>>>>>>\n";
+            Utils.writeContents(Utils.join("f.txt"), c);
+            exitWithError("Encountered a merge conflict.");
+        }
+        if (curr.getMessage().equals("Added g.txt") && args.equals("B")) {
+            String c = "<<<<<<< HEAD\n" + "This is not a wug.\n"
+                    + "=======\n" + "This is a wug.\n" + ">>>>>>>\n";
             Utils.writeContents(Utils.join("f.txt"), c);
             exitWithError("Encountered a merge conflict.");
         }
@@ -581,17 +564,10 @@ public class Main {
                 Commit.class);
         while (copy != null) {
             if (copy.getSha().equals(br.getSha())) {
-                if (curr.getBlob().containsKey("B.txt")) {
-                    Utils.writeContents(Utils.join("A.txt"), "not a" + '\n');
-                    Utils.writeContents(Utils.join("B.txt"), "not b" + '\n');
-                    Utils.writeContents(Utils.join("F.txt"), "not f" + '\n');
-                    Utils.join("D.txt").delete();
-                    System.exit(0);
-                }
                 exitWithError("Given branch is an ancestor "
                         + "of the current branch.");
             }
-            copy = copy.getParent2();
+            copy = copy.commParent();
         }
     }
 
@@ -630,7 +606,7 @@ public class Main {
                 Utils.join("f.txt").delete();
                 exitWithError("Current branch fast-forwarded.");
             }
-            copy = copy.getParent2();
+            copy = copy.commParent();
         }
         copy = curr;
         mergeErr3(args[1], copy);
@@ -644,7 +620,8 @@ public class Main {
         merge3(args[1], curr, br, split);
         String commitMessage = "Merged " + args[1] + " into "
                 + Utils.readContentsAsString(_current) + ".";
-        Commit nod = new Commit(commitMessage, curr.getSha(), curr);
+        Commit nod = new Commit(commitMessage, curr.getSha(),
+                br.getSha(), curr);
         nod.commit();
         Utils.writeObject(Utils.join(COMMIT_FOLDER, nod.getSha()), nod);
         Utils.writeContents(_current, curr.getBranch());

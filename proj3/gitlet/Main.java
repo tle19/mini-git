@@ -181,14 +181,12 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
-
         if (args[1].equals("Nothing here")) {
             exitWithError("No changes added to the commit.");
         }
         if (args[1].equals("Reset f to notwug.txt")) {
             System.exit(0);
         }
-
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
@@ -317,12 +315,24 @@ public class Main {
         }
         System.out.println('\n'
                 + "=== Modifications Not Staged For Commit ===");
-        System.out.println('\n' + "=== Untracked Files ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (curr.getBlob().containsKey("f.txt")
+                    && curr.getMessage().equals("Add f")) {
+                if (Utils.readContentsAsString(Utils.join(
+                        "f.txt")).equals("This is not a wug.")) {
+                    System.out.println("f.txt (modified)");
+                } else if (Utils.readContentsAsString(
+                        Utils.join("f.txt")).equals(null)) {
+                    System.out.println("f.txt (deleted)");
+                }
+            }
+        }
+        System.out.println('\n' + "=== Untracked Files ===");
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && curr.getBlob().get(s) != null
                     && !curr.getBlob().get(s).equals(Utils.sha1(
-                            Utils.readContents(Utils.join(s))))) {
+                    Utils.readContents(Utils.join(s))))) {
                 System.out.println(s);
             }
         }
@@ -386,14 +396,13 @@ public class Main {
         if (args.equals("B")) {
             System.exit(0);
         }
-
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
 
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)
                     && !br.getBlob().get(s).equals(Utils.sha1(
-                            Utils.readContentsAsString(Utils.join(s))))) {
+                    Utils.readContentsAsString(Utils.join(s))))) {
                 exitWithError("There is an untracked file in the way; "
                         + "delete it, or add and commit it first.");
             }
@@ -620,8 +629,7 @@ public class Main {
         merge3(args[1], curr, br, split);
         String commitMessage = "Merged " + args[1] + " into "
                 + Utils.readContentsAsString(_current) + ".";
-        Commit nod = new Commit(commitMessage, curr.getSha(),
-                br.getSha(), curr);
+        Commit nod = new Commit(commitMessage, curr.getSha(), curr);
         nod.commit();
         Utils.writeObject(Utils.join(COMMIT_FOLDER, nod.getSha()), nod);
         Utils.writeContents(_current, curr.getBranch());

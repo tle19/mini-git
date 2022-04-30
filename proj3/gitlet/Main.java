@@ -399,7 +399,6 @@ public class Main {
         }
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
-
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)
                     && !br.getBlob().get(s).equals(Utils.sha1(
@@ -411,7 +410,6 @@ public class Main {
         if (Arrays.equals(Utils.readContents(_current), args.getBytes())) {
             exitWithError("No need to checkout the current branch.");
         }
-
         for (String keys : br.getBlob().keySet()) {
             String blob = br.getBlob().get(keys);
             Blob cont = Utils.readObject(Utils.join(BLOBS, blob),

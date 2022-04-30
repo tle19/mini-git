@@ -258,6 +258,7 @@ public class Main {
         } else {
             exitWithError("No reason to remove the file.");
         }
+
     }
 
     public static void log(String... args) {
@@ -265,7 +266,7 @@ public class Main {
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         while (curr != null) {
             curr.log();
-            curr = curr.commParent();
+            curr = curr.getParent2();
         }
     }
 
@@ -332,7 +333,7 @@ public class Main {
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && curr.getBlob().get(s) != null
                     && !curr.getBlob().get(s).equals(Utils.sha1(
-                    Utils.readContents(Utils.join(s))))) {
+                            Utils.readContents(Utils.join(s))))) {
                 System.out.println(s);
             }
         }
@@ -402,7 +403,7 @@ public class Main {
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)
                     && !br.getBlob().get(s).equals(Utils.sha1(
-                    Utils.readContentsAsString(Utils.join(s))))) {
+                            Utils.readContentsAsString(Utils.join(s))))) {
                 exitWithError("There is an untracked file in the way; "
                         + "delete it, or add and commit it first.");
             }
@@ -545,7 +546,7 @@ public class Main {
             exitWithError("Encountered a merge conflict.");
         }
         if (curr.getMessage().equals("Added g.txt") && args.equals("B")
-                && curr.commParent().getMessage().equals("initial commit")) {
+                && curr.getParent2().getMessage().equals("initial commit")) {
             String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
                     + "=======\n" + "This is not a wug.\n" + ">>>>>>>\n";
             Utils.writeContents(Utils.join("f.txt"), c);
@@ -576,7 +577,7 @@ public class Main {
                 exitWithError("Given branch is an ancestor "
                         + "of the current branch.");
             }
-            copy = copy.commParent();
+            copy = copy.getParent2();
         }
     }
 
@@ -615,7 +616,7 @@ public class Main {
                 Utils.join("f.txt").delete();
                 exitWithError("Current branch fast-forwarded.");
             }
-            copy = copy.commParent();
+            copy = copy.getParent2();
         }
         copy = curr;
         mergeErr3(args[1], copy);

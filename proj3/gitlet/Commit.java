@@ -58,7 +58,6 @@ public class Commit implements Serializable {
 
     public void commit() {
         _sha = Utils.sha1(_time.toString(), _blobs.toString());
-
         File file = Utils.join(Main.COMMIT_FOLDER, _sha);
         Utils.writeObject(file, this);
 

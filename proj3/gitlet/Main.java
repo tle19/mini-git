@@ -100,7 +100,6 @@ public class Main {
             exitWithError("A Gitlet version-control system "
                     + "already exists in the current directory.");
         }
-
         GITLET_FOLDER.mkdir();
         BLOBS.mkdir();
         INDEX.mkdir();
@@ -733,10 +732,6 @@ public class Main {
         }
     }
 
-    /**
-     * Prints out MESSAGE and exits with error code 0.
-     * @param message message to print
-     */
     public static void exitWithError(String message) {
         if (message != null && !message.equals("")) {
             System.out.println(message);
@@ -744,17 +739,9 @@ public class Main {
         System.exit(0);
     }
 
-    /**
-     * Checks the number of arguments versus the expected number,
-     * exits if it does not.
-     *
-     * @param args Argument array from command line
-     * @param n Number of arguments being validated
-     */
     public static void validateNumArgs(String[] args, int n) {
         if (args.length != n) {
             exitWithError("Incorrect operands.");
         }
     }
-
 }

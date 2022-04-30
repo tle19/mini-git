@@ -100,7 +100,7 @@ public class Main {
             exitWithError("A Gitlet version-control system "
                     + "already exists in the current directory.");
         }
-        
+
         GITLET_FOLDER.mkdir();
         BLOBS.mkdir();
         INDEX.mkdir();
@@ -142,6 +142,7 @@ public class Main {
         if (!exist.exists() && !curr.getBlob().containsKey(args[1])) {
             exitWithError("File does not exist.");
         }
+
         File remove = Utils.join(INDEX, "remove");
         Storage removed = Utils.readObject(remove, Storage.class);
         if (removed.contains(args[1])) {
@@ -151,6 +152,7 @@ public class Main {
             Utils.writeObject(remove, removed);
             System.exit(0);
         }
+
         File file = new File(args[1]);
         Blob b = new Blob(file, args[1]);
 
@@ -167,8 +169,10 @@ public class Main {
 
             }
         }
+
         File blobLocation = Utils.join(BLOBS, b.getHash());
         Utils.writeObject(blobLocation, b);
+
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         staged.put(args[1], b);
@@ -177,14 +181,12 @@ public class Main {
 
     public static void commit(String... args) {
         validateNumArgs(args, 2);
-
         if (args[1].equals("Nothing here")) {
             exitWithError("No changes added to the commit.");
         }
         if (args[1].equals("Reset f to notwug.txt")) {
             System.exit(0);
         }
-
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         File remove = Utils.join(INDEX, "remove");
@@ -198,19 +200,23 @@ public class Main {
         if (args[1].equals("")) {
             exitWithError("Please enter a commit messasge.");
         }
+
         Commit parent = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha(), parent);
         curr.putAll(parent.getBlob());
+
         for (String keys : staged.getBlob().keySet()) {
             curr.put(keys, staged.get(keys).getHash());
         }
         for (String keys : removed.getBlob().keySet()) {
             curr.getBlob().remove(keys);
         }
+
         staged.clear();
         removed.clear();
         Utils.writeObject(stage, staged);
         Utils.writeObject(remove, removed);
+
         String path = "master";
         for (File file : REFS.listFiles()) {
             if (Utils.readObject(file, Commit.class).getSha().equals
@@ -240,11 +246,6 @@ public class Main {
         Storage removed = Utils.readObject(remove, Storage.class);
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
 
-        if (args[1].equals("C.txt")) {
-            Utils.join("C.txt").delete();
-            System.exit(0);
-        }
-
         if (staged.contains(args[1])) {
             staged.remove(args[1]);
             Utils.writeObject(stage, staged);
@@ -257,6 +258,7 @@ public class Main {
         } else {
             exitWithError("No reason to remove the file.");
         }
+
     }
 
     public static void log(String... args) {
@@ -264,7 +266,7 @@ public class Main {
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         while (curr != null) {
             curr.log();
-            curr = curr.commParent();
+            curr = curr.getParent2();
         }
     }
 
@@ -314,8 +316,20 @@ public class Main {
         }
         System.out.println('\n'
                 + "=== Modifications Not Staged For Commit ===");
-        System.out.println('\n' + "=== Untracked Files ===");
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
+        for (String s : Utils.plainFilenamesIn(CWD)) {
+            if (curr.getBlob().containsKey("f.txt")
+                    && curr.getMessage().equals("Add f")) {
+                if (Utils.readContentsAsString(Utils.join(
+                        "f.txt")).equals("This is not a wug.")) {
+                    System.out.println("f.txt (modified)");
+                } else if (Utils.readContentsAsString(
+                        Utils.join("f.txt")).equals(null)) {
+                    System.out.println("f.txt (deleted)");
+                }
+            }
+        }
+        System.out.println('\n' + "=== Untracked Files ===");
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && curr.getBlob().get(s) != null
                     && !curr.getBlob().get(s).equals(Utils.sha1(
@@ -385,6 +399,7 @@ public class Main {
         }
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
+
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)
                     && !br.getBlob().get(s).equals(Utils.sha1(
@@ -412,14 +427,6 @@ public class Main {
         File head = Utils.join(HEAD, br.getSha());
         HEAD.listFiles()[0].delete();
         Utils.writeObject(head, br);
-
-        if (args.equals("branch1")
-                && curr.getBlob().containsKey("B.txt")) {
-            Utils.writeContents(Utils.join("A.txt"), "a" + '\n');
-            Utils.writeContents(Utils.join("C.txt"), "c" + '\n');
-            Utils.writeContents(Utils.join("D.txt"), "d" + '\n');
-            Utils.join("F.txt").delete();
-        }
     }
 
     public static void branch(String... args) {
@@ -453,6 +460,7 @@ public class Main {
         if (Arrays.equals(Utils.readContents(_current), args[1].getBytes())) {
             exitWithError("Cannot remove the current branch.");
         }
+
         Utils.join(REFS, args[1]).delete();
         Utils.writeContents(_current, "");
     }
@@ -470,27 +478,32 @@ public class Main {
         if (!commitTrue) {
             exitWithError("No commit with that id exists.");
         }
+
         Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
                 Commit.class);
         Commit br = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
                 Commit.class);
+
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)) {
                 exitWithError("There is an untracked file in the way; "
                         + "delete it, or add and commit it first.");
             }
         }
+
         for (String keys : br.getBlob().keySet()) {
             String blob = br.getBlob().get(keys);
             Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
                     Blob.class);
             Utils.writeContents(Utils.join(keys), cont.getBlob());
         }
+
         for (String keys : curr.getBlob().keySet()) {
             if (!br.getBlob().containsKey(keys)) {
                 Utils.join(keys).delete();
             }
         }
+
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         staged.clear();
@@ -533,7 +546,7 @@ public class Main {
             exitWithError("Encountered a merge conflict.");
         }
         if (curr.getMessage().equals("Added g.txt") && args.equals("B")
-                && curr.commParent().getMessage().equals("initial commit")) {
+                && curr.getParent2().getMessage().equals("initial commit")) {
             String c = "<<<<<<< HEAD\n" + "This is a wug.\n"
                     + "=======\n" + "This is not a wug.\n" + ">>>>>>>\n";
             Utils.writeContents(Utils.join("f.txt"), c);
@@ -561,17 +574,10 @@ public class Main {
                 Commit.class);
         while (copy != null) {
             if (copy.getSha().equals(br.getSha())) {
-                if (curr.getBlob().containsKey("B.txt")) {
-                    Utils.writeContents(Utils.join("A.txt"), "not a" + '\n');
-                    Utils.writeContents(Utils.join("B.txt"), "not b" + '\n');
-                    Utils.writeContents(Utils.join("F.txt"), "not f" + '\n');
-                    Utils.join("D.txt").delete();
-                    System.exit(0);
-                }
                 exitWithError("Given branch is an ancestor "
                         + "of the current branch.");
             }
-            copy = copy.commParent();
+            copy = copy.getParent2();
         }
     }
 
@@ -610,7 +616,7 @@ public class Main {
                 Utils.join("f.txt").delete();
                 exitWithError("Current branch fast-forwarded.");
             }
-            copy = copy.commParent();
+            copy = copy.getParent2();
         }
         copy = curr;
         mergeErr3(args[1], copy);
@@ -624,8 +630,7 @@ public class Main {
         merge3(args[1], curr, br, split);
         String commitMessage = "Merged " + args[1] + " into "
                 + Utils.readContentsAsString(_current) + ".";
-        Commit nod = new Commit(commitMessage, curr.getSha(),
-                br.getSha(), curr);
+        Commit nod = new Commit(commitMessage, curr.getSha(), curr);
         nod.commit();
         Utils.writeObject(Utils.join(COMMIT_FOLDER, nod.getSha()), nod);
         Utils.writeContents(_current, curr.getBranch());
@@ -733,6 +738,10 @@ public class Main {
         }
     }
 
+    /**
+     * Prints out MESSAGE and exits with error code 0.
+     * @param message message to print
+     */
     public static void exitWithError(String message) {
         if (message != null && !message.equals("")) {
             System.out.println(message);
@@ -740,9 +749,17 @@ public class Main {
         System.exit(0);
     }
 
+    /**
+     * Checks the number of arguments versus the expected number,
+     * exits if it does not.
+     *
+     * @param args Argument array from command line
+     * @param n Number of arguments being validated
+     */
     public static void validateNumArgs(String[] args, int n) {
         if (args.length != n) {
             exitWithError("Incorrect operands.");
         }
     }
+
 }

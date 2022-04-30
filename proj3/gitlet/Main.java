@@ -135,7 +135,6 @@ public class Main {
 
     public static void add(String... args) {
         validateNumArgs(args, 2);
-
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         File exist = new File(args[1] + "");
         if (!exist.exists() && !curr.getBlob().containsKey(args[1])) {

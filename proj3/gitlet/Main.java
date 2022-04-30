@@ -198,23 +198,19 @@ public class Main {
         if (args[1].equals("")) {
             exitWithError("Please enter a commit messasge.");
         }
-
         Commit parent = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit curr = new Commit(args[1], parent.getSha(), parent);
         curr.putAll(parent.getBlob());
-
         for (String keys : staged.getBlob().keySet()) {
             curr.put(keys, staged.get(keys).getHash());
         }
         for (String keys : removed.getBlob().keySet()) {
             curr.getBlob().remove(keys);
         }
-
         staged.clear();
         removed.clear();
         Utils.writeObject(stage, staged);
         Utils.writeObject(remove, removed);
-
         String path = "master";
         for (File file : REFS.listFiles()) {
             if (Utils.readObject(file, Commit.class).getSha().equals
@@ -387,10 +383,8 @@ public class Main {
         if (args.equals("B")) {
             System.exit(0);
         }
-
         Commit curr = Utils.readObject(HEAD.listFiles()[0], Commit.class);
         Commit br = Utils.readObject(Utils.join(REFS, args), Commit.class);
-
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)
                     && !br.getBlob().get(s).equals(Utils.sha1(
@@ -459,7 +453,6 @@ public class Main {
         if (Arrays.equals(Utils.readContents(_current), args[1].getBytes())) {
             exitWithError("Cannot remove the current branch.");
         }
-
         Utils.join(REFS, args[1]).delete();
         Utils.writeContents(_current, "");
     }
@@ -477,32 +470,27 @@ public class Main {
         if (!commitTrue) {
             exitWithError("No commit with that id exists.");
         }
-
         Commit curr = Utils.readObject(Utils.join(HEAD.listFiles()[0]),
                 Commit.class);
         Commit br = Utils.readObject(Utils.join(COMMIT_FOLDER, args[1]),
                 Commit.class);
-
         for (String s : Utils.plainFilenamesIn(CWD)) {
             if (!curr.getBlob().containsKey(s) && br.getBlob().containsKey(s)) {
                 exitWithError("There is an untracked file in the way; "
                         + "delete it, or add and commit it first.");
             }
         }
-
         for (String keys : br.getBlob().keySet()) {
             String blob = br.getBlob().get(keys);
             Blob cont = Utils.readObject(Utils.join(BLOBS, blob),
                     Blob.class);
             Utils.writeContents(Utils.join(keys), cont.getBlob());
         }
-
         for (String keys : curr.getBlob().keySet()) {
             if (!br.getBlob().containsKey(keys)) {
                 Utils.join(keys).delete();
             }
         }
-
         File stage = Utils.join(INDEX, "stage");
         Storage staged = Utils.readObject(stage, Storage.class);
         staged.clear();

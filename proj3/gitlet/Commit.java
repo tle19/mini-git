@@ -17,8 +17,11 @@ public class Commit implements Serializable {
     /** Previous commit node as a sha1 value. */
     private String _parent;
 
+    /** Previous commit node as a sha1 value (2). */
+    private String _parent2;
+
     /** Previous commit node. */
-    private Commit _parent2;
+    private Commit _commParent;
 
     /** Hashmap of blobs. */
     private HashMap<String, String> _blobs = new HashMap<>();
@@ -29,10 +32,23 @@ public class Commit implements Serializable {
     /** Branch indentifier. */
     private String _br;
 
-    public Commit(String message, String parent, Commit parent2) {
+    public Commit(String message, String parent, Commit commParent) {
+        _message = message;
+        _parent = parent;
+        _parent2 = null;
+        _commParent = commParent;
+        if (_parent == null) {
+            _time = new Date(0);
+        } else {
+            _time = new Date(System.currentTimeMillis());
+        }
+    }
+
+    public Commit(String message, String parent, String parent2, Commit c) {
         _message = message;
         _parent = parent;
         _parent2 = parent2;
+        _commParent = c;
         if (_parent == null) {
             _time = new Date(0);
         } else {
@@ -85,8 +101,12 @@ public class Commit implements Serializable {
         return _parent;
     }
 
-    public Commit getParent2() {
+    public String getParent2() {
         return _parent2;
+    }
+
+    public Commit commParent() {
+        return _commParent;
     }
 
     public String getSha() {

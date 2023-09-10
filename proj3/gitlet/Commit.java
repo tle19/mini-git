@@ -100,4 +100,5 @@ public class Commit implements Serializable {
     public void initializeSha() {
         _sha = Utils.sha1(_time.toString(), _blobs.toString());
     }
+    
 }

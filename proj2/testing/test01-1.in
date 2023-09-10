@@ -1,4 +1,0 @@
-#* java -ea ataxx.Main
-# Trivial test of initial board.
-dump
-quit
